@@ -8,43 +8,43 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 20 20% 98%;
-    --foreground: 20 10% 15%;
+    --background: 220 15% 96%;
+    --foreground: 220 15% 8%;
 
     --card: 0 0% 100%;
-    --card-foreground: 20 10% 15%;
+    --card-foreground: 220 15% 8%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 20 10% 15%;
+    --popover-foreground: 220 15% 8%;
 
-    --primary: 340 75% 65%;
+    --primary: 335 70% 55%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 25 60% 92%;
-    --secondary-foreground: 20 10% 15%;
+    --secondary: 220 15% 94%;
+    --secondary-foreground: 220 15% 8%;
 
-    --muted: 25 40% 95%;
-    --muted-foreground: 20 5% 45%;
+    --muted: 220 12% 92%;
+    --muted-foreground: 220 8% 40%;
 
-    --accent: 45 85% 75%;
-    --accent-foreground: 20 10% 15%;
+    --accent: 220 15% 88%;
+    --accent-foreground: 220 15% 8%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 25 30% 90%;
-    --input: 25 30% 90%;
-    --ring: 340 75% 65%;
+    --border: 220 13% 88%;
+    --input: 220 13% 88%;
+    --ring: 335 70% 55%;
 
-    /* Custom beauty clinic colors */
-    --rose-gold: 15 50% 75%;
-    --warm-pink: 340 60% 85%;
-    --soft-nude: 25 30% 88%;
-    --elegant-gold: 45 75% 65%;
+    /* Modern beauty clinic colors */
+    --rose-gold: 15 45% 65%;
+    --warm-pink: 340 55% 75%;
+    --soft-nude: 25 25% 85%;
+    --elegant-gold: 45 70% 60%;
     
-    /* Gradients */
+    /* Modern gradients */
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--rose-gold)));
-    --gradient-hero: linear-gradient(135deg, hsl(var(--warm-pink)), hsl(var(--soft-nude)));
+    --gradient-hero: linear-gradient(135deg, hsl(220 15% 98%), hsl(220 15% 94%));
     --gradient-elegant: linear-gradient(180deg, hsl(var(--background)), hsl(var(--secondary)));
     
     /* Shadows */
