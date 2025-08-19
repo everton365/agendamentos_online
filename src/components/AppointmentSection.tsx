@@ -202,7 +202,7 @@ const AppointmentSection = () => {
                               </SelectItem>
                             ))
                           ) : (
-                            <SelectItem value="" disabled>
+                            <SelectItem value="no-times" disabled>
                               Selecione uma data primeiro
                             </SelectItem>
                           )}
