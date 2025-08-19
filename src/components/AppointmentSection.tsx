@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Calendar, Clock, Phone, User } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 const AppointmentSection = () => {
   const [formData, setFormData] = useState({
@@ -18,30 +19,49 @@ const AppointmentSection = () => {
     message: ""
   });
   
+  const [availableTimes, setAvailableTimes] = useState<string[]>([]);
   const { toast } = useToast();
+  const navigate = useNavigate();
+
+  // Simulated available times based on date
+  const getAvailableTimesForDate = (date: string) => {
+    const dayOfWeek = new Date(date).getDay();
+    
+    // Weekend has fewer slots
+    if (dayOfWeek === 0 || dayOfWeek === 6) {
+      return ["09:00", "10:00", "11:00", "14:00", "15:00"];
+    }
+    
+    // Weekdays have more slots
+    return ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00", "17:00"];
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Simulate form submission
-    toast({
-      title: "Agendamento Solicitado!",
-      description: "Entraremos em contato em breve para confirmar seu horário.",
-    });
+    if (!formData.name || !formData.phone || !formData.service || !formData.date || !formData.time) {
+      toast({
+        title: "Campos obrigatórios",
+        description: "Por favor, preencha todos os campos obrigatórios.",
+        variant: "destructive"
+      });
+      return;
+    }
     
-    // Reset form
-    setFormData({
-      name: "",
-      phone: "",
-      service: "",
-      date: "",
-      time: "",
-      message: ""
-    });
+    // Navigate to payment page with appointment data
+    navigate("/pagamento", { state: { appointmentData: formData } });
   };
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    
+    // Update available times when date changes
+    if (field === "date") {
+      const times = getAvailableTimesForDate(value);
+      setAvailableTimes(times);
+      // Reset time selection when date changes
+      setFormData(prev => ({ ...prev, time: "" }));
+    }
   };
 
   return (
@@ -175,13 +195,17 @@ const AppointmentSection = () => {
                           <SelectValue placeholder="Selecione o horário" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="09:00">09:00</SelectItem>
-                          <SelectItem value="10:00">10:00</SelectItem>
-                          <SelectItem value="11:00">11:00</SelectItem>
-                          <SelectItem value="14:00">14:00</SelectItem>
-                          <SelectItem value="15:00">15:00</SelectItem>
-                          <SelectItem value="16:00">16:00</SelectItem>
-                          <SelectItem value="17:00">17:00</SelectItem>
+                          {availableTimes.length > 0 ? (
+                            availableTimes.map(time => (
+                              <SelectItem key={time} value={time}>
+                                {time}
+                              </SelectItem>
+                            ))
+                          ) : (
+                            <SelectItem value="" disabled>
+                              Selecione uma data primeiro
+                            </SelectItem>
+                          )}
                         </SelectContent>
                       </Select>
                     </div>

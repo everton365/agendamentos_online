@@ -78,7 +78,7 @@ const HeroSection = () => {
           <div className="relative animate-scale-in">
             <div className="relative rounded-3xl overflow-hidden shadow-elegant">
               <img
-                src={professionalHero}
+                src="/lovable-uploads/115e7050-38de-4ebc-9a55-06c150f2d3c4.png"
                 alt="Profissional especialista em sobrancelhas"
                 className="w-full h-[600px] object-cover"
               />
