@@ -4,10 +4,8 @@ import professionalHero from "@/assets/professional-hero.jpg";
 
 const HeroSection = () => {
   const handleScheduleClick = () => {
-    const appointmentSection = document.getElementById('agendamento');
-    if (appointmentSection) {
-      appointmentSection.scrollIntoView({ behavior: 'smooth' });
-    }
+    // Navigate to appointment page
+    window.location.href = '/agendamento';
   };
 
   return (
@@ -53,7 +51,13 @@ const HeroSection = () => {
                 <Calendar className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
                 Agendar Consulta
               </Button>
-              <Button variant="outline" size="lg">
+              <Button 
+                variant="outline" 
+                size="lg"
+                onClick={() => {
+                  document.getElementById('resultados')?.scrollIntoView({ behavior: 'smooth' });
+                }}
+              >
                 Ver Resultados
               </Button>
             </div>
