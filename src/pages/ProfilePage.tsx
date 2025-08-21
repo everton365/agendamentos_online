@@ -112,8 +112,8 @@ const ProfilePage = () => {
       // Se há um arquivo selecionado, fazer upload primeiro
       if (selectedFile) {
         const fileExt = selectedFile.name.split('.').pop();
-        const fileName = `${user?.id}-${Math.random()}.${fileExt}`;
-        const filePath = `avatars/${fileName}`;
+        const fileName = `avatar-${Math.random()}.${fileExt}`;
+        const filePath = `${user?.id}/${fileName}`;
 
         // Upload da imagem para o bucket clientes
         const { error: uploadError } = await supabase.storage
