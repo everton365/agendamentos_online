@@ -91,8 +91,12 @@ const Header = () => {
                     </div>
                   </div>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => navigate('/agendamento')}>
+                  <DropdownMenuItem onClick={() => navigate('/perfil')}>
                     <User className="mr-2 h-4 w-4" />
+                    Meu Perfil
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/agendamento')}>
+                    <Calendar className="mr-2 h-4 w-4" />
                     Meus Agendamentos
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
@@ -153,12 +157,23 @@ const Header = () => {
                     <Button 
                       variant="ghost" 
                       onClick={() => {
-                        navigate('/agendamento');
+                        navigate('/perfil');
                         setMobileMenuOpen(false);
                       }}
                       className="w-full justify-start"
                     >
                       <User className="w-4 h-4 mr-2" />
+                      Meu Perfil
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      onClick={() => {
+                        navigate('/agendamento');
+                        setMobileMenuOpen(false);
+                      }}
+                      className="w-full justify-start"
+                    >
+                      <Calendar className="w-4 h-4 mr-2" />
                       Meus Agendamentos
                     </Button>
                     <Button 

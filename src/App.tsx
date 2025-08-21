@@ -9,6 +9,7 @@ import AuthPage from "./pages/AuthPage";
 import AppointmentBookingPage from "./pages/AppointmentBookingPage";
 import PaymentMethodPage from "./pages/PaymentMethodPage";
 import PaymentPage from "./pages/PaymentPage";
+import ProfilePage from "./pages/ProfilePage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +25,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/agendamento" element={<AppointmentBookingPage />} />
+            <Route path="/perfil" element={<ProfilePage />} />
             <Route path="/pagamento" element={<PaymentMethodPage />} />
             <Route path="/pagamento-old" element={<PaymentPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
