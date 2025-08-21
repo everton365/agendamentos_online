@@ -37,7 +37,8 @@ const ProfilePage = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  const [uploading, setUploading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [profile, setProfile] = useState<Profile>({
     display_name: null,
     phone: null,
@@ -89,63 +90,45 @@ const ProfilePage = () => {
     }
   };
 
-  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    try {
-      setUploading(true);
-      
-      if (!event.target.files || event.target.files.length === 0) {
-        return;
-      }
-
-      const file = event.target.files[0];
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${user?.id}-${Math.random()}.${fileExt}`;
-      const filePath = `avatars/${fileName}`;
-
-      // Upload da imagem para o bucket clientes
-      const { error: uploadError } = await supabase.storage
-        .from('clientes')
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      // Obter a URL pública da imagem
-      const { data: { publicUrl } } = supabase.storage
-        .from('clientes')
-        .getPublicUrl(filePath);
-
-      // Atualizar ou inserir o perfil com a nova URL do avatar
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .upsert({
-          user_id: user?.id,
-          avatar_url: publicUrl,
-          display_name: profile.display_name,
-          phone: profile.phone
-        });
-
-      if (updateError) throw updateError;
-
-      setProfile(prev => ({ ...prev, avatar_url: publicUrl }));
-      
-      toast({
-        title: "Avatar atualizado!",
-        description: "Sua foto de perfil foi atualizada com sucesso.",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Erro ao fazer upload",
-        description: error.message,
-        variant: "destructive"
-      });
-    } finally {
-      setUploading(false);
+  const handleAvatarSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!event.target.files || event.target.files.length === 0) {
+      return;
     }
+
+    const file = event.target.files[0];
+    setSelectedFile(file);
+    
+    // Criar preview local da imagem
+    const objectUrl = URL.createObjectURL(file);
+    setPreviewUrl(objectUrl);
   };
 
   const handleProfileUpdate = async () => {
     try {
       setLoading(true);
+      
+      let finalAvatarUrl = profile.avatar_url;
+      
+      // Se há um arquivo selecionado, fazer upload primeiro
+      if (selectedFile) {
+        const fileExt = selectedFile.name.split('.').pop();
+        const fileName = `${user?.id}-${Math.random()}.${fileExt}`;
+        const filePath = `avatars/${fileName}`;
+
+        // Upload da imagem para o bucket clientes
+        const { error: uploadError } = await supabase.storage
+          .from('clientes')
+          .upload(filePath, selectedFile);
+
+        if (uploadError) throw uploadError;
+
+        // Obter a URL pública da imagem
+        const { data: { publicUrl } } = supabase.storage
+          .from('clientes')
+          .getPublicUrl(filePath);
+
+        finalAvatarUrl = publicUrl;
+      }
       
       const { error } = await supabase
         .from('profiles')
@@ -153,10 +136,20 @@ const ProfilePage = () => {
           user_id: user?.id,
           display_name: profile.display_name,
           phone: profile.phone,
-          avatar_url: profile.avatar_url
+          avatar_url: finalAvatarUrl
         });
 
       if (error) throw error;
+
+      // Atualizar o estado com a nova URL
+      setProfile(prev => ({ ...prev, avatar_url: finalAvatarUrl }));
+      
+      // Limpar seleção e preview
+      setSelectedFile(null);
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+        setPreviewUrl(null);
+      }
 
       toast({
         title: "Perfil atualizado!",
@@ -219,7 +212,7 @@ const ProfilePage = () => {
               {/* Avatar */}
               <div className="flex items-center gap-4">
                 <Avatar className="w-24 h-24">
-                  <AvatarImage src={profile.avatar_url || ''} />
+                  <AvatarImage src={previewUrl || profile.avatar_url || ''} />
                   <AvatarFallback className="bg-gradient-primary text-white text-2xl">
                     {profile.display_name?.charAt(0) || user.email?.charAt(0).toUpperCase() || 'U'}
                   </AvatarFallback>
@@ -228,7 +221,7 @@ const ProfilePage = () => {
                   <Label htmlFor="avatar" className="cursor-pointer">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
                       <Camera className="w-4 h-4" />
-                      {uploading ? 'Enviando...' : 'Alterar foto'}
+                      {selectedFile ? 'Foto selecionada' : 'Selecionar foto'}
                     </div>
                   </Label>
                   <Input
@@ -236,9 +229,13 @@ const ProfilePage = () => {
                     type="file"
                     accept="image/*"
                     className="hidden"
-                    onChange={handleAvatarUpload}
-                    disabled={uploading}
+                    onChange={handleAvatarSelect}
                   />
+                  {selectedFile && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Clique em "Salvar Alterações" para confirmar
+                    </p>
+                  )}
                 </div>
               </div>
 
