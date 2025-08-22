@@ -52,6 +52,7 @@ const ProfilePage = () => {
     avatar_url: null,
   });
   const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -103,6 +104,7 @@ const ProfilePage = () => {
     }
 
     const file = event.target.files[0];
+    setIsEditing(true);
     setSelectedFile(file);
 
     // Criar preview local da imagem
@@ -170,6 +172,7 @@ const ProfilePage = () => {
         variant: "destructive",
       });
     } finally {
+      setIsEditing(false);
       setLoading(false);
     }
   };
@@ -258,45 +261,86 @@ const ProfilePage = () => {
               </div>
 
               {/* Informações do Perfil */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+                {/* Email (sempre visual) */}
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  {isEditing && <Label htmlFor="email">Email</Label>}
                   <div className="flex items-center gap-2 p-2 border rounded-md bg-muted">
                     <Mail className="w-4 h-4 text-muted-foreground" />
                     <span className="text-sm">{user.email}</span>
                   </div>
                 </div>
 
+                {/* Nome */}
                 <div className="space-y-2">
-                  <Label htmlFor="display_name">Nome</Label>
-                  <Input
-                    id="display_name"
-                    value={profile.display_name || ""}
-                    onChange={(e) =>
-                      setProfile((prev) => ({
-                        ...prev,
-                        display_name: e.target.value,
-                      }))
-                    }
-                    placeholder="Seu nome completo"
-                  />
+                  {isEditing ? (
+                    <>
+                      <Label htmlFor="display_name">Nome</Label>
+                      <Input
+                        id="display_name"
+                        value={profile.display_name || ""}
+                        onChange={(e) =>
+                          setProfile((prev) => ({
+                            ...prev,
+                            display_name: e.target.value,
+                          }))
+                        }
+                        placeholder="Seu nome completo"
+                      />
+                    </>
+                  ) : (
+                    <div className="flex items-center gap-2 p-2 border rounded-md bg-muted">
+                      <User className="w-4 h-4 text-muted-foreground" />
+                      <span className="text-sm">
+                        {profile.display_name || "Sem nome"}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
+                {/* Telefone */}
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Telefone</Label>
-                  <Input
-                    id="phone"
-                    value={profile.phone || ""}
-                    onChange={(e) =>
-                      setProfile((prev) => ({ ...prev, phone: e.target.value }))
-                    }
-                    placeholder="(00) 00000-0000"
-                  />
+                  {isEditing ? (
+                    <>
+                      <Label htmlFor="phone">Telefone</Label>
+                      <Input
+                        id="phone"
+                        value={profile.phone || ""}
+                        onChange={(e) =>
+                          setProfile((prev) => ({
+                            ...prev,
+                            phone: e.target.value,
+                          }))
+                        }
+                        placeholder="(00) 00000-0000"
+                      />
+                    </>
+                  ) : (
+                    <div className="flex items-center gap-2 p-2 border rounded-md bg-muted">
+                      <Phone className="w-4 h-4 text-muted-foreground" />
+                      <span className="text-sm">
+                        {profile.phone || "Telefone não informado"}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
 
-              <Button onClick={handleProfileUpdate} disabled={loading}>
-                {loading ? "Salvando..." : "Salvar Alterações"}
+              <Button
+                onClick={() => {
+                  if (isEditing) {
+                    handleProfileUpdate();
+                  } else {
+                    setIsEditing(true);
+                  }
+                }}
+                disabled={loading}
+              >
+                {loading
+                  ? "Salvando..."
+                  : isEditing
+                  ? "Salvar Alterações"
+                  : "Editar Perfil"}
               </Button>
             </CardContent>
           </Card>

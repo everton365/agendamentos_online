@@ -1,16 +1,16 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuSeparator, 
-  DropdownMenuTrigger 
-} from '@/components/ui/dropdown-menu';
-import { Calendar, LogOut, User, Menu, X } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Calendar, LogOut, User, Menu, X } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Header = () => {
   const { user, signOut } = useAuth();
@@ -23,17 +23,17 @@ const Header = () => {
 
   const handleScheduleClick = () => {
     if (user) {
-      navigate('/agendamento');
+      navigate("/agendamento");
     } else {
-      navigate('/auth');
+      navigate("/auth");
     }
     setMobileMenuOpen(false);
   };
 
   const navItems = [
-    { label: 'Início', href: '/' },
-    { label: 'Serviços', href: '/#servicos' },
-    { label: 'Resultados', href: '/#resultados' },
+    { label: "Início", href: "/" },
+    { label: "Serviços", href: "servicos" },
+    { label: "Resultados", href: "resultados" },
   ];
 
   return (
@@ -45,26 +45,41 @@ const Header = () => {
             <div className="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center">
               <span className="text-white font-bold text-sm">B</span>
             </div>
-            <span className="font-bold text-xl text-foreground">Beauty Clinic</span>
+            <span className="font-bold text-xl text-foreground">
+              Beauty Clinic
+            </span>
           </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            {navItems.map((item) => (
-              <Link
-                key={item.label}
-                to={item.href}
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                {item.label}
-              </Link>
-            ))}
+            {navItems.map((item) =>
+              item.href === "/" ? (
+                <Link
+                  key={item.label}
+                  to="/"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {item.label}
+                </Link>
+              ) : (
+                <button
+                  key={item.label}
+                  onClick={() =>
+                    document.getElementById(item.href)?.scrollIntoView({
+                      behavior: "smooth",
+                    })
+                  }
+                  className="text-muted-foreground hover:text-foreground transition-colors bg-transparent border-none cursor-pointer"
+                >
+                  {item.label}
+                </button>
+              )
+            )}
           </nav>
-
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-4">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={handleScheduleClick}
               className="group"
             >
@@ -75,10 +90,13 @@ const Header = () => {
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                  <Button
+                    variant="ghost"
+                    className="relative h-8 w-8 rounded-full"
+                  >
                     <Avatar className="h-8 w-8">
                       <AvatarFallback className="bg-gradient-primary text-white">
-                        {user.email?.charAt(0).toUpperCase() || 'U'}
+                        {user.email?.charAt(0).toUpperCase() || "U"}
                       </AvatarFallback>
                     </Avatar>
                   </Button>
@@ -91,11 +109,11 @@ const Header = () => {
                     </div>
                   </div>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => navigate('/perfil')}>
+                  <DropdownMenuItem onClick={() => navigate("/perfil")}>
                     <User className="mr-2 h-4 w-4" />
                     Meu Perfil
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/agendamento')}>
+                  <DropdownMenuItem onClick={() => navigate("/perfil")}>
                     <Calendar className="mr-2 h-4 w-4" />
                     Meus Agendamentos
                   </DropdownMenuItem>
@@ -107,7 +125,7 @@ const Header = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button variant="primary" onClick={() => navigate('/auth')}>
+              <Button variant="primary" onClick={() => navigate("/auth")}>
                 Entrar
               </Button>
             )}
@@ -119,7 +137,11 @@ const Header = () => {
             className="md:hidden"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
-            {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            {mobileMenuOpen ? (
+              <X className="h-5 w-5" />
+            ) : (
+              <Menu className="h-5 w-5" />
+            )}
           </Button>
         </div>
 
@@ -137,10 +159,10 @@ const Header = () => {
                   {item.label}
                 </Link>
               ))}
-              
+
               <div className="px-3 py-2 space-y-2">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={handleScheduleClick}
                   className="w-full justify-start"
                 >
@@ -152,12 +174,14 @@ const Header = () => {
                   <div className="space-y-2">
                     <div className="px-3 py-2 text-sm">
                       <div className="font-medium">{user.email}</div>
-                      <div className="text-xs text-muted-foreground">Usuário logado</div>
+                      <div className="text-xs text-muted-foreground">
+                        Usuário logado
+                      </div>
                     </div>
-                    <Button 
-                      variant="ghost" 
+                    <Button
+                      variant="ghost"
                       onClick={() => {
-                        navigate('/perfil');
+                        navigate("/perfil");
                         setMobileMenuOpen(false);
                       }}
                       className="w-full justify-start"
@@ -165,10 +189,10 @@ const Header = () => {
                       <User className="w-4 h-4 mr-2" />
                       Meu Perfil
                     </Button>
-                    <Button 
-                      variant="ghost" 
+                    <Button
+                      variant="ghost"
                       onClick={() => {
-                        navigate('/agendamento');
+                        navigate("/agendamento");
                         setMobileMenuOpen(false);
                       }}
                       className="w-full justify-start"
@@ -176,8 +200,8 @@ const Header = () => {
                       <Calendar className="w-4 h-4 mr-2" />
                       Meus Agendamentos
                     </Button>
-                    <Button 
-                      variant="ghost" 
+                    <Button
+                      variant="ghost"
                       onClick={handleSignOut}
                       className="w-full justify-start"
                     >
@@ -186,10 +210,10 @@ const Header = () => {
                     </Button>
                   </div>
                 ) : (
-                  <Button 
-                    variant="primary" 
+                  <Button
+                    variant="primary"
                     onClick={() => {
-                      navigate('/auth');
+                      navigate("/auth");
                       setMobileMenuOpen(false);
                     }}
                     className="w-full"
