@@ -9,6 +9,7 @@ import AuthPage from "./pages/AuthPage";
 import AppointmentBookingPage from "./pages/AppointmentBookingPage";
 import PaymentMethodPage from "./pages/PaymentMethodPage";
 import PaymentPage from "./pages/PaymentPage";
+import PaymentConfirmationPage from "./pages/PaymentConfirmationPage";
 import ProfilePage from "./pages/ProfilePage";
 import NotFound from "./pages/NotFound";
 
@@ -27,6 +28,7 @@ const App = () => (
             <Route path="/agendamento" element={<AppointmentBookingPage />} />
             <Route path="/perfil" element={<ProfilePage />} />
             <Route path="/pagamento" element={<PaymentMethodPage />} />
+            <Route path="/agendamento-confirmado" element={<PaymentConfirmationPage />} />
             <Route path="/pagamento-old" element={<PaymentPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

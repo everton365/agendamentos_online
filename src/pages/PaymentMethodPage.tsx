@@ -70,8 +70,8 @@ const PaymentMethodPage = () => {
   };
 
   const servicePrice = getServicePrice(appointmentData.service);
-  const bookingFee = 500; // R$ 5,00 booking fee
-  const totalPrice = servicePrice + bookingFee;
+  const bookingFee = 2000; // R$ 20,00 booking fee
+  const totalPrice = bookingFee; // Only charge booking fee via Stripe
 
   const paymentMethods = [
     {
@@ -107,19 +107,35 @@ const PaymentMethodPage = () => {
       return;
     }
 
+    if (selectedPaymentMethod !== 'credit_card') {
+      // For non-Stripe payments, show confirmation and redirect
+      toast({
+        title: "Agendamento confirmado!",
+        description: "Sua consulta foi agendada. Entre em contato para finalizar os detalhes.",
+      });
+      navigate('/');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      // Simulate payment processing
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      toast({
-        title: "Agendamento confirmado!",
-        description: "Sua consulta foi agendada com sucesso. Você receberá um email de confirmação em breve.",
+      // Call Stripe checkout function
+      const { supabase } = await import('@/integrations/supabase/client');
+      
+      const { data, error } = await supabase.functions.invoke('create-payment', {
+        body: { appointmentData }
       });
-
-      navigate('/');
+      
+      if (error) throw error;
+      
+      if (data?.url) {
+        // Open Stripe checkout in a new tab
+        window.open(data.url, '_blank');
+      }
+      
     } catch (error) {
+      console.error('Payment error:', error);
       toast({
         title: "Erro no pagamento",
         description: "Ocorreu um erro ao processar o pagamento. Tente novamente.",
