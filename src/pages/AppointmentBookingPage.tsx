@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Calendar, Clock, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import Header from '@/components/Header';
 
 const AppointmentBookingPage = () => {
@@ -34,32 +35,80 @@ const AppointmentBookingPage = () => {
     }
   }, [user, navigate]);
 
-  // Simulated available times based on date
-  const getAvailableTimesForDate = (date: string) => {
+  // Check available times based on date and existing appointments
+  const getAvailableTimesForDate = async (date: string) => {
     const dayOfWeek = new Date(date).getDay();
     
-    // Weekend has fewer slots
-    if (dayOfWeek === 0 || dayOfWeek === 6) {
-      return ["09:00", "10:00", "11:00", "14:00", "15:00"];
+    // Sunday is closed
+    if (dayOfWeek === 0) {
+      return [];
     }
     
-    // Weekdays have more slots
-    return ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00", "17:00"];
+    // All possible slots based on day
+    let allSlots: string[] = [];
+    if (dayOfWeek === 6) { // Saturday
+      allSlots = ["09:00", "10:00", "11:00", "14:00", "15:00"];
+    } else { // Weekdays
+      allSlots = ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00", "17:00"];
+    }
+    
+    // Check existing appointments for this date
+    const { data: existingAppointments, error } = await supabase
+      .from('appointments')
+      .select('appointment_time')
+      .eq('appointment_date', date)
+      .eq('status', 'confirmed');
+    
+    if (error) {
+      console.error('Error fetching appointments:', error);
+      return allSlots; // Return all slots if there's an error
+    }
+    
+    // Filter out booked times
+    const bookedTimes = existingAppointments.map(apt => apt.appointment_time);
+    return allSlots.filter(time => !bookedTimes.includes(time));
   };
 
-  const handleInputChange = (field: string, value: string) => {
+  // Save appointment to Supabase
+  const saveAppointment = async (appointmentData: typeof formData) => {
+    if (!user) return null;
+
+    const { data, error } = await supabase
+      .from('appointments')
+      .insert({
+        user_id: user.id,
+        name: appointmentData.name,
+        phone: appointmentData.phone,
+        service: appointmentData.service,
+        appointment_date: appointmentData.date,
+        appointment_time: appointmentData.time,
+        message: appointmentData.message,
+        status: 'pending'
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error saving appointment:', error);
+      throw error;
+    }
+
+    return data;
+  };
+
+  const handleInputChange = async (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     
     // Update available times when date changes
     if (field === "date") {
-      const times = getAvailableTimesForDate(value);
+      const times = await getAvailableTimesForDate(value);
       setAvailableTimes(times);
       // Reset time selection when date changes
       setFormData(prev => ({ ...prev, time: "" }));
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.name || !formData.phone || !formData.service || !formData.date || !formData.time) {
@@ -71,8 +120,33 @@ const AppointmentBookingPage = () => {
       return;
     }
     
-    // Navigate to payment page with appointment data
-    navigate("/pagamento", { state: { appointmentData: formData } });
+    try {
+      // Check availability one more time before saving
+      const availableSlots = await getAvailableTimesForDate(formData.date);
+      if (!availableSlots.includes(formData.time)) {
+        toast({
+          title: "Horário indisponível",
+          description: "Este horário não está mais disponível. Por favor, escolha outro.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Save appointment to database
+      const savedAppointment = await saveAppointment(formData);
+      
+      if (savedAppointment) {
+        // Navigate to payment page with appointment data
+        navigate("/pagamento", { state: { appointmentData: formData, appointmentId: savedAppointment.id } });
+      }
+    } catch (error) {
+      toast({
+        title: "Erro ao agendar",
+        description: "Ocorreu um erro ao salvar seu agendamento. Tente novamente.",
+        variant: "destructive"
+      });
+      console.error('Error saving appointment:', error);
+    }
   };
 
   const serviceOptions = [
