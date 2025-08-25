@@ -26,7 +26,7 @@ const AppointmentBookingPage = () => {
     message: ""
   });
   
-  const [availableTimes, setAvailableTimes] = useState<string[]>([]);
+  const [timeSlots, setTimeSlots] = useState<{time: string, status: 'available' | 'pending' | 'confirmed' | 'blocked'}[]>([]);
 
   // Redirect to auth if not logged in
   useEffect(() => {
@@ -35,8 +35,8 @@ const AppointmentBookingPage = () => {
     }
   }, [user, navigate]);
 
-  // Check available times based on date and existing appointments
-  const getAvailableTimesForDate = async (date: string) => {
+  // Get all time slots with their status for a specific date
+  const getTimeSlotsForDate = async (date: string) => {
     const dayOfWeek = new Date(date).getDay();
     
     // Sunday is closed
@@ -55,18 +55,28 @@ const AppointmentBookingPage = () => {
     // Check existing appointments for this date
     const { data: existingAppointments, error } = await supabase
       .from('appointments')
-      .select('appointment_time')
-      .eq('appointment_date', date)
-      .eq('status', 'confirmed');
+      .select('appointment_time, status')
+      .eq('appointment_date', date);
     
     if (error) {
       console.error('Error fetching appointments:', error);
-      return allSlots; // Return all slots if there's an error
+      return allSlots.map(time => ({ time, status: 'available' as const }));
     }
     
-    // Filter out booked times
-    const bookedTimes = existingAppointments.map(apt => apt.appointment_time);
-    return allSlots.filter(time => !bookedTimes.includes(time));
+    // Create time slots with status
+    const slotsWithStatus = allSlots.map(time => {
+      const appointment = existingAppointments.find(apt => apt.appointment_time === time);
+      if (!appointment) {
+        return { time, status: 'available' as const };
+      }
+      return { 
+        time, 
+        status: appointment.status === 'confirmed' ? 'confirmed' as const : 
+                appointment.status === 'pending' ? 'pending' as const : 'available' as const
+      };
+    });
+    
+    return slotsWithStatus;
   };
 
   // Save appointment to Supabase
@@ -99,10 +109,10 @@ const AppointmentBookingPage = () => {
   const handleInputChange = async (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     
-    // Update available times when date changes
+    // Update time slots when date changes
     if (field === "date") {
-      const times = await getAvailableTimesForDate(value);
-      setAvailableTimes(times);
+      const slots = await getTimeSlotsForDate(value);
+      setTimeSlots(slots);
       // Reset time selection when date changes
       setFormData(prev => ({ ...prev, time: "" }));
     }
@@ -122,8 +132,9 @@ const AppointmentBookingPage = () => {
     
     try {
       // Check availability one more time before saving
-      const availableSlots = await getAvailableTimesForDate(formData.date);
-      if (!availableSlots.includes(formData.time)) {
+      const slots = await getTimeSlotsForDate(formData.date);
+      const selectedSlot = slots.find(slot => slot.time === formData.time);
+      if (!selectedSlot || selectedSlot.status !== 'available') {
         toast({
           title: "Horário indisponível",
           description: "Este horário não está mais disponível. Por favor, escolha outro.",
@@ -306,25 +317,63 @@ const AppointmentBookingPage = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="time">Horário Preferido</Label>
-                      <Select value={formData.time} onValueChange={(value) => handleInputChange("time", value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione o horário" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {availableTimes.length > 0 ? (
-                            availableTimes.map(time => (
-                              <SelectItem key={time} value={time}>
-                                {time}
-                              </SelectItem>
-                            ))
-                          ) : (
-                            <SelectItem value="no-times" disabled>
-                              Selecione uma data primeiro
-                            </SelectItem>
-                          )}
-                        </SelectContent>
-                      </Select>
+                      <Label htmlFor="time">Horários Disponíveis</Label>
+                      {timeSlots.length > 0 ? (
+                        <div className="grid grid-cols-3 gap-2">
+                          {timeSlots.map(slot => {
+                            const isSelected = formData.time === slot.time;
+                            const isAvailable = slot.status === 'available';
+                            
+                            return (
+                              <button
+                                key={slot.time}
+                                type="button"
+                                onClick={() => isAvailable ? handleInputChange("time", slot.time) : null}
+                                disabled={!isAvailable}
+                                className={`
+                                  p-3 rounded-lg text-sm font-medium transition-all border-2
+                                  ${isSelected && isAvailable ? 'border-primary bg-primary text-primary-foreground' : 
+                                    isAvailable ? 'border-[hsl(var(--status-available))] bg-[hsl(var(--status-available)/0.1)] text-[hsl(var(--status-available))] hover:bg-[hsl(var(--status-available)/0.2)]' :
+                                    slot.status === 'pending' ? 'border-[hsl(var(--status-pending))] bg-[hsl(var(--status-pending)/0.1)] text-[hsl(var(--status-pending))] cursor-not-allowed' :
+                                    slot.status === 'confirmed' ? 'border-[hsl(var(--status-confirmed))] bg-[hsl(var(--status-confirmed)/0.1)] text-[hsl(var(--status-confirmed))] cursor-not-allowed' :
+                                    'border-[hsl(var(--status-blocked))] bg-[hsl(var(--status-blocked)/0.1)] text-[hsl(var(--status-blocked))] cursor-not-allowed'
+                                  }
+                                `}
+                              >
+                                <div className="text-center">
+                                  <div>{slot.time}</div>
+                                  <div className="text-xs mt-1">
+                                    {slot.status === 'available' ? 'Disponível' :
+                                     slot.status === 'pending' ? 'Pendente' :
+                                     slot.status === 'confirmed' ? 'Ocupado' : 'Bloqueado'}
+                                  </div>
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <div className="text-center p-4 text-muted-foreground">
+                          Selecione uma data para ver os horários disponíveis
+                        </div>
+                      )}
+                      
+                      {timeSlots.length > 0 && (
+                        <div className="flex gap-4 text-xs mt-4">
+                          <div className="flex items-center gap-1">
+                            <div className="w-3 h-3 rounded bg-[hsl(var(--status-available))]"></div>
+                            <span>Disponível</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <div className="w-3 h-3 rounded bg-[hsl(var(--status-pending))]"></div>
+                            <span>Pendente</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <div className="w-3 h-3 rounded bg-[hsl(var(--status-confirmed))]"></div>
+                            <span>Ocupado</span>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
 
