@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle, Home, Calendar } from 'lucide-react';
@@ -8,6 +9,7 @@ import Header from '@/components/Header';
 const PaymentConfirmationPage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [paymentStatus, setPaymentStatus] = useState<'loading' | 'success' | 'error'>('loading');
 
   const sessionId = searchParams.get('session_id');
@@ -125,7 +127,10 @@ const PaymentConfirmationPage = () => {
                   <Home className="w-4 h-4 mr-2" />
                   Voltar ao Início
                 </Button>
-                <Button onClick={() => navigate('/agendamento')} variant="outline">
+                <Button 
+                  onClick={() => user ? navigate('/agendamento') : navigate('/auth')} 
+                  variant="outline"
+                >
                   <Calendar className="w-4 h-4 mr-2" />
                   Novo Agendamento
                 </Button>

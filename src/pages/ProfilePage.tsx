@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -44,6 +45,7 @@ interface Appointment {
 
 const ProfilePage = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -60,12 +62,15 @@ const ProfilePage = () => {
   const [rescheduleTime, setRescheduleTime] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
 
+  // Redirect to auth if not logged in
   useEffect(() => {
-    if (user) {
-      fetchProfile();
-      fetchAppointments();
+    if (!user) {
+      navigate('/auth');
+      return;
     }
-  }, [user]);
+    fetchProfile();
+    fetchAppointments();
+  }, [user, navigate]);
 
   const fetchProfile = async () => {
     try {

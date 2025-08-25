@@ -113,9 +113,9 @@ const Header = () => {
                     <User className="mr-2 h-4 w-4" />
                     Meu Perfil
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate("/perfil")}>
+                  <DropdownMenuItem onClick={() => navigate("/agendamento")}>
                     <Calendar className="mr-2 h-4 w-4" />
-                    Meus Agendamentos
+                    Novo Agendamento
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleSignOut}>
@@ -198,7 +198,7 @@ const Header = () => {
                       className="w-full justify-start"
                     >
                       <Calendar className="w-4 h-4 mr-2" />
-                      Meus Agendamentos
+                      Novo Agendamento
                     </Button>
                     <Button
                       variant="ghost"
