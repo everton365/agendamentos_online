@@ -14,7 +14,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { Camera, Calendar, Clock, Phone, User, Mail } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Camera, Calendar, Clock, Phone, User, Mail, RotateCcw, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Database } from "@/integrations/supabase/types";
 
@@ -53,6 +55,10 @@ const ProfilePage = () => {
   });
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isEditing, setIsEditing] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
+  const [rescheduleDate, setRescheduleDate] = useState("");
+  const [rescheduleTime, setRescheduleTime] = useState("");
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -205,6 +211,92 @@ const ProfilePage = () => {
         variant: "secondary" as const,
       }
     );
+  };
+
+  const handleCancelAppointment = async (appointmentId: string) => {
+    try {
+      setLoading(true);
+      const { error } = await supabase
+        .from("appointments")
+        .update({ status: "cancelled" })
+        .eq("id", appointmentId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Agendamento cancelado",
+        description: "Seu agendamento foi cancelado com sucesso.",
+      });
+
+      // Atualizar lista de agendamentos
+      fetchAppointments();
+    } catch (error: any) {
+      toast({
+        title: "Erro ao cancelar agendamento",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRescheduleAppointment = async () => {
+    if (!selectedAppointment || !rescheduleDate || !rescheduleTime) {
+      toast({
+        title: "Erro",
+        description: "Selecione uma data e horário para reagendar.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const { error } = await supabase
+        .from("appointments")
+        .update({ 
+          appointment_date: rescheduleDate,
+          appointment_time: rescheduleTime,
+          status: "pending"
+        })
+        .eq("id", selectedAppointment.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Agendamento reagendado",
+        description: "Seu agendamento foi reagendado com sucesso.",
+      });
+
+      // Limpar estados e fechar modal
+      setSelectedAppointment(null);
+      setRescheduleDate("");
+      setRescheduleTime("");
+      setDialogOpen(false);
+      
+      // Atualizar lista de agendamentos
+      fetchAppointments();
+    } catch (error: any) {
+      toast({
+        title: "Erro ao reagendar",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const generateTimeSlots = () => {
+    const slots = [];
+    for (let hour = 9; hour <= 17; hour++) {
+      for (let minute = 0; minute < 60; minute += 30) {
+        const time = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+        slots.push(time);
+      }
+    }
+    return slots;
   };
 
   if (!user) {
@@ -362,21 +454,59 @@ const ProfilePage = () => {
               ) : (
                 <div className="space-y-4">
                   {futureAppointments.map((appointment) => (
-                    <Card
-                      key={appointment.id}
-                      className="border-l-4 border-l-primary"
-                    >
-                      <CardContent className="p-4">
-                        <div className="flex justify-between items-start">
-                          <div className="space-y-2">
-                            <div className="flex items-center gap-2">
-                              <h4 className="font-medium">
-                                {appointment.service}
-                              </h4>
-                              <Badge {...getStatusBadge(appointment.status)}>
-                                {getStatusBadge(appointment.status).label}
-                              </Badge>
+                    <Dialog key={appointment.id} open={dialogOpen && selectedAppointment?.id === appointment.id} onOpenChange={(open) => {
+                      if (!open) {
+                        setSelectedAppointment(null);
+                        setRescheduleDate("");
+                        setRescheduleTime("");
+                      }
+                      setDialogOpen(open);
+                    }}>
+                      <DialogTrigger asChild>
+                        <Card
+                          className="border-l-4 border-l-primary cursor-pointer hover:shadow-md transition-shadow"
+                          onClick={() => {
+                            setSelectedAppointment(appointment);
+                            setDialogOpen(true);
+                          }}
+                        >
+                          <CardContent className="p-4">
+                            <div className="flex justify-between items-start">
+                              <div className="space-y-2">
+                                <div className="flex items-center gap-2">
+                                  <h4 className="font-medium">
+                                    {appointment.service}
+                                  </h4>
+                                  <Badge {...getStatusBadge(appointment.status)}>
+                                    {getStatusBadge(appointment.status).label}
+                                  </Badge>
+                                </div>
+                                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                                  <div className="flex items-center gap-1">
+                                    <Calendar className="w-4 h-4" />
+                                    {format(
+                                      parseISO(appointment.appointment_date),
+                                      "dd 'de' MMMM 'de' yyyy",
+                                      { locale: ptBR }
+                                    )}
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <Clock className="w-4 h-4" />
+                                    {appointment.appointment_time}
+                                  </div>
+                                </div>
+                              </div>
                             </div>
+                          </CardContent>
+                        </Card>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Gerenciar Agendamento</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                          <div className="p-4 bg-muted rounded-lg">
+                            <h4 className="font-medium mb-2">{appointment.service}</h4>
                             <div className="flex items-center gap-4 text-sm text-muted-foreground">
                               <div className="flex items-center gap-1">
                                 <Calendar className="w-4 h-4" />
@@ -392,9 +522,75 @@ const ProfilePage = () => {
                               </div>
                             </div>
                           </div>
+                          
+                          <div className="space-y-3">
+                            <Label>Nova data</Label>
+                            <Input
+                              type="date"
+                              value={rescheduleDate}
+                              onChange={(e) => setRescheduleDate(e.target.value)}
+                              min={new Date().toISOString().split('T')[0]}
+                            />
+                          </div>
+                          
+                          <div className="space-y-3">
+                            <Label>Novo horário</Label>
+                            <select
+                              className="w-full p-2 border rounded-md"
+                              value={rescheduleTime}
+                              onChange={(e) => setRescheduleTime(e.target.value)}
+                            >
+                              <option value="">Selecione um horário</option>
+                              {generateTimeSlots().map((time) => (
+                                <option key={time} value={time}>
+                                  {time}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          
+                          <div className="flex gap-2">
+                            <Button
+                              onClick={handleRescheduleAppointment}
+                              disabled={loading || !rescheduleDate || !rescheduleTime}
+                              className="flex-1"
+                            >
+                              <RotateCcw className="w-4 h-4 mr-2" />
+                              {loading ? "Reagendando..." : "Reagendar"}
+                            </Button>
+                            
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="destructive" className="flex-1">
+                                  <X className="w-4 h-4 mr-2" />
+                                  Cancelar
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Cancelar agendamento</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Tem certeza que deseja cancelar este agendamento? Esta ação não pode ser desfeita.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Voltar</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => {
+                                      handleCancelAppointment(appointment.id);
+                                      setDialogOpen(false);
+                                    }}
+                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                  >
+                                    Cancelar agendamento
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
                         </div>
-                      </CardContent>
-                    </Card>
+                      </DialogContent>
+                    </Dialog>
                   ))}
                 </div>
               )}
@@ -418,21 +614,59 @@ const ProfilePage = () => {
               ) : (
                 <div className="space-y-4">
                   {pastAppointments.map((appointment) => (
-                    <Card
-                      key={appointment.id}
-                      className="border-l-4 border-l-muted"
-                    >
-                      <CardContent className="p-4">
-                        <div className="flex justify-between items-start">
-                          <div className="space-y-2">
-                            <div className="flex items-center gap-2">
-                              <h4 className="font-medium">
-                                {appointment.service}
-                              </h4>
-                              <Badge {...getStatusBadge(appointment.status)}>
-                                {getStatusBadge(appointment.status).label}
-                              </Badge>
+                    <Dialog key={appointment.id} open={dialogOpen && selectedAppointment?.id === appointment.id} onOpenChange={(open) => {
+                      if (!open) {
+                        setSelectedAppointment(null);
+                        setRescheduleDate("");
+                        setRescheduleTime("");
+                      }
+                      setDialogOpen(open);
+                    }}>
+                      <DialogTrigger asChild>
+                        <Card
+                          className="border-l-4 border-l-muted cursor-pointer hover:shadow-md transition-shadow"
+                          onClick={() => {
+                            setSelectedAppointment(appointment);
+                            setDialogOpen(true);
+                          }}
+                        >
+                          <CardContent className="p-4">
+                            <div className="flex justify-between items-start">
+                              <div className="space-y-2">
+                                <div className="flex items-center gap-2">
+                                  <h4 className="font-medium">
+                                    {appointment.service}
+                                  </h4>
+                                  <Badge {...getStatusBadge(appointment.status)}>
+                                    {getStatusBadge(appointment.status).label}
+                                  </Badge>
+                                </div>
+                                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                                  <div className="flex items-center gap-1">
+                                    <Calendar className="w-4 h-4" />
+                                    {format(
+                                      parseISO(appointment.appointment_date),
+                                      "dd 'de' MMMM 'de' yyyy",
+                                      { locale: ptBR }
+                                    )}
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <Clock className="w-4 h-4" />
+                                    {appointment.appointment_time}
+                                  </div>
+                                </div>
+                              </div>
                             </div>
+                          </CardContent>
+                        </Card>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Reagendar Atendimento</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                          <div className="p-4 bg-muted rounded-lg">
+                            <h4 className="font-medium mb-2">{appointment.service}</h4>
                             <div className="flex items-center gap-4 text-sm text-muted-foreground">
                               <div className="flex items-center gap-1">
                                 <Calendar className="w-4 h-4" />
@@ -448,9 +682,44 @@ const ProfilePage = () => {
                               </div>
                             </div>
                           </div>
+                          
+                          <div className="space-y-3">
+                            <Label>Nova data</Label>
+                            <Input
+                              type="date"
+                              value={rescheduleDate}
+                              onChange={(e) => setRescheduleDate(e.target.value)}
+                              min={new Date().toISOString().split('T')[0]}
+                            />
+                          </div>
+                          
+                          <div className="space-y-3">
+                            <Label>Novo horário</Label>
+                            <select
+                              className="w-full p-2 border rounded-md"
+                              value={rescheduleTime}
+                              onChange={(e) => setRescheduleTime(e.target.value)}
+                            >
+                              <option value="">Selecione um horário</option>
+                              {generateTimeSlots().map((time) => (
+                                <option key={time} value={time}>
+                                  {time}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          
+                          <Button
+                            onClick={handleRescheduleAppointment}
+                            disabled={loading || !rescheduleDate || !rescheduleTime}
+                            className="w-full"
+                          >
+                            <RotateCcw className="w-4 h-4 mr-2" />
+                            {loading ? "Reagendando..." : "Reagendar"}
+                          </Button>
                         </div>
-                      </CardContent>
-                    </Card>
+                      </DialogContent>
+                    </Dialog>
                   ))}
                 </div>
               )}
