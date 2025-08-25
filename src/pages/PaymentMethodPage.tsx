@@ -108,12 +108,12 @@ const PaymentMethodPage = () => {
     }
 
     if (selectedPaymentMethod !== 'credit_card') {
-      // For non-Stripe payments, show confirmation and redirect to confirmation page
+      // For non-Stripe payments, show confirmation and redirect
       toast({
         title: "Agendamento confirmado!",
         description: "Sua consulta foi agendada. Entre em contato para finalizar os detalhes.",
       });
-      navigate('/agendamento-confirmado');
+      navigate('/');
       return;
     }
 
