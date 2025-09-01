@@ -8,8 +8,16 @@ const AboutUs = () => {
     >
       {/* Texto */}
       <div className="space-y-6">
-        <h2 className="text-3xl font-bold text-foreground">Sobre o Studio</h2>
-        <p className="text-lg text-muted-foreground leading-relaxed">
+        <h2
+          className="text-3xl font-bold text-foreground"
+          data-aos="fade-right"
+        >
+          Sobre o Studio
+        </h2>
+        <p
+          className="text-lg text-muted-foreground leading-relaxed"
+          data-aos="fade-right"
+        >
           Bem-vindo ao <span className="font-semibold">Sobrancelha Studio</span>
           , onde a paixão pela beleza e a precisão técnica se encontram. Nossa
           missão é realçar a beleza única de cada cliente através de um design
@@ -21,19 +29,25 @@ const AboutUs = () => {
         <div className="space-y-4">
           <div className="flex items-center gap-3">
             <div className="w-2 h-2 bg-primary rounded-full"></div>
-            <span className="text-foreground">Técnicas modernas e seguras</span>
+            <span className="text-foreground" data-aos="fade-right">
+              Técnicas modernas e seguras
+            </span>
           </div>
           <div className="flex items-center gap-3">
             <div className="w-2 h-2 bg-primary rounded-full"></div>
-            <span className="text-foreground">Produtos de alta qualidade</span>
+            <span className="text-foreground" data-aos="fade-right">
+              Produtos de alta qualidade
+            </span>
           </div>
           <div className="flex items-center gap-3">
             <div className="w-2 h-2 bg-primary rounded-full"></div>
-            <span className="text-foreground">Atendimento humanizado</span>
+            <span className="text-foreground" data-aos="fade-right">
+              Atendimento humanizado
+            </span>
           </div>
           <div className="flex items-center gap-3">
             <div className="w-2 h-2 bg-primary rounded-full"></div>
-            <span className="text-foreground">
+            <span className="text-foreground" data-aos="fade-right">
               Resultados naturais e duradouros
             </span>
           </div>
@@ -41,11 +55,12 @@ const AboutUs = () => {
       </div>
 
       {/* Foto da dona */}
-      <div className="flex justify-center md:justify-end">
+      <div className="flex justify-center md:justify-end" data-aos="fade-left">
         <img
           src={donaEstudio}
           alt="Dona do Estúdio"
           className="w-full h-full object-cover rounded-2xl shadow-lg border-4 border-white"
+          data-aos="fade-left"
         />
       </div>
     </section>

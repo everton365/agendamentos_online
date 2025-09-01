@@ -1,13 +1,28 @@
-import { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Label } from '@/components/ui/label';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { ArrowLeft, CreditCard, Smartphone, DollarSign, Info, CheckCircle } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import Header from '@/components/Header';
+import { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  ArrowLeft,
+  CreditCard,
+  Smartphone,
+  DollarSign,
+  Info,
+  CheckCircle,
+} from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import Header from "@/components/Header";
+import { supabase } from "@/integrations/supabase/client";
 
 interface AppointmentData {
   name: string;
@@ -22,14 +37,15 @@ const PaymentMethodPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
-  
+  const [pixQRCode, setPixQRCode] = useState<string | null>(null);
   const appointmentData = location.state?.appointmentData as AppointmentData;
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>('');
+  const [selectedPaymentMethod, setSelectedPaymentMethod] =
+    useState<string>("");
   const [loading, setLoading] = useState(false);
 
   // Redirect if no appointment data
   if (!appointmentData) {
-    navigate('/agendamento');
+    navigate("/agendamento");
     return null;
   }
 
@@ -56,16 +72,16 @@ const PaymentMethodPage = () => {
   };
 
   const formatPrice = (priceInCents: number): string => {
-    return `R$ ${(priceInCents / 100).toFixed(2).replace('.', ',')}`;
+    return `R$ ${(priceInCents / 100).toFixed(2).replace(".", ",")}`;
   };
 
   const formatDate = (dateString: string): string => {
-    const date = new Date(dateString + 'T00:00:00');
-    return date.toLocaleDateString('pt-BR', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    const date = new Date(dateString + "T00:00:00");
+    return date.toLocaleDateString("pt-BR", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
@@ -75,71 +91,88 @@ const PaymentMethodPage = () => {
 
   const paymentMethods = [
     {
-      id: 'credit_card',
-      name: 'Cartão de Crédito',
-      description: 'Visa, Mastercard, American Express',
+      id: "credit_card",
+      name: "Cartão de Crédito",
+      description: "Visa, Mastercard, American Express",
       icon: CreditCard,
       popular: true,
     },
     {
-      id: 'pix',
-      name: 'PIX',
-      description: 'Pagamento instantâneo',
+      id: "pix",
+      name: "PIX",
+      description: "Pagamento instantâneo",
       icon: Smartphone,
-      popular: false,
-    },
-    {
-      id: 'cash',
-      name: 'Dinheiro no Local',
-      description: 'Pagar na clínica no dia do atendimento',
-      icon: DollarSign,
       popular: false,
     },
   ];
 
   const handlePayment = async () => {
-    if (!selectedPaymentMethod) {
-      toast({
-        title: "Selecione um método de pagamento",
-        description: "Escolha como deseja pagar pelo serviço.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    if (selectedPaymentMethod !== 'credit_card') {
-      // For non-Stripe payments, show confirmation and redirect
-      toast({
-        title: "Agendamento confirmado!",
-        description: "Sua consulta foi agendada. Entre em contato para finalizar os detalhes.",
-      });
-      navigate('/');
-      return;
-    }
+    if (!selectedPaymentMethod) return;
 
     setLoading(true);
 
     try {
-      // Call Stripe checkout function
-      const { supabase } = await import('@/integrations/supabase/client');
-      
-      const { data, error } = await supabase.functions.invoke('create-payment', {
-        body: { appointmentData }
-      });
-      
-      if (error) throw error;
-      
-      if (data?.url) {
-        // Open Stripe checkout in a new tab
-        window.open(data.url, '_blank');
+      // Pega o usuário logado no Supabase
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+      if (userError || !user) throw new Error("Usuário não autenticado");
+
+      console.log("Usuário logado:", user);
+
+      if (selectedPaymentMethod === "pix") {
+        // Inclui user_id nos dados do agendamento
+        const bodyData = { ...appointmentData, totalPrice, user_id: user.id };
+
+        console.log("Dados enviados para create-pix:", bodyData);
+
+        const response = await fetch("http://localhost:3000/user/create-pix", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            appointmentData,
+            totalPrice,
+          }),
+        });
+
+        const data = await response.json();
+        console.log("Resposta do backend PIX:", data);
+
+        if (data.error) throw new Error(data.error);
+
+        setPixQRCode(data.qrCodeBase64);
+        toast({
+          title: "PIX gerado com sucesso!",
+          description: "Use o QR Code para efetuar o pagamento.",
+        });
+      } else {
+        // Stripe: chama backend para criar checkout session
+        const { supabase } = await import("@/integrations/supabase/client");
+
+        console.log("Chamando supabase function create-payment...");
+        const { data, error } = await supabase.functions.invoke(
+          "create-payment",
+          {
+            body: { appointmentData },
+          }
+        );
+
+        console.log("Supabase response data:", data);
+        console.log("Supabase response error:", error);
+
+        if (error) throw error;
+        if (data?.url) {
+          console.log("Abrindo Stripe checkout URL:", data.url);
+          window.open(data.url, "_blank");
+        }
       }
-      
-    } catch (error) {
-      console.error('Payment error:', error);
+    } catch (error: any) {
+      console.error("Erro no handlePayment:", error);
       toast({
         title: "Erro no pagamento",
-        description: "Ocorreu um erro ao processar o pagamento. Tente novamente.",
-        variant: "destructive"
+        description: error.message || "Tente novamente.",
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
@@ -149,13 +182,13 @@ const PaymentMethodPage = () => {
   return (
     <div className="min-h-screen bg-gradient-hero">
       <Header />
-      
+
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           {/* Back Button */}
           <Button
             variant="ghost"
-            onClick={() => navigate('/agendamento')}
+            onClick={() => navigate("/agendamento")}
             className="mb-6"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -165,10 +198,14 @@ const PaymentMethodPage = () => {
           {/* Page Header */}
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold text-foreground mb-4">
-              Escolha o <span className="bg-gradient-primary bg-clip-text text-transparent">Pagamento</span>
+              Escolha o{" "}
+              <span className="bg-gradient-primary bg-clip-text text-transparent">
+                Pagamento
+              </span>
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Selecione sua forma de pagamento preferida para confirmar o agendamento.
+              Selecione sua forma de pagamento preferida para confirmar o
+              agendamento.
             </p>
           </div>
 
@@ -176,7 +213,9 @@ const PaymentMethodPage = () => {
             {/* Appointment Summary */}
             <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-elegant">
               <CardHeader>
-                <CardTitle className="text-foreground">Resumo do Agendamento</CardTitle>
+                <CardTitle className="text-foreground">
+                  Resumo do Agendamento
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-3">
@@ -190,11 +229,15 @@ const PaymentMethodPage = () => {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Serviço:</span>
-                    <span className="font-medium">{getServiceName(appointmentData.service)}</span>
+                    <span className="font-medium">
+                      {getServiceName(appointmentData.service)}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Data:</span>
-                    <span className="font-medium">{formatDate(appointmentData.date)}</span>
+                    <span className="font-medium">
+                      {formatDate(appointmentData.date)}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Horário:</span>
@@ -202,11 +245,15 @@ const PaymentMethodPage = () => {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Local:</span>
-                    <span className="font-medium">Rua das Sobrancelhas, 123 - Centro, SP</span>
+                    <span className="font-medium">
+                      Rua das Sobrancelhas, 123 - Centro, SP
+                    </span>
                   </div>
                   {appointmentData.message && (
                     <div className="pt-2 border-t">
-                      <span className="text-muted-foreground">Observações:</span>
+                      <span className="text-muted-foreground">
+                        Observações:
+                      </span>
                       <p className="mt-1 text-sm">{appointmentData.message}</p>
                     </div>
                   )}
@@ -224,7 +271,9 @@ const PaymentMethodPage = () => {
                   </div>
                   <div className="flex justify-between font-bold text-lg pt-2 border-t">
                     <span>Total:</span>
-                    <span className="text-primary">{formatPrice(totalPrice)}</span>
+                    <span className="text-primary">
+                      {formatPrice(totalPrice)}
+                    </span>
                   </div>
                 </div>
 
@@ -236,7 +285,9 @@ const PaymentMethodPage = () => {
                   </h4>
                   <ul className="text-sm text-muted-foreground space-y-1">
                     <li>• Pagamento necessário para confirmar agendamento</li>
-                    <li>• Cancelamento com 24h de antecedência: reembolso total</li>
+                    <li>
+                      • Cancelamento com 24h de antecedência: reembolso total
+                    </li>
                     <li>• Reagendamento gratuito até 12h antes do horário</li>
                     <li>• Não comparecimento: valor não será reembolsado</li>
                   </ul>
@@ -247,11 +298,13 @@ const PaymentMethodPage = () => {
             {/* Payment Methods */}
             <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-elegant">
               <CardHeader>
-                <CardTitle className="text-foreground">Métodos de Pagamento</CardTitle>
+                <CardTitle className="text-foreground">
+                  Métodos de Pagamento
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <RadioGroup 
-                  value={selectedPaymentMethod} 
+                <RadioGroup
+                  value={selectedPaymentMethod}
                   onValueChange={setSelectedPaymentMethod}
                   className="space-y-4"
                 >
@@ -294,15 +347,19 @@ const PaymentMethodPage = () => {
                       <DialogHeader>
                         <DialogTitle>Detalhes do Pagamento</DialogTitle>
                         <DialogDescription>
-                          {selectedPaymentMethod === 'credit_card' && (
+                          {selectedPaymentMethod === "credit_card" && (
                             <div className="space-y-2">
-                              <p>• Pagamento processado via cartão de crédito</p>
+                              <p>
+                                • Pagamento processado via cartão de crédito
+                              </p>
                               <p>• Cobrança aparecerá como "Beauty Clinic"</p>
-                              <p>• Parcelamento disponível em até 3x sem juros</p>
+                              <p>
+                                • Parcelamento disponível em até 3x sem juros
+                              </p>
                               <p>• Pagamento seguro via SSL</p>
                             </div>
                           )}
-                          {selectedPaymentMethod === 'pix' && (
+                          {selectedPaymentMethod === "pix" && (
                             <div className="space-y-2">
                               <p>• Pagamento instantâneo via PIX</p>
                               <p>• QR Code será gerado para pagamento</p>
@@ -310,12 +367,14 @@ const PaymentMethodPage = () => {
                               <p>• Disponível 24h por dia</p>
                             </div>
                           )}
-                          {selectedPaymentMethod === 'cash' && (
+                          {selectedPaymentMethod === "cash" && (
                             <div className="space-y-2">
                               <p>• Pagamento em dinheiro na clínica</p>
                               <p>• Disponível no dia do atendimento</p>
                               <p>• Recomendamos levar o valor exato</p>
-                              <p>• Agendamento será confirmado antecipadamente</p>
+                              <p>
+                                • Agendamento será confirmado antecipadamente
+                              </p>
                             </div>
                           )}
                         </DialogDescription>
@@ -324,19 +383,19 @@ const PaymentMethodPage = () => {
                   </Dialog>
                 )}
 
-                <Button 
+                <Button
                   onClick={handlePayment}
                   disabled={!selectedPaymentMethod || loading}
-                  variant="primary" 
-                  size="lg" 
+                  variant="primary"
+                  size="lg"
                   className="w-full mt-6"
                 >
                   {loading ? (
-                    'Processando...'
+                    "Processando..."
                   ) : (
                     <>
                       <CheckCircle className="w-5 h-5 mr-2" />
-                      Confirmar e Pagar {formatPrice(totalPrice)}
+                      Confirmar e Paga {formatPrice(totalPrice)}
                     </>
                   )}
                 </Button>
@@ -345,6 +404,21 @@ const PaymentMethodPage = () => {
           </div>
         </div>
       </div>
+      {/* Modal PIX */}
+      {pixQRCode && (
+        <Dialog open={true} onOpenChange={() => setPixQRCode(null)}>
+          <DialogContent className="max-w-sm mx-auto text-center">
+            <DialogHeader>
+              <DialogTitle>PIX - Pague usando o QR Code</DialogTitle>
+              <DialogDescription>
+                Abra o aplicativo do seu banco e escaneie o QR Code abaixo:
+              </DialogDescription>
+            </DialogHeader>
+            <img src={pixQRCode} alt="QR Code PIX" className="mx-auto my-4" />
+            <Button onClick={() => setPixQRCode(null)}>Fechar</Button>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };

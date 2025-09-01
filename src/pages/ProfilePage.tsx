@@ -12,11 +12,36 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
+
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Camera, Calendar, Clock, Phone, User, Mail, RotateCcw, X } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
+  Camera,
+  Calendar,
+  Clock,
+  Phone,
+  User,
+  Mail,
+  RotateCcw,
+  X,
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Database } from "@/integrations/supabase/types";
 
@@ -55,17 +80,18 @@ const ProfilePage = () => {
   });
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isEditing, setIsEditing] = useState(false);
-  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
+  const [selectedAppointment, setSelectedAppointment] =
+    useState<Appointment | null>(null);
   const [rescheduleDate, setRescheduleDate] = useState("");
   const [rescheduleTime, setRescheduleTime] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  useEffect(() => {
-    if (user) {
-      fetchProfile();
-      fetchAppointments();
-    }
-  }, [user]);
+  const [availableTimes, setAvailableTimes] = useState<
+    {
+      time: string;
+      status: "available" | "pending" | "confirmed" | "blocked";
+    }[]
+  >([]);
 
   const fetchProfile = async () => {
     try {
@@ -88,6 +114,31 @@ const ProfilePage = () => {
       console.error("Erro ao buscar perfil:", error);
     }
   };
+
+  function canReschedule(appointmentDate: string, appointmentTime: string) {
+    // Combina data e hora do agendamento em um Date
+    const appointmentDateTime = new Date(
+      `${appointmentDate}T${appointmentTime}:00`
+    );
+
+    // Hora atual
+    const now = new Date();
+
+    // Diferença em milissegundos
+    const diffMs = appointmentDateTime.getTime() - now.getTime();
+
+    // Converte para horas
+    const diffHours = diffMs / (1000 * 60 * 60);
+
+    return diffHours >= 3; // só permite se faltar 3h ou mais
+  }
+
+  useEffect(() => {
+    if (user) {
+      fetchProfile();
+      fetchAppointments();
+    }
+  }, [user]);
 
   const fetchAppointments = async () => {
     try {
@@ -240,6 +291,55 @@ const ProfilePage = () => {
       setLoading(false);
     }
   };
+  // Novo estado para horários disponíveis
+  // Função que consulta os horários no banco
+  const getTimeSlotsForDate = async (date: string) => {
+    console.log("🚀 getTimeSlotsForDate chamado com data:", date);
+
+    try {
+      const res = await fetch(
+        `https://api-agendamentos-tau.vercel.app/user/appointments/status/${date}`
+      );
+
+      console.log("🔗 URL da requisição:", res.url);
+      console.log("📡 Status HTTP:", res.status);
+
+      if (!res.ok) throw new Error("Erro ao buscar horários");
+
+      const data = await res.json();
+      console.log("📦 Dados brutos da API:", data);
+
+      if (!data.schedule) {
+        console.warn("⚠️ Nenhum campo 'schedule' encontrado na resposta");
+        return [];
+      }
+
+      const slotsWithStatus = data.schedule.map(
+        (slot: { time: string; status: string }) => ({
+          time: slot.time.slice(0, 5),
+          status: slot.status as
+            | "available"
+            | "pending"
+            | "confirmed"
+            | "blocked",
+        })
+      );
+
+      console.log("✅ Slots formatados:", slotsWithStatus);
+      return slotsWithStatus;
+    } catch (err) {
+      console.error("❌ Erro na função getTimeSlotsForDate:", err);
+      return [];
+    }
+  };
+
+  // Função que atualiza o estado quando a data é escolhida
+  const handleDateChange = async (date: string) => {
+    setRescheduleDate(date);
+
+    const slots = await getTimeSlotsForDate(date);
+    setAvailableTimes(slots);
+  };
 
   const handleRescheduleAppointment = async () => {
     if (!selectedAppointment || !rescheduleDate || !rescheduleTime) {
@@ -251,14 +351,30 @@ const ProfilePage = () => {
       return;
     }
 
+    // 🚫 Bloqueio: não deixa reagendar se faltar menos de 3h para o agendamento original
+    if (
+      !canReschedule(
+        selectedAppointment.appointment_date,
+        selectedAppointment.appointment_time
+      )
+    ) {
+      toast({
+        title: "Reagendamento não permitido",
+        description:
+          "Só é possível reagendar até 3 horas antes do horário marcado.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       setLoading(true);
       const { error } = await supabase
         .from("appointments")
-        .update({ 
+        .update({
           appointment_date: rescheduleDate,
           appointment_time: rescheduleTime,
-          status: "pending"
+          status: "pending",
         })
         .eq("id", selectedAppointment.id);
 
@@ -274,8 +390,7 @@ const ProfilePage = () => {
       setRescheduleDate("");
       setRescheduleTime("");
       setDialogOpen(false);
-      
-      // Atualizar lista de agendamentos
+
       fetchAppointments();
     } catch (error: any) {
       toast({
@@ -287,21 +402,6 @@ const ProfilePage = () => {
       setLoading(false);
     }
   };
-
-  const generateTimeSlots = () => {
-    const slots = [];
-    for (let hour = 9; hour <= 17; hour++) {
-      for (let minute = 0; minute < 60; minute += 30) {
-        const time = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-        slots.push(time);
-      }
-    }
-    return slots;
-  };
-
-  if (!user) {
-    return null;
-  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -454,14 +554,20 @@ const ProfilePage = () => {
               ) : (
                 <div className="space-y-4">
                   {futureAppointments.map((appointment) => (
-                    <Dialog key={appointment.id} open={dialogOpen && selectedAppointment?.id === appointment.id} onOpenChange={(open) => {
-                      if (!open) {
-                        setSelectedAppointment(null);
-                        setRescheduleDate("");
-                        setRescheduleTime("");
+                    <Dialog
+                      key={appointment.id}
+                      open={
+                        dialogOpen && selectedAppointment?.id === appointment.id
                       }
-                      setDialogOpen(open);
-                    }}>
+                      onOpenChange={(open) => {
+                        if (!open) {
+                          setSelectedAppointment(null);
+                          setRescheduleDate("");
+                          setRescheduleTime("");
+                        }
+                        setDialogOpen(open);
+                      }}
+                    >
                       <DialogTrigger asChild>
                         <Card
                           className="border-l-4 border-l-primary cursor-pointer hover:shadow-md transition-shadow"
@@ -477,7 +583,9 @@ const ProfilePage = () => {
                                   <h4 className="font-medium">
                                     {appointment.service}
                                   </h4>
-                                  <Badge {...getStatusBadge(appointment.status)}>
+                                  <Badge
+                                    {...getStatusBadge(appointment.status)}
+                                  >
                                     {getStatusBadge(appointment.status).label}
                                   </Badge>
                                 </div>
@@ -506,7 +614,9 @@ const ProfilePage = () => {
                         </DialogHeader>
                         <div className="space-y-4">
                           <div className="p-4 bg-muted rounded-lg">
-                            <h4 className="font-medium mb-2">{appointment.service}</h4>
+                            <h4 className="font-medium mb-2">
+                              {appointment.service}
+                            </h4>
                             <div className="flex items-center gap-4 text-sm text-muted-foreground">
                               <div className="flex items-center gap-1">
                                 <Calendar className="w-4 h-4" />
@@ -522,55 +632,70 @@ const ProfilePage = () => {
                               </div>
                             </div>
                           </div>
-                          
+
                           <div className="space-y-3">
                             <Label>Nova data</Label>
                             <Input
                               type="date"
                               value={rescheduleDate}
-                              onChange={(e) => setRescheduleDate(e.target.value)}
-                              min={new Date().toISOString().split('T')[0]}
+                              onChange={(e) => {
+                                handleDateChange(e.target.value);
+                              }}
+                              min={new Date().toISOString().split("T")[0]}
                             />
                           </div>
-                          
+
                           <div className="space-y-3">
                             <Label>Novo horário</Label>
                             <select
                               className="w-full p-2 border rounded-md"
                               value={rescheduleTime}
-                              onChange={(e) => setRescheduleTime(e.target.value)}
+                              onChange={(e) =>
+                                setRescheduleTime(e.target.value)
+                              }
                             >
-                              <option value="">Selecione um horário</option>
-                              {generateTimeSlots().map((time) => (
-                                <option key={time} value={time}>
-                                  {time}
-                                </option>
-                              ))}
+                              <option value="">Horários disponíveis</option>
+                              {availableTimes
+                                .filter((slot) => slot.status === "available") // só horários livres
+                                .map((slot) => (
+                                  <option key={slot.time} value={slot.time}>
+                                    {slot.time}
+                                  </option>
+                                ))}
                             </select>
                           </div>
-                          
+
                           <div className="flex gap-2">
                             <Button
                               onClick={handleRescheduleAppointment}
-                              disabled={loading || !rescheduleDate || !rescheduleTime}
+                              disabled={
+                                loading || !rescheduleDate || !rescheduleTime
+                              }
                               className="flex-1"
                             >
                               <RotateCcw className="w-4 h-4 mr-2" />
                               {loading ? "Reagendando..." : "Reagendar"}
                             </Button>
-                            
+
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
-                                <Button variant="destructive" className="flex-1">
+                                <Button
+                                  variant="destructive"
+                                  className="flex-1"
+                                >
                                   <X className="w-4 h-4 mr-2" />
                                   Cancelar
                                 </Button>
                               </AlertDialogTrigger>
                               <AlertDialogContent>
                                 <AlertDialogHeader>
-                                  <AlertDialogTitle>Cancelar agendamento</AlertDialogTitle>
+                                  <AlertDialogTitle>
+                                    Cancelar agendamento
+                                  </AlertDialogTitle>
                                   <AlertDialogDescription>
-                                    Tem certeza que deseja cancelar este agendamento? Esta ação não pode ser desfeita.
+                                    Tem certeza que deseja cancelar este
+                                    agendamento? Esta ação não pode ser
+                                    desfeita.
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
@@ -614,14 +739,20 @@ const ProfilePage = () => {
               ) : (
                 <div className="space-y-4">
                   {pastAppointments.map((appointment) => (
-                    <Dialog key={appointment.id} open={dialogOpen && selectedAppointment?.id === appointment.id} onOpenChange={(open) => {
-                      if (!open) {
-                        setSelectedAppointment(null);
-                        setRescheduleDate("");
-                        setRescheduleTime("");
+                    <Dialog
+                      key={appointment.id}
+                      open={
+                        dialogOpen && selectedAppointment?.id === appointment.id
                       }
-                      setDialogOpen(open);
-                    }}>
+                      onOpenChange={(open) => {
+                        if (!open) {
+                          setSelectedAppointment(null);
+                          setRescheduleDate("");
+                          setRescheduleTime("");
+                        }
+                        setDialogOpen(open);
+                      }}
+                    >
                       <DialogTrigger asChild>
                         <Card
                           className="border-l-4 border-l-muted cursor-pointer hover:shadow-md transition-shadow"
@@ -637,7 +768,9 @@ const ProfilePage = () => {
                                   <h4 className="font-medium">
                                     {appointment.service}
                                   </h4>
-                                  <Badge {...getStatusBadge(appointment.status)}>
+                                  <Badge
+                                    {...getStatusBadge(appointment.status)}
+                                  >
                                     {getStatusBadge(appointment.status).label}
                                   </Badge>
                                 </div>
@@ -660,65 +793,6 @@ const ProfilePage = () => {
                           </CardContent>
                         </Card>
                       </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Reagendar Atendimento</DialogTitle>
-                        </DialogHeader>
-                        <div className="space-y-4">
-                          <div className="p-4 bg-muted rounded-lg">
-                            <h4 className="font-medium mb-2">{appointment.service}</h4>
-                            <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                              <div className="flex items-center gap-1">
-                                <Calendar className="w-4 h-4" />
-                                {format(
-                                  parseISO(appointment.appointment_date),
-                                  "dd 'de' MMMM 'de' yyyy",
-                                  { locale: ptBR }
-                                )}
-                              </div>
-                              <div className="flex items-center gap-1">
-                                <Clock className="w-4 h-4" />
-                                {appointment.appointment_time}
-                              </div>
-                            </div>
-                          </div>
-                          
-                          <div className="space-y-3">
-                            <Label>Nova data</Label>
-                            <Input
-                              type="date"
-                              value={rescheduleDate}
-                              onChange={(e) => setRescheduleDate(e.target.value)}
-                              min={new Date().toISOString().split('T')[0]}
-                            />
-                          </div>
-                          
-                          <div className="space-y-3">
-                            <Label>Novo horário</Label>
-                            <select
-                              className="w-full p-2 border rounded-md"
-                              value={rescheduleTime}
-                              onChange={(e) => setRescheduleTime(e.target.value)}
-                            >
-                              <option value="">Selecione um horário</option>
-                              {generateTimeSlots().map((time) => (
-                                <option key={time} value={time}>
-                                  {time}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-                          
-                          <Button
-                            onClick={handleRescheduleAppointment}
-                            disabled={loading || !rescheduleDate || !rescheduleTime}
-                            className="w-full"
-                          >
-                            <RotateCcw className="w-4 h-4 mr-2" />
-                            {loading ? "Reagendando..." : "Reagendar"}
-                          </Button>
-                        </div>
-                      </DialogContent>
                     </Dialog>
                   ))}
                 </div>

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -11,12 +11,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Calendar, LogOut, User, Menu, X } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import logo from "../assets/logo.png";
 
 const Header = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
+  const location = useLocation();
   const handleSignOut = async () => {
     await signOut();
   };
@@ -31,50 +32,50 @@ const Header = () => {
   };
 
   const navItems = [
-    { label: "Início", href: "/" },
+    { label: "Início", href: "inicio" },
     { label: "Serviços", href: "servicos" },
     { label: "Resultados", href: "resultados" },
+    { label: "Sobre o studio", href: "sobre" },
   ];
 
+  const handleNavClick = (href: string) => {
+    if (location.pathname === "/") {
+      // Está na Home, rola direto
+      const section = document.getElementById(href);
+      section?.scrollIntoView({ behavior: "smooth" });
+    } else {
+      // Navega para a Home e passa o destino via state
+      navigate("/", { state: { scrollToId: href } });
+    }
+
+    setMobileMenuOpen(false);
+  };
   return (
-    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
+    <header className="sticky top-0 z-50 bg-foreground  text-background  border-b border-border">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center">
-              <span className="text-white font-bold text-sm">B</span>
+          <Link to="/" className="flex  items-center space-x-2">
+            <div className="flex items-center space-x-2">
+              <img
+                src={logo}
+                alt="Lariza Freitas"
+                className="h-40 w-auto" // altura 80px
+              />
             </div>
-            <span className="font-bold text-xl text-foreground">
-              Beauty Clinic
-            </span>
           </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            {navItems.map((item) =>
-              item.href === "/" ? (
-                <Link
-                  key={item.label}
-                  to="/"
-                  className="text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  {item.label}
-                </Link>
-              ) : (
-                <button
-                  key={item.label}
-                  onClick={() =>
-                    document.getElementById(item.href)?.scrollIntoView({
-                      behavior: "smooth",
-                    })
-                  }
-                  className="text-muted-foreground hover:text-foreground transition-colors bg-transparent border-none cursor-pointer"
-                >
-                  {item.label}
-                </button>
-              )
-            )}
+            {navItems.map((item) => (
+              <button
+                key={item.href}
+                onClick={() => handleNavClick(item.href)}
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {item.label}
+              </button>
+            ))}
           </nav>
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-4">
@@ -150,14 +151,13 @@ const Header = () => {
           <div className="md:hidden border-t border-border bg-background">
             <div className="px-2 pt-2 pb-3 space-y-1">
               {navItems.map((item) => (
-                <Link
-                  key={item.label}
-                  to={item.href}
+                <button
+                  key={item.href}
+                  onClick={() => handleNavClick(item.href)}
                   className="block px-3 py-2 text-base text-muted-foreground hover:text-foreground transition-colors"
-                  onClick={() => setMobileMenuOpen(false)}
                 >
                   {item.label}
-                </Link>
+                </button>
               ))}
 
               <div className="px-3 py-2 space-y-2">
@@ -184,7 +184,7 @@ const Header = () => {
                         navigate("/perfil");
                         setMobileMenuOpen(false);
                       }}
-                      className="w-full justify-start"
+                      className="w-full justify-start w-full justify-start text-muted-foreground hover:text-foreground transition-colors"
                     >
                       <User className="w-4 h-4 mr-2" />
                       Meu Perfil
@@ -192,10 +192,10 @@ const Header = () => {
                     <Button
                       variant="ghost"
                       onClick={() => {
-                        navigate("/agendamento");
+                        navigate("/perfil");
                         setMobileMenuOpen(false);
                       }}
-                      className="w-full justify-start"
+                      className="w-full justify-start w-full justify-start text-muted-foreground hover:text-foreground transition-colors"
                     >
                       <Calendar className="w-4 h-4 mr-2" />
                       Meus Agendamentos
@@ -203,7 +203,7 @@ const Header = () => {
                     <Button
                       variant="ghost"
                       onClick={handleSignOut}
-                      className="w-full justify-start"
+                      className="w-full justify-start w-full justify-start text-muted-foreground hover:text-foreground transition-colors"
                     >
                       <LogOut className="w-4 h-4 mr-2" />
                       Sair

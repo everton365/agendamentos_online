@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Eye, Brush, Palette, Sparkles } from "lucide-react";
+import { Eye, Brush, Palette, Sparkles, Pipette } from "lucide-react";
 
 const services = [
   {
@@ -11,24 +11,40 @@ const services = [
     duration: "45 min",
   },
   {
-    icon: Brush,
-    title: "Microblading",
+    icon: Pipette,
+    title: "Hidraglos",
     description:
       "Técnica de micropigmentação que cria fios naturais, preenchendo falhas e definindo o formato.",
     price: "A partir de R$ 350",
-    duration: "2h",
+    duration: "30 min",
   },
   {
     icon: Palette,
-    title: "Henna para Sobrancelhas",
+    title: "Design reconstrutivo",
     description:
       "Coloração natural que realça a cor dos fios e preenche temporariamente a pele.",
     price: "A partir de R$ 60",
     duration: "30 min",
   },
   {
+    icon: Brush,
+    title: "Brow lamination",
+    description:
+      "Tratamento que alinha e fixa os fios, criando um efeito de sobrancelhas mais volumosas.",
+    price: "A partir de R$ 120",
+    duration: "1h",
+  },
+  {
     icon: Sparkles,
-    title: "Laminação de Sobrancelhas",
+    title: "Lash lifitign",
+    description:
+      "Tratamento que alinha e fixa os fios, criando um efeito de sobrancelhas mais volumosas.",
+    price: "A partir de R$ 120",
+    duration: "1h",
+  },
+  {
+    icon: Palette,
+    title: "Coloração de sobrancelhas",
     description:
       "Tratamento que alinha e fixa os fios, criando um efeito de sobrancelhas mais volumosas.",
     price: "A partir de R$ 120",
