@@ -28,9 +28,17 @@ interface AppointmentData {
   name: string;
   phone: string;
   service: string;
+  price: string;
   date: string;
   time: string;
   message?: string;
+}
+interface PixResponse {
+  pixId: string;
+  expiresAt: string;
+  qrCodeBase64: string;
+  copiaEcola: string;
+  error?: string;
 }
 
 const PaymentMethodPage = () => {
@@ -38,6 +46,7 @@ const PaymentMethodPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [pixQRCode, setPixQRCode] = useState<string | null>(null);
+  const [pixData, setPixData] = useState<PixResponse | null>(null);
   const appointmentData = location.state?.appointmentData as AppointmentData;
   const [selectedPaymentMethod, setSelectedPaymentMethod] =
     useState<string>("");
@@ -84,8 +93,8 @@ const PaymentMethodPage = () => {
       day: "numeric",
     });
   };
-
-  const servicePrice = getServicePrice(appointmentData.service);
+  console.log("dados passados", appointmentData.price);
+  const Price = getServicePrice(appointmentData.price);
   const bookingFee = 2000; // R$ 20,00 booking fee
   const totalPrice = bookingFee; // Only charge booking fee via Stripe
 
@@ -130,18 +139,16 @@ const PaymentMethodPage = () => {
         const response = await fetch("http://localhost:3000/user/create-pix", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            appointmentData,
-            totalPrice,
-          }),
+          body: JSON.stringify(bodyData), // <-- enviar direto
         });
-
-        const data = await response.json();
-        console.log("Resposta do backend PIX:", data);
+        console.log("Status da resposta:", response.status);
+        const data: PixResponse = await response.json();
+        console.log(data);
 
         if (data.error) throw new Error(data.error);
 
         setPixQRCode(data.qrCodeBase64);
+        setPixData(data);
         toast({
           title: "PIX gerado com sucesso!",
           description: "Use o QR Code para efetuar o pagamento.",
@@ -263,7 +270,7 @@ const PaymentMethodPage = () => {
                 <div className="pt-4 border-t space-y-2">
                   <div className="flex justify-between">
                     <span>Serviço:</span>
-                    <span>{formatPrice(servicePrice)}</span>
+                    <span>{appointmentData.price}</span>
                   </div>
                   <div className="flex justify-between text-sm text-muted-foreground">
                     <span>Taxa de agendamento:</span>
@@ -285,10 +292,7 @@ const PaymentMethodPage = () => {
                   </h4>
                   <ul className="text-sm text-muted-foreground space-y-1">
                     <li>• Pagamento necessário para confirmar agendamento</li>
-                    <li>
-                      • Cancelamento com 24h de antecedência: reembolso total
-                    </li>
-                    <li>• Reagendamento gratuito até 12h antes do horário</li>
+                    <li>• Reagendamento gratuito até 3h antes do horário</li>
                     <li>• Não comparecimento: valor não será reembolsado</li>
                   </ul>
                 </div>
@@ -406,16 +410,88 @@ const PaymentMethodPage = () => {
       </div>
       {/* Modal PIX */}
       {pixQRCode && (
-        <Dialog open={true} onOpenChange={() => setPixQRCode(null)}>
-          <DialogContent className="max-w-sm mx-auto text-center">
+        <Dialog
+          open={!!pixQRCode}
+          onOpenChange={(open) => {
+            // bloqueia fechamento automático
+            if (!open) setPixQRCode(pixQRCode);
+          }}
+        >
+          <DialogContent className="max-w-lg max-h-[100vh] mx-auto text-center overflow-y-auto">
             <DialogHeader>
               <DialogTitle>PIX - Pague usando o QR Code</DialogTitle>
               <DialogDescription>
                 Abra o aplicativo do seu banco e escaneie o QR Code abaixo:
               </DialogDescription>
             </DialogHeader>
+
+            {/* QR Code */}
             <img src={pixQRCode} alt="QR Code PIX" className="mx-auto my-4" />
-            <Button onClick={() => setPixQRCode(null)}>Fechar</Button>
+
+            {/* Informações do PIX */}
+            <div className="text-left text-sm mt-1">
+              <p>
+                <strong>Identificação:</strong> {pixData?.pixId}
+              </p>
+              <p>
+                <strong>Expira em:</strong>{" "}
+                {new Date(pixData?.expiresAt).toLocaleString("pt-BR", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+                })}
+              </p>
+            </div>
+
+            {/* Copia e cola do PIX */}
+            {pixData?.copiaEcola && (
+              <div className="flex flex-col items-center mt-1 space-y-2">
+                <input
+                  type="text"
+                  readOnly
+                  value={pixData.copiaEcola}
+                  className="flex-1 w-full border rounded py-1 text-sm text-center"
+                />
+                <Button
+                  onClick={() => {
+                    navigator.clipboard.writeText(pixData.copiaEcola);
+                    toast({
+                      title: "Copiado!",
+                      description:
+                        "O código PIX foi copiado para a área de transferência.",
+                    });
+                  }}
+                >
+                  Copiar
+                </Button>
+              </div>
+            )}
+
+            {/* Passo a passo do pagamento */}
+            <div className="text-left mt-1 p-2 bg-gray-50 rounded-md">
+              <h3 className="font-semibold mb-2">Como pagar:</h3>
+              <ol className="list-decimal list-inside space-y-1">
+                <li>Abra o aplicativo do seu banco ou carteira digital.</li>
+                <li>Escolha a opção "PIX" ou "Pagamento via QR Code".</li>
+                <li>Escaneie o QR Code exibido acima.</li>
+                <li>Confirme os dados do pagamento.</li>
+                <li>Finalize a transação.</li>
+              </ol>
+            </div>
+
+            {/* Botão Fechar */}
+            <Button
+              onClick={() => {
+                setPixQRCode(null);
+                navigate("/perfil");
+              }}
+              className="mt-4"
+            >
+              Ja fiz o pagamento
+            </Button>
           </DialogContent>
         </Dialog>
       )}

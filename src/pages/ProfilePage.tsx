@@ -60,6 +60,7 @@ interface Appointment {
   name: string;
   phone: string;
   service: string;
+  price: string | null;
   appointment_date: string;
   appointment_time: string;
   status: string;
@@ -149,7 +150,16 @@ const ProfilePage = () => {
         .order("appointment_date", { ascending: false });
 
       if (error) throw error;
-      setAppointments(data || []);
+
+      // Garantir que price existe em cada item
+      const appointmentsWithPrice: Appointment[] = (data || []).map(
+        (a: any) => ({
+          ...a,
+          price: a.price ?? "R$ 0,00", // ou null se preferir
+        })
+      );
+
+      setAppointments(appointmentsWithPrice);
     } catch (error) {
       console.error("Erro ao buscar agendamentos:", error);
     }
@@ -250,8 +260,8 @@ const ProfilePage = () => {
 
   const getStatusBadge = (status: string) => {
     const statusMap = {
-      pending: { label: "Pendente", variant: "secondary" as const },
-      confirmed: { label: "Confirmado", variant: "default" as const },
+      PENDING: { label: "Pendente", variant: "secondary" as const },
+      CONFIRMED: { label: "Confirmado", variant: "default" as const },
       completed: { label: "Concluído", variant: "secondary" as const },
       cancelled: { label: "Cancelado", variant: "destructive" as const },
     };
@@ -581,7 +591,7 @@ const ProfilePage = () => {
                               <div className="space-y-2">
                                 <div className="flex items-center gap-2">
                                   <h4 className="font-medium">
-                                    {appointment.service}
+                                    {appointment.service} {appointment.price}
                                   </h4>
                                   <Badge
                                     {...getStatusBadge(appointment.status)}
@@ -608,11 +618,14 @@ const ProfilePage = () => {
                           </CardContent>
                         </Card>
                       </DialogTrigger>
+
                       <DialogContent>
                         <DialogHeader>
                           <DialogTitle>Gerenciar Agendamento</DialogTitle>
                         </DialogHeader>
+
                         <div className="space-y-4">
+                          {/* Informações do agendamento */}
                           <div className="p-4 bg-muted rounded-lg">
                             <h4 className="font-medium mb-2">
                               {appointment.service}
@@ -633,86 +646,102 @@ const ProfilePage = () => {
                             </div>
                           </div>
 
-                          <div className="space-y-3">
-                            <Label>Nova data</Label>
-                            <Input
-                              type="date"
-                              value={rescheduleDate}
-                              onChange={(e) => {
-                                handleDateChange(e.target.value);
-                              }}
-                              min={new Date().toISOString().split("T")[0]}
-                            />
-                          </div>
+                          {/* Inputs de reagendamento */}
+                          {appointment.status !== "cancelled" && (
+                            <>
+                              <div className="space-y-3">
+                                <Label>Nova data</Label>
+                                <Input
+                                  type="date"
+                                  value={rescheduleDate}
+                                  onChange={(e) =>
+                                    handleDateChange(e.target.value)
+                                  }
+                                  min={new Date().toISOString().split("T")[0]}
+                                />
+                              </div>
 
-                          <div className="space-y-3">
-                            <Label>Novo horário</Label>
-                            <select
-                              className="w-full p-2 border rounded-md"
-                              value={rescheduleTime}
-                              onChange={(e) =>
-                                setRescheduleTime(e.target.value)
-                              }
-                            >
-                              <option value="">Horários disponíveis</option>
-                              {availableTimes
-                                .filter((slot) => slot.status === "available") // só horários livres
-                                .map((slot) => (
-                                  <option key={slot.time} value={slot.time}>
-                                    {slot.time}
-                                  </option>
-                                ))}
-                            </select>
-                          </div>
-
-                          <div className="flex gap-2">
-                            <Button
-                              onClick={handleRescheduleAppointment}
-                              disabled={
-                                loading || !rescheduleDate || !rescheduleTime
-                              }
-                              className="flex-1"
-                            >
-                              <RotateCcw className="w-4 h-4 mr-2" />
-                              {loading ? "Reagendando..." : "Reagendar"}
-                            </Button>
-
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button
-                                  variant="destructive"
-                                  className="flex-1"
+                              <div className="space-y-3">
+                                <Label>Novo horário</Label>
+                                <select
+                                  className="w-full p-2 border rounded-md"
+                                  value={rescheduleTime}
+                                  onChange={(e) =>
+                                    setRescheduleTime(e.target.value)
+                                  }
                                 >
-                                  <X className="w-4 h-4 mr-2" />
-                                  Cancelar
-                                </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>
-                                    Cancelar agendamento
-                                  </AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    Tem certeza que deseja cancelar este
-                                    agendamento? Esta ação não pode ser
-                                    desfeita.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Voltar</AlertDialogCancel>
-                                  <AlertDialogAction
-                                    onClick={() => {
-                                      handleCancelAppointment(appointment.id);
-                                      setDialogOpen(false);
-                                    }}
-                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                  <option value="">Horários disponíveis</option>
+                                  {availableTimes
+                                    .filter(
+                                      (slot) => slot.status === "available"
+                                    )
+                                    .map((slot) => (
+                                      <option key={slot.time} value={slot.time}>
+                                        {slot.time}
+                                      </option>
+                                    ))}
+                                </select>
+                              </div>
+                            </>
+                          )}
+
+                          {/* Botões só aparecem se não estiver CANCELADO */}
+                          {appointment.status !== "cancelled" ? (
+                            <div className="flex gap-2">
+                              <Button
+                                onClick={handleRescheduleAppointment}
+                                disabled={
+                                  loading || !rescheduleDate || !rescheduleTime
+                                }
+                                className="flex-1"
+                              >
+                                <RotateCcw className="w-4 h-4 mr-2" />
+                                {loading ? "Reagendando..." : "Reagendar"}
+                              </Button>
+
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button
+                                    variant="destructive"
+                                    className="flex-1"
                                   >
+                                    <X className="w-4 h-4 mr-2" />
                                     Cancelar agendamento
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          </div>
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>
+                                      Cancelar agendamento
+                                    </AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Tem certeza que deseja cancelar este
+                                      agendamento? Esta ação não pode ser
+                                      desfeita.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>
+                                      Voltar
+                                    </AlertDialogCancel>
+                                    <AlertDialogAction
+                                      onClick={() => {
+                                        handleCancelAppointment(appointment.id);
+                                        setDialogOpen(false);
+                                      }}
+                                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                    >
+                                      Cancelar agendamento
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </div>
+                          ) : (
+                            <div className="p-3 text-sm text-center text-red-600 bg-red-100 rounded-md">
+                              Este agendamento já foi cancelado.
+                            </div>
+                          )}
                         </div>
                       </DialogContent>
                     </Dialog>

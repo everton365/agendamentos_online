@@ -2,7 +2,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, Phone, User, MapPin, CreditCard, ArrowLeft, CheckCircle } from "lucide-react";
+import {
+  Calendar,
+  Clock,
+  Phone,
+  User,
+  MapPin,
+  CreditCard,
+  ArrowLeft,
+  CheckCircle,
+} from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
@@ -19,7 +28,7 @@ const PaymentPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
-  
+
   const appointmentData = location.state?.appointmentData as AppointmentData;
 
   if (!appointmentData) {
@@ -33,7 +42,7 @@ const PaymentPage = () => {
       microblading: 350,
       henna: 60,
       laminacao: 120,
-      consulta: 50
+      consulta: 50,
     };
     return prices[service] || 0;
   };
@@ -44,18 +53,18 @@ const PaymentPage = () => {
       microblading: "Microblading",
       henna: "Henna para Sobrancelhas",
       laminacao: "Laminação de Sobrancelhas",
-      consulta: "Consulta/Avaliação"
+      consulta: "Consulta/Avaliação",
     };
     return names[service] || service;
   };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('pt-BR', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    return date.toLocaleDateString("pt-BR", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
@@ -68,7 +77,7 @@ const PaymentPage = () => {
       title: "Agendamento Confirmado!",
       description: "Você receberá um WhatsApp com a confirmação em breve.",
     });
-    
+
     // Simulate payment processing
     setTimeout(() => {
       navigate("/");
@@ -83,18 +92,17 @@ const PaymentPage = () => {
     <main className="min-h-screen bg-gradient-hero py-20">
       <div className="container mx-auto px-4 max-w-4xl">
         <div className="mb-8">
-          <Button
-            variant="outline"
-            onClick={handleBack}
-            className="mb-4"
-          >
+          <Button variant="outline" onClick={handleBack} className="mb-4">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Voltar
           </Button>
-          
+
           <div className="text-center">
             <h1 className="text-4xl font-bold text-foreground mb-4">
-              Confirme seu <span className="bg-gradient-primary bg-clip-text text-transparent">Agendamento</span>
+              Confirme seu{" "}
+              <span className="bg-gradient-primary bg-clip-text text-transparent">
+                Agendamento
+              </span>
             </h1>
             <p className="text-xl text-muted-foreground">
               Revise os dados e confirme o pagamento para finalizar
@@ -117,15 +125,21 @@ const PaymentPage = () => {
                   <User className="w-5 h-5 text-primary mt-1" />
                   <div>
                     <div className="font-semibold text-foreground">Cliente</div>
-                    <div className="text-muted-foreground">{appointmentData.name}</div>
+                    <div className="text-muted-foreground">
+                      {appointmentData.name}
+                    </div>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3">
                   <Phone className="w-5 h-5 text-primary mt-1" />
                   <div>
-                    <div className="font-semibold text-foreground">Telefone</div>
-                    <div className="text-muted-foreground">{appointmentData.phone}</div>
+                    <div className="font-semibold text-foreground">
+                      Telefone
+                    </div>
+                    <div className="text-muted-foreground">
+                      {appointmentData.phone}
+                    </div>
                   </div>
                 </div>
 
@@ -133,7 +147,9 @@ const PaymentPage = () => {
                   <Calendar className="w-5 h-5 text-primary mt-1" />
                   <div>
                     <div className="font-semibold text-foreground">Data</div>
-                    <div className="text-muted-foreground">{formatDate(appointmentData.date)}</div>
+                    <div className="text-muted-foreground">
+                      {formatDate(appointmentData.date)}
+                    </div>
                   </div>
                 </div>
 
@@ -141,7 +157,9 @@ const PaymentPage = () => {
                   <Clock className="w-5 h-5 text-primary mt-1" />
                   <div>
                     <div className="font-semibold text-foreground">Horário</div>
-                    <div className="text-muted-foreground">{appointmentData.time}</div>
+                    <div className="text-muted-foreground">
+                      {appointmentData.time}
+                    </div>
                   </div>
                 </div>
 
@@ -150,7 +168,8 @@ const PaymentPage = () => {
                   <div>
                     <div className="font-semibold text-foreground">Local</div>
                     <div className="text-muted-foreground">
-                      Rua das Sobrancelhas, 123<br />
+                      Rua das Sobrancelhas, 123
+                      <br />
                       Centro - São Paulo, SP
                     </div>
                   </div>
@@ -160,8 +179,12 @@ const PaymentPage = () => {
                   <div className="flex items-start gap-3">
                     <div className="w-5 h-5 mt-1" />
                     <div>
-                      <div className="font-semibold text-foreground">Observações</div>
-                      <div className="text-muted-foreground">{appointmentData.message}</div>
+                      <div className="font-semibold text-foreground">
+                        Observações
+                      </div>
+                      <div className="text-muted-foreground">
+                        {appointmentData.message}
+                      </div>
                     </div>
                   </div>
                 )}
@@ -186,14 +209,19 @@ const PaymentPage = () => {
                       {getServiceName(appointmentData.service)}
                     </div>
                   </div>
-                  <Badge variant="secondary" className="bg-gradient-primary text-white">
+                  <Badge
+                    variant="secondary"
+                    className="bg-gradient-primary text-white"
+                  >
                     R$ {servicePrice},00
                   </Badge>
                 </div>
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="font-semibold text-foreground">Taxa de Agendamento</div>
+                    <div className="font-semibold text-foreground">
+                      Taxa de Agendamento
+                    </div>
                     <div className="text-sm text-muted-foreground">
                       Garantia de horário
                     </div>
@@ -218,9 +246,8 @@ const PaymentPage = () => {
                     <br />
                     • Taxa de agendamento não reembolsável
                     <br />
-                    • Reagendamento até 24h antes
-                    <br />
-                    • Pagamento do serviço no local
+                    • Reagendamento até 3h antes
+                    <br />• Pagamento do serviço no local
                   </div>
                 </div>
 

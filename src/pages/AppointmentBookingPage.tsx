@@ -22,12 +22,13 @@ const AppointmentBookingPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-
+  const [emailValid, setEmailValid] = useState(true);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
     service: "",
+    price: "",
     date: "",
     time: "",
     message: "",
@@ -37,7 +38,7 @@ const AppointmentBookingPage = () => {
   const [timeSlots, setTimeSlots] = useState<
     {
       time: string;
-      status: "available" | "pending" | "confirmed" | "blocked";
+      status: "available" | "PENDING" | "CONFIRMED" | "blocked";
     }[]
   >([]);
 
@@ -54,7 +55,7 @@ const AppointmentBookingPage = () => {
 
     try {
       const res = await fetch(
-        `https://api-agendamentos-tau.vercel.app/user/appointments/status/${date}`
+        `http://localhost:3000/user/appointments/status/${date}`
       );
 
       console.log("🔗 URL da requisição:", res.url);
@@ -75,8 +76,8 @@ const AppointmentBookingPage = () => {
           time: slot.time.slice(0, 5),
           status: slot.status as
             | "available"
-            | "pending"
-            | "confirmed"
+            | "PENDING"
+            | "CONFIRMED"
             | "blocked",
         })
       );
@@ -87,35 +88,6 @@ const AppointmentBookingPage = () => {
       console.error("❌ Erro na função getTimeSlotsForDate:", err);
       return [];
     }
-  };
-
-  // Save appointment to Supabase
-  const saveAppointment = async (appointmentData: typeof formData) => {
-    if (!user) return null;
-
-    const { data, error } = await supabase
-      .from("appointments")
-      .insert({
-        user_id: user.id,
-        name: appointmentData.name,
-        email: appointmentData.email,
-        cpf: appointmentData.cpf,
-        phone: appointmentData.phone,
-        service: appointmentData.service,
-        appointment_date: appointmentData.date,
-        appointment_time: appointmentData.time,
-        message: appointmentData.message,
-        status: "pending",
-      })
-      .select()
-      .single();
-
-    if (error) {
-      console.error("Error saving appointment:", error);
-      throw error;
-    }
-
-    return data;
   };
 
   const handleInputChange = async (field: string, value: string) => {
@@ -165,7 +137,7 @@ const AppointmentBookingPage = () => {
     }
 
     try {
-      // Check availability one more time before saving
+      // Check availability one more time before navigating
       const slots = await getTimeSlotsForDate(formData.date);
       const selectedSlot = slots.find((slot) => slot.time === formData.time);
       if (!selectedSlot || selectedSlot.status !== "available") {
@@ -178,39 +150,41 @@ const AppointmentBookingPage = () => {
         return;
       }
 
-      // Save appointment to database
-      const savedAppointment = await saveAppointment(formData);
-
-      if (savedAppointment) {
-        // Navigate to payment page with appointment data
-        navigate("/pagamento", {
-          state: {
-            appointmentData: formData,
-            appointmentId: savedAppointment.id,
-          },
-        });
-      }
+      // Apenas navega para a página de pagamento, sem salvar ainda
+      navigate("/pagamento", {
+        state: {
+          appointmentData: formData,
+        },
+      });
     } catch (error) {
       toast({
         title: "Erro ao agendar",
         description:
-          "Ocorreu um erro ao salvar seu agendamento. Tente novamente.",
+          "Ocorreu um erro ao processar seu agendamento. Tente novamente.",
         variant: "destructive",
       });
-      console.error("Error saving appointment:", error);
+      console.error("Erro ao processar agendamento:", error);
     }
   };
 
   const serviceOptions = [
-    { value: "design", label: "Design de Sobrancelhas", price: "R$ 80,00" },
-    { value: "microblading", label: "Lash lifitign", price: "R$ 450,00" },
-    { value: "henna", label: "Design reconstrutivo", price: "R$ 60,00" },
     {
-      value: "laminacao",
+      value: "Design de Sobrancelhas",
+      label: "Design de Sobrancelhas",
+      price: "R$ 80,00",
+    },
+    { value: "Lash lifitign", label: "Lash lifitign", price: "R$ 450,00" },
+    {
+      value: "Design reconstrutivo",
+      label: "Design reconstrutivo",
+      price: "R$ 60,00",
+    },
+    {
+      value: "Hidraglos",
       label: "Hidraglos",
       price: "R$ 120,00",
     },
-    { value: "consulta", label: "Brow lamination", price: "R$ 50,00" },
+    { value: "Brow lamination", label: "Brow lamination", price: "R$ 50,00" },
   ];
 
   const getServicePrice = (serviceValue: string) => {
@@ -331,13 +305,25 @@ const AppointmentBookingPage = () => {
                       <Label htmlFor="name">Email</Label>
                       <Input
                         id="email"
+                        type="email"
                         value={formData.email}
-                        onChange={(e) =>
-                          handleInputChange("email", e.target.value)
-                        }
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          handleInputChange("email", value);
+
+                          // validação do email
+                          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                          setEmailValid(emailRegex.test(value));
+                        }}
                         placeholder="exemplo@email.com"
+                        className={!emailValid ? "border-red-500" : ""}
                         required
-                      />
+                      />{" "}
+                      {!emailValid && (
+                        <p className="text-red-500 text-sm">
+                          Digite um email válido.
+                        </p>
+                      )}
                     </div>
 
                     <div className="space-y-2">
@@ -392,9 +378,18 @@ const AppointmentBookingPage = () => {
                     <Label htmlFor="service">Serviço Desejado</Label>
                     <Select
                       value={formData.service}
-                      onValueChange={(value) =>
-                        handleInputChange("service", value)
-                      }
+                      onValueChange={(value) => {
+                        const selectedService = serviceOptions.find(
+                          (s) => s.value === value
+                        );
+                        if (selectedService) {
+                          setFormData((prev) => ({
+                            ...prev,
+                            service: selectedService.value,
+                            price: selectedService.price, // adiciona o preço junto
+                          }));
+                        }
+                      }}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione o serviço" />
@@ -458,9 +453,9 @@ const AppointmentBookingPage = () => {
                                       ? "border-primary bg-primary text-primary-foreground"
                                       : isAvailable
                                       ? "border-[hsl(var(--status-available))] bg-[hsl(var(--status-available)/0.1)] text-[hsl(var(--status-available))] hover:bg-[hsl(var(--status-available)/0.2)]"
-                                      : slot.status === "pending"
+                                      : slot.status === "PENDING"
                                       ? "border-[hsl(var(--status-pending))] bg-[hsl(var(--status-pending)/0.1)] text-[hsl(var(--status-pending))] cursor-not-allowed"
-                                      : slot.status === "confirmed"
+                                      : slot.status === "CONFIRMED"
                                       ? "border-[hsl(var(--status-confirmed))] bg-[hsl(var(--status-confirmed)/0.1)] text-[hsl(var(--status-confirmed))] cursor-not-allowed"
                                       : "border-[hsl(var(--status-blocked))] bg-[hsl(var(--status-blocked)/0.1)] text-[hsl(var(--status-blocked))] cursor-not-allowed"
                                   }
@@ -471,9 +466,9 @@ const AppointmentBookingPage = () => {
                                   <div className="text-xs mt-1">
                                     {slot.status === "available"
                                       ? "Disponível"
-                                      : slot.status === "pending"
+                                      : slot.status === "PENDING"
                                       ? "Pendente"
-                                      : slot.status === "confirmed"
+                                      : slot.status === "CONFIRMED"
                                       ? "Ocupado"
                                       : "Bloqueado"}
                                   </div>

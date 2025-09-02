@@ -1,28 +1,30 @@
-import { useEffect, useState } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle, Home, Calendar } from 'lucide-react';
-import Header from '@/components/Header';
+import { useEffect, useState } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CheckCircle, Home, Calendar, User } from "lucide-react";
+import Header from "@/components/Header";
 
 const PaymentConfirmationPage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [paymentStatus, setPaymentStatus] = useState<'loading' | 'success' | 'error'>('loading');
+  const [paymentStatus, setPaymentStatus] = useState<
+    "loading" | "success" | "error"
+  >("loading");
 
-  const sessionId = searchParams.get('session_id');
+  const sessionId = searchParams.get("session_id");
 
   useEffect(() => {
     if (sessionId) {
       // In a real implementation, you would verify the payment with Stripe
       // For now, we'll assume it's successful
-      setPaymentStatus('success');
+      setPaymentStatus("success");
     } else {
-      setPaymentStatus('error');
+      setPaymentStatus("error");
     }
   }, [sessionId]);
 
-  if (paymentStatus === 'loading') {
+  if (paymentStatus === "loading") {
     return (
       <div className="min-h-screen bg-gradient-hero flex items-center justify-center">
         <div className="text-center">
@@ -33,7 +35,7 @@ const PaymentConfirmationPage = () => {
     );
   }
 
-  if (paymentStatus === 'error') {
+  if (paymentStatus === "error") {
     return (
       <div className="min-h-screen bg-gradient-hero">
         <Header />
@@ -50,9 +52,10 @@ const PaymentConfirmationPage = () => {
                   Erro na Confirmação
                 </h1>
                 <p className="text-muted-foreground mb-6">
-                  Não foi possível confirmar seu pagamento. Por favor, entre em contato conosco.
+                  Não foi possível confirmar seu pagamento. Por favor, entre em
+                  contato conosco.
                 </p>
-                <Button onClick={() => navigate('/')} variant="primary">
+                <Button onClick={() => navigate("/")} variant="primary">
                   <Home className="w-4 h-4 mr-2" />
                   Voltar ao Início
                 </Button>
@@ -67,7 +70,7 @@ const PaymentConfirmationPage = () => {
   return (
     <div className="min-h-screen bg-gradient-hero">
       <Header />
-      
+
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto text-center">
           <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-elegant">
@@ -87,25 +90,25 @@ const PaymentConfirmationPage = () => {
                   Seu agendamento foi confirmado com sucesso!
                 </h2>
                 <p className="text-muted-foreground">
-                  A taxa de agendamento de R$ 20,00 foi processada com sucesso. 
-                  Este valor será descontado do total do serviço no dia do atendimento.
+                  A taxa de agendamento de R$ 20,00 foi processada com sucesso.
+                  Este valor será descontado do total do serviço no dia do
+                  atendimento.
                 </p>
               </div>
 
               <div className="bg-secondary/20 rounded-lg p-6">
-                <h3 className="font-semibold text-foreground mb-4">Próximos Passos:</h3>
+                <h3 className="font-semibold text-foreground mb-4">
+                  Próximos Passos:
+                </h3>
                 <ul className="text-left space-y-2 text-sm text-muted-foreground">
                   <li className="flex items-start gap-2">
                     <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                    Você receberá um email de confirmação em breve
+                    Mais informações via WhatsApp
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                    Entraremos em contato via WhatsApp para confirmar detalhes
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                    Os R$ 20,00 pagos serão descontados do valor total do serviço
+                    Os R$ 20,00 pagos serão descontados do valor total do
+                    serviço
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
@@ -116,18 +119,34 @@ const PaymentConfirmationPage = () => {
 
               <div className="bg-primary/10 rounded-lg p-4">
                 <p className="text-sm text-primary font-medium">
-                  📱 Dúvidas? Entre em contato: (11) 99999-9999
+                  📱 Dúvidas? Entre em contato: (85) 98419-2379
                 </p>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button onClick={() => navigate('/')} variant="primary">
+                <Button
+                  onClick={() => navigate("/")}
+                  variant="primary"
+                  className="flex-1 flex items-center justify-center"
+                >
                   <Home className="w-4 h-4 mr-2" />
                   Voltar ao Início
                 </Button>
-                <Button onClick={() => navigate('/agendamento')} variant="outline">
+                <Button
+                  onClick={() => navigate("/agendamento")}
+                  variant="outline"
+                  className="flex-1 flex items-center justify-center"
+                >
                   <Calendar className="w-4 h-4 mr-2" />
                   Novo Agendamento
+                </Button>
+                <Button
+                  onClick={() => navigate("/perfil")}
+                  variant="outline"
+                  className="flex-1 flex items-center justify-center"
+                >
+                  <User className="w-4 h-4 mr-2" />
+                  Meu Perfil
                 </Button>
               </div>
             </CardContent>
