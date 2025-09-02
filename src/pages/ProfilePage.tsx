@@ -463,18 +463,18 @@ const ProfilePage = () => {
               </div>
 
               {/* Informações do Perfil */}
-              <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-1 gap-0">
                 {/* Email (sempre visual) */}
-                <div className="space-y-2">
+                <div className="space-y-1">
                   {isEditing && <Label htmlFor="email">Email</Label>}
-                  <div className="flex items-center gap-2 p-2 border rounded-md bg-muted">
+                  <div className="flex items-center gap-2 text-sm">
                     <Mail className="w-4 h-4 text-muted-foreground" />
                     <span className="text-sm">{user.email}</span>
                   </div>
                 </div>
 
                 {/* Nome */}
-                <div className="space-y-2">
+                <div className="space-y-0 p-1">
                   {isEditing ? (
                     <>
                       <Label htmlFor="display_name">Nome</Label>
@@ -491,7 +491,7 @@ const ProfilePage = () => {
                       />
                     </>
                   ) : (
-                    <div className="flex items-center gap-2 p-2 border rounded-md bg-muted">
+                    <div className="flex items-center gap-2 text-sm">
                       <User className="w-4 h-4 text-muted-foreground" />
                       <span className="text-sm">
                         {profile.display_name || "Sem nome"}
@@ -518,7 +518,7 @@ const ProfilePage = () => {
                       />
                     </>
                   ) : (
-                    <div className="flex items-center gap-2 p-2 border rounded-md bg-muted">
+                    <div className="flex items-center gap-2 text-sm">
                       <Phone className="w-4 h-4 text-muted-foreground" />
                       <span className="text-sm">
                         {profile.phone || "Telefone não informado"}

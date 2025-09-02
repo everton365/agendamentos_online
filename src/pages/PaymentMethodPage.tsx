@@ -97,15 +97,8 @@ const PaymentMethodPage = () => {
   const Price = getServicePrice(appointmentData.price);
   const bookingFee = 2000; // R$ 20,00 booking fee
   const totalPrice = bookingFee; // Only charge booking fee via Stripe
-
+  const baseURL = import.meta.env.VITE_API_URL;
   const paymentMethods = [
-    {
-      id: "credit_card",
-      name: "Cartão de Crédito",
-      description: "Visa, Mastercard, American Express",
-      icon: CreditCard,
-      popular: true,
-    },
     {
       id: "pix",
       name: "PIX",
@@ -136,7 +129,7 @@ const PaymentMethodPage = () => {
 
         console.log("Dados enviados para create-pix:", bodyData);
 
-        const response = await fetch("http://localhost:3000/user/create-pix", {
+        const response = await fetch(`${baseURL}/user/create-pix`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(bodyData), // <-- enviar direto
@@ -303,7 +296,7 @@ const PaymentMethodPage = () => {
             <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-elegant">
               <CardHeader>
                 <CardTitle className="text-foreground">
-                  Métodos de Pagamento
+                  Método de Pagamento
                 </CardTitle>
               </CardHeader>
               <CardContent>

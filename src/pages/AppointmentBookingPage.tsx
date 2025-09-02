@@ -41,7 +41,10 @@ const AppointmentBookingPage = () => {
       status: "available" | "PENDING" | "CONFIRMED" | "blocked";
     }[]
   >([]);
-
+  const baseURL = import.meta.env.VITE_API_URL;
+  console.log("api url aqui", baseURL);
+  console.log("Todas envs:", import.meta.env);
+  console.log("API URL:", import.meta.env.VITE_API_URL);
   // Redirect to auth if not logged in
   useEffect(() => {
     if (!user) {
@@ -54,9 +57,7 @@ const AppointmentBookingPage = () => {
     console.log("🚀 getTimeSlotsForDate chamado com data:", date);
 
     try {
-      const res = await fetch(
-        `http://localhost:3000/user/appointments/status/${date}`
-      );
+      const res = await fetch(`${baseURL}/user/appointments/status/${date}`);
 
       console.log("🔗 URL da requisição:", res.url);
       console.log("📡 Status HTTP:", res.status);
