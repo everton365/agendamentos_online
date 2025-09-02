@@ -392,7 +392,7 @@ const PaymentMethodPage = () => {
                   ) : (
                     <>
                       <CheckCircle className="w-5 h-5 mr-2" />
-                      Confirmar e Paga {formatPrice(totalPrice)}
+                      Confirmar e Pagar {formatPrice(totalPrice)}
                     </>
                   )}
                 </Button>
