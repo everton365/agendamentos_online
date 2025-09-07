@@ -63,9 +63,7 @@ const AppointmentBookingPage = () => {
   useEffect(() => {
     if (!formData.date) return;
 
-    fetch(
-      `http://localhost:3000/user/appointments/date-bloqueada/${formData.date}`
-    )
+    fetch(`${baseURL}/user/appointments/date-bloqueada/${formData.date}`)
       .then((res) => res.json())
       .then((data) => setBlockedDate(data))
       .catch((err) => console.error(err));
@@ -90,9 +88,7 @@ const AppointmentBookingPage = () => {
   ) => {
     try {
       const durationMinutes = parseDuration(serviceDuration);
-      const res = await fetch(
-        `http://localhost:3000/user/appointments/status/${date}`
-      );
+      const res = await fetch(`${baseURL}/user/appointments/status/${date}`);
       if (!res.ok) throw new Error("Erro ao buscar horários");
 
       const data = await res.json();

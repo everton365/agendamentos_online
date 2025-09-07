@@ -86,7 +86,7 @@ const ProfilePage = () => {
   const [rescheduleDate, setRescheduleDate] = useState("");
   const [rescheduleTime, setRescheduleTime] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
-
+  const baseURL = import.meta.env.VITE_API_URL;
   const [availableTimes, setAvailableTimes] = useState<
     {
       time: string;
@@ -307,9 +307,7 @@ const ProfilePage = () => {
     console.log("🚀 getTimeSlotsForDate chamado com data:", date);
 
     try {
-      const res = await fetch(
-        `https://api-agendamentos-tau.vercel.app/user/appointments/status/${date}`
-      );
+      const res = await fetch(`${baseURL}/user/appointments/status/${date}`);
 
       console.log("🔗 URL da requisição:", res.url);
       console.log("📡 Status HTTP:", res.status);
