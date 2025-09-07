@@ -130,7 +130,7 @@ const PaymentMethodPage = () => {
 
         console.log("Dados enviados para create-pix:", bodyData);
 
-        const response = await fetch(`http://localhost:3000/user/create-pix`, {
+        const response = await fetch(`${baseURL}/user/create-pix`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(bodyData), // <-- enviar direto
