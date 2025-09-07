@@ -54,7 +54,9 @@ const Index = () => {
       <div id="resultados">
         <ResultsCarousel />
       </div>
+
       <TestimonialsSection />
+
       <Footer />
     </main>
   );

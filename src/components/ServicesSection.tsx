@@ -1,58 +1,13 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Eye, Brush, Palette, Sparkles, Pipette } from "lucide-react";
 
-const services = [
-  {
-    icon: Eye,
-    title: "Design de Sobrancelhas",
-    description:
-      "Modelagem personalizada respeitando o formato do seu rosto e características naturais.",
-    price: "A partir de R$ 80",
-    duration: "45 min",
-  },
-  {
-    icon: Pipette,
-    title: "Hidraglos",
-    description:
-      "Técnica de micropigmentação que cria fios naturais, preenchendo falhas e definindo o formato.",
-    price: "A partir de R$ 350",
-    duration: "30 min",
-  },
-  {
-    icon: Palette,
-    title: "Design reconstrutivo",
-    description:
-      "Coloração natural que realça a cor dos fios e preenche temporariamente a pele.",
-    price: "A partir de R$ 60",
-    duration: "30 min",
-  },
-  {
-    icon: Brush,
-    title: "Brow lamination",
-    description:
-      "Tratamento que alinha e fixa os fios, criando um efeito de sobrancelhas mais volumosas.",
-    price: "A partir de R$ 120",
-    duration: "1h",
-  },
-  {
-    icon: Sparkles,
-    title: "Lash lifitign",
-    description:
-      "Tratamento que alinha e fixa os fios, criando um efeito de sobrancelhas mais volumosas.",
-    price: "A partir de R$ 120",
-    duration: "1h",
-  },
-  {
-    icon: Palette,
-    title: "Coloração de sobrancelhas",
-    description:
-      "Tratamento que alinha e fixa os fios, criando um efeito de sobrancelhas mais volumosas.",
-    price: "A partir de R$ 120",
-    duration: "1h",
-  },
-];
+import { serviceOptions } from "../data/servicesData";
+import { useState } from "react";
 
 const ServicesSection = () => {
+  const [showAll, setShowAll] = useState(false);
+
+  const visibleServices = showAll ? serviceOptions : serviceOptions.slice(0, 4); // 👈 só mostra 4 no início
+
   return (
     <section className="py-20 bg-gradient-elegant">
       <div className="container mx-auto px-4">
@@ -76,54 +31,53 @@ const ServicesSection = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {services.map((service, index) => (
-            <Card
-              key={index}
-              className="group hover:shadow-elegant transition-all duration-300 hover:-translate-y-2 border-0 bg-white/80 backdrop-blur-sm"
+        <div className="flex flex-col items-center">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 w-full">
+            {visibleServices.map((service, index) => (
+              <Card
+                key={index}
+                className="group hover:shadow-elegant transition-all duration-300 hover:-translate-y-2 border-0 bg-white/80 backdrop-blur-sm"
+              >
+                <CardContent className="p-8 text-center h-[420px] flex flex-col justify-between">
+                  <div>
+                    <div
+                      className="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform"
+                      data-aos="fade-right"
+                    >
+                      <service.icon className="w-8 h-8 text-white" />
+                    </div>
+
+                    <h3 className="w-full text-xl font-semibold text-foreground mb-3">
+                      {service.value}
+                    </h3>
+
+                    <div className="text-muted-foreground mb-6 leading-relaxed max-h-40 overflow-y-auto">
+                      {service.description}
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="text-2xl font-bold text-primary">
+                      {service.price}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Duração: {service.duration}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Botão Ver todos */}
+          {serviceOptions.length > 4 && (
+            <button
+              onClick={() => setShowAll(!showAll)}
+              className="mt-8 px-6 py-2 rounded-xl bg-primary text-white hover:bg-primary/90 transition"
             >
-              <CardContent className="p-8 text-center">
-                <div
-                  className="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform"
-                  data-aos="fade-right"
-                >
-                  <service.icon
-                    className="w-8 h-8 text-white"
-                    data-aos="fade-right"
-                  />
-                </div>
-
-                <h3
-                  className="text-xl font-semibold text-foreground mb-3"
-                  data-aos="fade-right"
-                >
-                  {service.title}
-                </h3>
-
-                <p
-                  className="text-muted-foreground mb-6 leading-relaxed"
-                  data-aos="fade-right"
-                >
-                  {service.description}
-                </p>
-
-                <div className="space-y-2">
-                  <div
-                    className="text-2xl font-bold text-primary"
-                    data-aos="fade-right"
-                  >
-                    {service.price}
-                  </div>
-                  <div
-                    className="text-sm text-muted-foreground"
-                    data-aos="fade-right"
-                  >
-                    Duração: {service.duration}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+              {showAll ? "Ver menos" : "Ver todos"}
+            </button>
+          )}
         </div>
       </div>
     </section>

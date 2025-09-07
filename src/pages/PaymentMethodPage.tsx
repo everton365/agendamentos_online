@@ -31,6 +31,7 @@ interface AppointmentData {
   price: string;
   date: string;
   time: string;
+  duration: string;
   message?: string;
 }
 interface PixResponse {
@@ -129,7 +130,7 @@ const PaymentMethodPage = () => {
 
         console.log("Dados enviados para create-pix:", bodyData);
 
-        const response = await fetch(`${baseURL}/user/create-pix`, {
+        const response = await fetch(`http://localhost:3000/user/create-pix`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(bodyData), // <-- enviar direto
@@ -231,6 +232,13 @@ const PaymentMethodPage = () => {
                     <span className="text-muted-foreground">Serviço:</span>
                     <span className="font-medium">
                       {getServiceName(appointmentData.service)}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Duração:</span>
+                    <span className="font-medium">
+                      {appointmentData.duration}
                     </span>
                   </div>
                   <div className="flex justify-between">

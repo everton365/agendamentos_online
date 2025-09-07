@@ -647,43 +647,49 @@ const ProfilePage = () => {
                           </div>
 
                           {/* Inputs de reagendamento */}
-                          {appointment.status !== "cancelled" && (
-                            <>
-                              <div className="space-y-3">
-                                <Label>Nova data</Label>
-                                <Input
-                                  type="date"
-                                  value={rescheduleDate}
-                                  onChange={(e) =>
-                                    handleDateChange(e.target.value)
-                                  }
-                                  min={new Date().toISOString().split("T")[0]}
-                                />
-                              </div>
+                          {appointment.status !== "cancelled" &&
+                            appointment.status !== "PENDING" && (
+                              <>
+                                <div className="space-y-3">
+                                  <Label>Nova data</Label>
+                                  <Input
+                                    type="date"
+                                    value={rescheduleDate}
+                                    onChange={(e) =>
+                                      handleDateChange(e.target.value)
+                                    }
+                                    min={new Date().toISOString().split("T")[0]}
+                                  />
+                                </div>
 
-                              <div className="space-y-3">
-                                <Label>Novo horário</Label>
-                                <select
-                                  className="w-full p-2 border rounded-md"
-                                  value={rescheduleTime}
-                                  onChange={(e) =>
-                                    setRescheduleTime(e.target.value)
-                                  }
-                                >
-                                  <option value="">Horários disponíveis</option>
-                                  {availableTimes
-                                    .filter(
-                                      (slot) => slot.status === "available"
-                                    )
-                                    .map((slot) => (
-                                      <option key={slot.time} value={slot.time}>
-                                        {slot.time}
-                                      </option>
-                                    ))}
-                                </select>
-                              </div>
-                            </>
-                          )}
+                                <div className="space-y-3">
+                                  <Label>Novo horário</Label>
+                                  <select
+                                    className="w-full p-2 border rounded-md"
+                                    value={rescheduleTime}
+                                    onChange={(e) =>
+                                      setRescheduleTime(e.target.value)
+                                    }
+                                  >
+                                    <option value="">
+                                      Horários disponíveis
+                                    </option>
+                                    {availableTimes
+                                      .filter(
+                                        (slot) => slot.status === "available" // só horários livres
+                                      )
+                                      .map((slot) => (
+                                        <option
+                                          key={slot.time}
+                                          value={slot.time}
+                                        >
+                                          {slot.time}
+                                        </option>
+                                      ))}
+                                  </select>
+                                </div>
+                              </>
+                            )}
 
                           {/* Botões só aparecem se não estiver CANCELADO */}
                           {appointment.status !== "cancelled" ? (
