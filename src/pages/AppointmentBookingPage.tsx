@@ -287,25 +287,15 @@ const AppointmentBookingPage = () => {
     }
     if (date) {
       const [year, month, day] = date.split("-").map(Number);
-      const d = new Date(year, month - 1, day); // cria data local
+      const d = new Date(year, month - 1, day);
       const dayOfWeek = d.getDay(); // 0=Dom, 1=Seg, 2=Ter, ...
-
-      const limiteInicio = 14 * 60; // 14:00 em minutos
-      const limiteFim = 14 * 60 + 30; // 14:30 em minutos
-
-      // Certifica que start e durationMinutes são números
-      const inicio = Number(start);
-      const duracao = Number(durationMinutes);
 
       if (dayOfWeek === 2) {
         // terça-feira
-        if (inicio >= limiteInicio) {
-          console.log(`⛔ Slot ${startTime}: bloqueado (terça-feira após 14h)`);
-          return false;
-        }
-        if (inicio + duracao > limiteFim) {
+        const limiteFim = 14 * 60 + 30; // 14:30
+        if (end > limiteFim) {
           console.log(
-            `⛔ Slot ${startTime}: bloqueado (duração ultrapassa 14:30 na terça-feira)`
+            `⛔ Slot ${startTime}: bloqueado (não pode ultrapassar 14:30 na terça-feira)`
           );
           return false;
         }
