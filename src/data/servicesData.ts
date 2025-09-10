@@ -23,7 +23,7 @@ export const serviceOptions = [
     duration: "2h",
     description:
       "A Técnica Nano fios realistas é indicada para todas as mulheres e homens que desejam corrigir as falhas das sobrancelhas de forma natural e que desejam aquele resultado 'nasci assim' 'nem parece micro'",
-    image: "public/lovable-uploads/Terapia das Sobrancelhas.webp",
+    image: "/lovable-uploads/Terapia das Sobrancelhas.webp",
   },
   {
     icon: EyeClosed,
@@ -33,7 +33,7 @@ export const serviceOptions = [
     duration: "40 min",
     description:
       "Técnica que mantém o formato natural e maior número de fios de suas sobrancelhas, removendo e aparando os excessos para trazer mais definição.",
-    image: "public/lovable-uploads/desing.jpg",
+    image: "/lovable-uploads/desing.jpg",
   },
   {
     icon: EyeClosed,
@@ -43,7 +43,7 @@ export const serviceOptions = [
     duration: "50 min",
     description:
       "Técnica que mantém o formato natural e maior número de fios de suas sobrancelhas, removendo e aparando os excessos para trazer mais definição.",
-    image: "public/lovable-uploads/OIP.webp",
+    image: "/lovable-uploads/OIP.webp",
   },
   {
     icon: Brush,
@@ -53,7 +53,7 @@ export const serviceOptions = [
     duration: "50 min",
     description:
       "Técnica do design de sobrancelhas com adição da coloração, que tinge e nutre os fios, trazendo mais volume e deixando os mais finos e claros em evidência. A durabilidade média é de até 45 dias!",
-    image: "public/lovable-uploads/Design Sobrancelhas c_cor.jpg",
+    image: "/lovable-uploads/Design Sobrancelhas c_cor.jpg",
   },
   {
     icon: Wand2,
