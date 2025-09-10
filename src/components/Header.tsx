@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,12 +12,18 @@ import {
 import { Calendar, LogOut, User, Menu, X } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import logo from "../assets/logo.png";
+import { supabase } from "@/integrations/supabase/client";
 
 const Header = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
+
+  const [profile, setProfile] = useState<{
+    display_name?: string;
+    avatar_url?: string;
+  } | null>(null);
   const handleSignOut = async () => {
     await signOut();
   };
@@ -30,6 +36,28 @@ const Header = () => {
     }
     setMobileMenuOpen(false);
   };
+  const fetchProfile = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("user_id", user?.id)
+        .maybeSingle();
+      if (error) throw error;
+      if (data) {
+        setProfile({
+          display_name: data.display_name || null,
+          avatar_url: (data as any).avatar_url || null,
+        });
+      }
+    } catch (error) {
+      console.error("Erro ao buscar perfil:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (user) fetchProfile();
+  }, [user]);
 
   const navItems = [
     { label: "Início", href: "inicio" },
@@ -71,20 +99,26 @@ const Header = () => {
               <button
                 key={item.href}
                 onClick={() => handleNavClick(item.href)}
-                className="text-muted-foreground hover:text-foreground transition-colors"
+                style={{ color: "#D4AF37" }} // cor dourada
+                className="hover:text-yellow-500 transition-colors"
               >
                 {item.label}
               </button>
             ))}
           </nav>
+
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-4">
             <Button
               variant="outline"
               onClick={handleScheduleClick}
               className="group"
+              style={{ color: "#D4AF37", borderColor: "#D4AF37" }} // texto e borda dourada
             >
-              <Calendar className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
+              <Calendar
+                className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform"
+                style={{ color: "#D4AF37" }} // ícone dourado
+              />
               Agendar
             </Button>
 
@@ -95,10 +129,17 @@ const Header = () => {
                     variant="ghost"
                     className="relative h-8 w-8 rounded-full"
                   >
-                    <Avatar className="h-8 w-8">
-                      <AvatarFallback className="bg-gradient-primary text-white">
-                        {user.email?.charAt(0).toUpperCase() || "U"}
-                      </AvatarFallback>
+                    <Avatar>
+                      {profile?.avatar_url ? (
+                        <AvatarImage
+                          src={profile.avatar_url}
+                          alt="Foto do usuário"
+                        />
+                      ) : (
+                        <AvatarFallback>
+                          {profile?.display_name?.[0] || "U"}
+                        </AvatarFallback>
+                      )}
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>

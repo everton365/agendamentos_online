@@ -18,11 +18,12 @@ const AboutUs = () => {
           className="text-lg text-muted-foreground leading-relaxed"
           data-aos="fade-right"
         >
-          Bem-vindo ao <span className="font-semibold">Sobrancelha Studio</span>
-          , onde a paixão pela beleza e a precisão técnica se encontram. Nossa
-          missão é realçar a beleza única de cada cliente através de um design
-          de sobrancelhas impecável e personalizado. Usamos as técnicas mais
-          modernas e produtos da mais alta qualidade para garantir resultados
+          Bem-vindo ao{" "}
+          <span className="font-semibold">Lariza Freitas Studio</span>! Aqui,
+          minha paixão pela beleza e a precisão técnica se encontram. Minha
+          missão é realçar a sua beleza única, criando um design de sobrancelhas
+          impecável e totalmente personalizado. Eu uso as técnicas mais modernas
+          e produtos da mais alta qualidade para garantir resultados
           espetaculares e a sua total satisfação.
         </p>
 

@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import capaDesktop from "../assets/capa.jpg";
+import capaDesktop from "../assets/nanoFios.mp4";
 import capaMobile from "../assets/capa-mobile.jpg";
 import { useNavigate } from "react-router-dom";
 import { Calendar, Star, LogOut, User, Menu, X } from "lucide-react";
@@ -21,23 +21,18 @@ const HeroSection = () => {
   };
 
   return (
-    <section className="relative min-h-screen bg-gradient-hero overflow-hidden flex items-center justify-center">
-      {/* Imagem Mobile */}
-      <img
-        src={capaMobile}
-        alt="Capa Mobile"
-        className="absolute inset-0 w-full h-full object-cover object-center opacity-70 lg:hidden"
-      />
-
+    <section className="relative h-1/3 bg-gradient-hero overflow-hidden flex items-center justify-center">
       {/* Imagem Desktop */}
-      <img
-        src={capaDesktop}
-        alt="Capa Desktop"
-        className="absolute inset-0 w-full h-full object-cover object-center opacity-50 hidden lg:block"
-      />
-
-      {/* Gradiente sobre a imagem */}
-      <div className="absolute inset-0 bg-gradient-to-br from-warm-pink/20 to-soft-nude/30" />
+      <video
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] object-cover opacity-50"
+        autoPlay
+        loop
+        muted
+        playsInline
+      >
+        <source src={capaDesktop} type="video/mp4" />
+        Seu navegador não suporta o vídeo.
+      </video>
 
       {/* Conteúdo */}
       <div className="relative z-10 container mx-auto px-4 py-20 text-center">

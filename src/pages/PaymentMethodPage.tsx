@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,7 +23,9 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import { supabase } from "@/integrations/supabase/client";
+import { initMercadoPago, Wallet } from "@mercadopago/sdk-react";
 
+initMercadoPago("APP_USR-0c010b18-da83-4d1b-8aef-318f67dcf14d");
 interface AppointmentData {
   name: string;
   phone: string;
@@ -52,6 +54,8 @@ const PaymentMethodPage = () => {
   const [selectedPaymentMethod, setSelectedPaymentMethod] =
     useState<string>("");
   const [loading, setLoading] = useState(false);
+  const [preferenceUrl, setPreferenceUrl] = useState(null);
+  const [appointmentId, setAppointmentId] = useState<string>("");
 
   // Redirect if no appointment data
   if (!appointmentData) {
@@ -179,6 +183,77 @@ const PaymentMethodPage = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const runFlow = async () => {
+      setLoading(true);
+
+      try {
+        const {
+          data: { user },
+          error: userError,
+        } = await supabase.auth.getUser();
+        if (userError || !user) throw new Error("Usuário não autenticado");
+        console.log("Usuário logado:", user);
+        // Função interna para criar o agendamento
+        const createAppointment = async (appointmentData: AppointmentData) => {
+          const bodyData = { ...appointmentData, totalPrice, user_id: user.id }; // adicione totalPrice e user_id se precisar
+          console.log("dados para o banco ", bodyData);
+          const response = await fetch(`${baseURL}/user/create-appointment`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(bodyData),
+          });
+
+          if (!response.ok) throw new Error("Erro ao criar agendamento");
+
+          const data = await response.json();
+          console.log("📥 Resposta do backend:", data);
+          return data.appointmentId;
+        };
+
+        // Função interna para criar a preferência de pagamento
+        const createPreference = async (appointmentId: string) => {
+          const response = await fetch(`${baseURL}/user/checkout`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              items: [
+                {
+                  id: appointmentId,
+                  title: appointmentData.service,
+                  quantity: 1,
+                  unit_price: 1,
+                },
+              ],
+            }),
+          });
+
+          if (!response.ok)
+            throw new Error("Erro ao criar preferência de pagamento");
+
+          const data = await response.json();
+          console.log("Checkout preference:", data);
+          setPreferenceUrl(data.preference_url);
+        };
+
+        // Fluxo sequencial
+        const id = await createAppointment(appointmentData);
+        setAppointmentId(id);
+        await createPreference(id);
+      } catch (error) {
+        console.error("Erro no fluxo de agendamento e checkout:", error);
+        toast({
+          title: "Erro",
+          description: "Não foi possível criar o agendamento ou checkout.",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    runFlow();
+  }, [appointmentData]);
 
   return (
     <div className="min-h-screen bg-gradient-hero">
@@ -387,13 +462,31 @@ const PaymentMethodPage = () => {
                     </DialogContent>
                   </Dialog>
                 )}
+                {preferenceUrl && (
+                  <Button
+                    onClick={() => (window.location.href = preferenceUrl)}
+                    disabled={loading} // desabilita enquanto processa
+                    variant="primary"
+                    size="lg"
+                    className="w-full mt-6 flex justify-center items-center"
+                  >
+                    {loading ? (
+                      "Processando..."
+                    ) : (
+                      <>
+                        <CheckCircle className="w-5 h-5 mr-2" />
+                        Pagar com Mercado Pago {formatPrice(totalPrice)}
+                      </>
+                    )}
+                  </Button>
+                )}
 
                 <Button
                   onClick={handlePayment}
                   disabled={!selectedPaymentMethod || loading}
                   variant="primary"
                   size="lg"
-                  className="w-full mt-6"
+                  className="w-full mt-6 flex justify-center items-center"
                 >
                   {loading ? (
                     "Processando..."

@@ -19,8 +19,12 @@ import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import { serviceOptions } from "@/data/servicesData";
 import { useMemo } from "react";
+import { useLocation } from "react-router-dom";
 
 const AppointmentBookingPage = () => {
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const [selectedService, setSelectedService] = useState("");
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -59,6 +63,22 @@ const AppointmentBookingPage = () => {
       navigate("/auth");
     }
   }, [user, navigate]);
+
+  useEffect(() => {
+    const service = queryParams.get("service");
+
+    if (service) {
+      const selected = serviceOptions.find((s) => s.value === service);
+      if (selected) {
+        setFormData((prev) => ({
+          ...prev,
+          service: selected.value,
+          price: selected.price,
+          duration: selected.duration,
+        }));
+      }
+    }
+  }, [location.search]);
 
   useEffect(() => {
     if (!formData.date) return;
@@ -241,12 +261,13 @@ const AppointmentBookingPage = () => {
   const canFitInSlot = (
     startTime: string,
     durationMinutes: number,
-    slots: Slot[]
+    slots: Slot[],
+    date?: string
   ): boolean => {
     const [sh, sm] = startTime.split(":").map(Number);
     const start = sh * 60 + sm;
     const end = start + durationMinutes;
-
+    console.log(date);
     const sortedSlots = slots
       .map((s) => {
         const [h, m] = s.time.split(":").map(Number);
@@ -264,15 +285,25 @@ const AppointmentBookingPage = () => {
       );
       return false;
     }
-    if (startTime === "17:00") {
+    if (date) {
+      const [year, month, day] = date.split("-").map(Number);
+      const d = new Date(year, month - 1, day); // cria data local
+      const dayOfWeek = d.getDay(); // 0=Dom, 1=Seg, ..., 3=Qua
+      if (dayOfWeek === 3 && start >= 14 * 60) {
+        console.log(`⛔ Slot ${startTime}: bloqueado (quarta-feira após 14h)`);
+        return false;
+      }
+    }
+
+    if (startTime === "18:30") {
       console.log(`⛔ Slot ${startTime}: bloqueado → não é permitido`);
       return false;
     }
 
-    const limit = 17 * 60 + 30; // 17h30 em minutos
+    const limit = 18 * 60 + 40; // 18h30 em minutos
     if (end > limit) {
       console.log(
-        `⛔ Slot ${startTime}: duração ${durationMinutes}min ultrapassa 17:30`
+        `⛔ Slot ${startTime}: duração ${durationMinutes}min ultrapassa 18:30`
       );
       return false;
     }
@@ -322,7 +353,7 @@ const AppointmentBookingPage = () => {
     return true;
   };
   const processedSlots = useMemo(() => {
-    if (!formData.duration) return [];
+    if (!formData.duration || !formData.date) return [];
     const durationMinutes = parseDuration(formData.duration);
 
     const now = new Date();
@@ -338,7 +369,8 @@ const AppointmentBookingPage = () => {
       const slotSelectable = canFitInSlot(
         slot.time,
         durationMinutes,
-        timeSlots
+        timeSlots,
+        formData.date
       );
 
       // monta o Date do slot

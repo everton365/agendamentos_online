@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,6 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
@@ -32,19 +31,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import {
-  Camera,
-  Calendar,
-  Clock,
-  Phone,
-  User,
-  Mail,
-  RotateCcw,
-  X,
-} from "lucide-react";
+import { Camera, Calendar, Clock, Phone, User, Mail } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Database } from "@/integrations/supabase/types";
-
 import { format, parseISO, isFuture, isPast } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import Header from "@/components/Header";
@@ -65,8 +53,16 @@ interface Appointment {
   appointment_time: string;
   status: string;
   message: string | null;
+  duration?: string | number;
   created_at: string;
 }
+
+type Slot = {
+  time: string;
+  status: string;
+  slotSelectable?: boolean;
+  displayStatus?: string;
+};
 
 const ProfilePage = () => {
   const { user } = useAuth();
@@ -86,14 +82,27 @@ const ProfilePage = () => {
   const [rescheduleDate, setRescheduleDate] = useState("");
   const [rescheduleTime, setRescheduleTime] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
-  const baseURL = import.meta.env.VITE_API_URL;
   const [availableTimes, setAvailableTimes] = useState<
     {
       time: string;
-      status: "available" | "pending" | "confirmed" | "blocked";
+      status: "available" | "PENDING" | "CONFIRMED" | "blocked";
     }[]
   >([]);
 
+  const baseURL = import.meta.env.VITE_API_URL;
+
+  const blockedDate = { bloqueada: false }; // Definição mínima
+
+  const parseDuration = (duration: string | number) => {
+    if (typeof duration === "number") return duration; // já é em minutos
+    const hoursMatch = duration.match(/(\d+)\s*h/);
+    const minutesMatch = duration.match(/(\d+)\s*min/);
+
+    const hours = hoursMatch ? parseInt(hoursMatch[1], 10) * 60 : 0;
+    const minutes = minutesMatch ? parseInt(minutesMatch[1], 10) : 0;
+
+    return hours + minutes;
+  };
   const fetchProfile = async () => {
     try {
       const { data, error } = await supabase
@@ -101,9 +110,7 @@ const ProfilePage = () => {
         .select("*")
         .eq("user_id", user?.id)
         .maybeSingle();
-
       if (error) throw error;
-
       if (data) {
         setProfile({
           display_name: data.display_name || null,
@@ -116,31 +123,6 @@ const ProfilePage = () => {
     }
   };
 
-  function canReschedule(appointmentDate: string, appointmentTime: string) {
-    // Combina data e hora do agendamento em um Date
-    const appointmentDateTime = new Date(
-      `${appointmentDate}T${appointmentTime}:00`
-    );
-
-    // Hora atual
-    const now = new Date();
-
-    // Diferença em milissegundos
-    const diffMs = appointmentDateTime.getTime() - now.getTime();
-
-    // Converte para horas
-    const diffHours = diffMs / (1000 * 60 * 60);
-
-    return diffHours >= 3; // só permite se faltar 3h ou mais
-  }
-
-  useEffect(() => {
-    if (user) {
-      fetchProfile();
-      fetchAppointments();
-    }
-  }, [user]);
-
   const fetchAppointments = async () => {
     try {
       const { data, error } = await supabase
@@ -148,17 +130,13 @@ const ProfilePage = () => {
         .select("*")
         .eq("user_id", user?.id)
         .order("appointment_date", { ascending: false });
-
       if (error) throw error;
-
-      // Garantir que price existe em cada item
       const appointmentsWithPrice: Appointment[] = (data || []).map(
         (a: any) => ({
           ...a,
-          price: a.price ?? "R$ 0,00", // ou null se preferir
+          price: a.price ?? "R$ 0,00",
         })
       );
-
       setAppointments(appointmentsWithPrice);
     } catch (error) {
       console.error("Erro ao buscar agendamentos:", error);
@@ -166,43 +144,29 @@ const ProfilePage = () => {
   };
 
   const handleAvatarSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (!event.target.files || event.target.files.length === 0) {
-      return;
-    }
-
+    if (!event.target.files || event.target.files.length === 0) return;
     const file = event.target.files[0];
     setIsEditing(true);
     setSelectedFile(file);
-
-    // Criar preview local da imagem
-    const objectUrl = URL.createObjectURL(file);
-    setPreviewUrl(objectUrl);
+    setPreviewUrl(URL.createObjectURL(file));
   };
 
   const handleProfileUpdate = async () => {
     try {
       setLoading(true);
-
       let finalAvatarUrl = profile.avatar_url;
 
-      // Se há um arquivo selecionado, fazer upload primeiro
       if (selectedFile) {
         const fileExt = selectedFile.name.split(".").pop();
         const fileName = `avatar-${Math.random()}.${fileExt}`;
         const filePath = `${user?.id}/${fileName}`;
-
-        // Upload da imagem para o bucket clientes
         const { error: uploadError } = await supabase.storage
           .from("clientes")
           .upload(filePath, selectedFile);
-
         if (uploadError) throw uploadError;
-
-        // Obter a URL pública da imagem
         const {
           data: { publicUrl },
         } = supabase.storage.from("clientes").getPublicUrl(filePath);
-
         finalAvatarUrl = publicUrl;
       }
 
@@ -215,18 +179,12 @@ const ProfilePage = () => {
         },
         { onConflict: "user_id" }
       );
-
       if (error) throw error;
 
-      // Atualizar o estado com a nova URL
       setProfile((prev) => ({ ...prev, avatar_url: finalAvatarUrl }));
-
-      // Limpar seleção e preview
       setSelectedFile(null);
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
-        setPreviewUrl(null);
-      }
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(null);
 
       toast({
         title: "Perfil atualizado!",
@@ -244,36 +202,21 @@ const ProfilePage = () => {
     }
   };
 
-  const futureAppointments = appointments.filter((apt) => {
-    const appointmentDate = parseISO(
-      `${apt.appointment_date}T${apt.appointment_time}`
-    );
-    return isFuture(appointmentDate);
-  });
+  useEffect(() => {
+    if (user) {
+      fetchProfile();
+      fetchAppointments();
+    }
+  }, [user]);
 
-  const pastAppointments = appointments.filter((apt) => {
-    const appointmentDate = parseISO(
-      `${apt.appointment_date}T${apt.appointment_time}`
+  const canReschedule = (appointmentDate: string, appointmentTime: string) => {
+    const appointmentDateTime = parseISO(
+      `${appointmentDate}T${appointmentTime}`
     );
-    return isPast(appointmentDate);
-  });
-
-  const getStatusBadge = (status: string) => {
-    const statusMap = {
-      PENDING: { label: "Pendente", variant: "secondary" as const },
-      CONFIRMED: { label: "Confirmado", variant: "default" as const },
-      completed: { label: "Concluído", variant: "secondary" as const },
-      cancelled: { label: "Cancelado", variant: "destructive" as const },
-    };
-
-    return (
-      statusMap[status as keyof typeof statusMap] || {
-        label: status,
-        variant: "secondary" as const,
-      }
-    );
+    const diffHours =
+      (appointmentDateTime.getTime() - new Date().getTime()) / (1000 * 60 * 60);
+    return diffHours >= 3;
   };
-
   const handleCancelAppointment = async (appointmentId: string) => {
     try {
       setLoading(true);
@@ -281,15 +224,11 @@ const ProfilePage = () => {
         .from("appointments")
         .update({ status: "cancelled" })
         .eq("id", appointmentId);
-
       if (error) throw error;
-
       toast({
         title: "Agendamento cancelado",
         description: "Seu agendamento foi cancelado com sucesso.",
       });
-
-      // Atualizar lista de agendamentos
       fetchAppointments();
     } catch (error: any) {
       toast({
@@ -301,50 +240,30 @@ const ProfilePage = () => {
       setLoading(false);
     }
   };
-  // Novo estado para horários disponíveis
-  // Função que consulta os horários no banco
-  const getTimeSlotsForDate = async (date: string) => {
-    console.log("🚀 getTimeSlotsForDate chamado com data:", date);
 
+  const getTimeSlotsForDate = async (date: string) => {
     try {
       const res = await fetch(`${baseURL}/user/appointments/status/${date}`);
-
-      console.log("🔗 URL da requisição:", res.url);
-      console.log("📡 Status HTTP:", res.status);
-
       if (!res.ok) throw new Error("Erro ao buscar horários");
-
       const data = await res.json();
-      console.log("📦 Dados brutos da API:", data);
+      if (!data.schedule) return [];
 
-      if (!data.schedule) {
-        console.warn("⚠️ Nenhum campo 'schedule' encontrado na resposta");
-        return [];
-      }
-
-      const slotsWithStatus = data.schedule.map(
-        (slot: { time: string; status: string }) => ({
-          time: slot.time.slice(0, 5),
-          status: slot.status as
-            | "available"
-            | "pending"
-            | "confirmed"
-            | "blocked",
-        })
-      );
-
-      console.log("✅ Slots formatados:", slotsWithStatus);
-      return slotsWithStatus;
+      return data.schedule.map((slot: { time: string; status: string }) => ({
+        time: slot.time.slice(0, 5),
+        status: slot.status as
+          | "available"
+          | "PENDING"
+          | "CONFIRMED"
+          | "blocked",
+      }));
     } catch (err) {
-      console.error("❌ Erro na função getTimeSlotsForDate:", err);
+      console.error(err);
       return [];
     }
   };
 
-  // Função que atualiza o estado quando a data é escolhida
   const handleDateChange = async (date: string) => {
     setRescheduleDate(date);
-
     const slots = await getTimeSlotsForDate(date);
     setAvailableTimes(slots);
   };
@@ -358,8 +277,6 @@ const ProfilePage = () => {
       });
       return;
     }
-
-    // 🚫 Bloqueio: não deixa reagendar se faltar menos de 3h para o agendamento original
     if (
       !canReschedule(
         selectedAppointment.appointment_date,
@@ -374,7 +291,6 @@ const ProfilePage = () => {
       });
       return;
     }
-
     try {
       setLoading(true);
       const { error } = await supabase
@@ -382,23 +298,18 @@ const ProfilePage = () => {
         .update({
           appointment_date: rescheduleDate,
           appointment_time: rescheduleTime,
-          status: "pending",
+          status: "CONFIRMED",
         })
         .eq("id", selectedAppointment.id);
-
       if (error) throw error;
-
       toast({
         title: "Agendamento reagendado",
         description: "Seu agendamento foi reagendado com sucesso.",
       });
-
-      // Limpar estados e fechar modal
       setSelectedAppointment(null);
       setRescheduleDate("");
       setRescheduleTime("");
       setDialogOpen(false);
-
       fetchAppointments();
     } catch (error: any) {
       toast({
@@ -411,24 +322,197 @@ const ProfilePage = () => {
     }
   };
 
+  const futureAppointments = appointments.filter((apt) =>
+    isFuture(parseISO(`${apt.appointment_date}T${apt.appointment_time}`))
+  );
+  const pastAppointments = appointments.filter((apt) =>
+    isPast(parseISO(`${apt.appointment_date}T${apt.appointment_time}`))
+  );
+
+  const getStatusBadge = (status: string) => {
+    const statusMap = {
+      PENDING: { label: "Pendente", variant: "secondary" as const },
+      CONFIRMED: { label: "Confirmado", variant: "default" as const },
+      completed: { label: "Concluído", variant: "secondary" as const },
+      cancelled: { label: "Cancelado", variant: "destructive" as const },
+    };
+    return (
+      statusMap[status as keyof typeof statusMap] || {
+        label: status,
+        variant: "secondary" as const,
+      }
+    );
+  };
+
+  type Slot = { time: string; status: string };
+
+  const canFitInSlot = (
+    startTime: string,
+    durationMinutes: number,
+    slots: Slot[],
+    date?: string
+  ): boolean => {
+    const [sh, sm] = startTime.split(":").map(Number);
+    const start = sh * 60 + sm;
+    const end = start + durationMinutes;
+    console.log(date);
+    const sortedSlots = slots
+      .map((s) => {
+        const [h, m] = s.time.split(":").map(Number);
+        return {
+          minutes: h * 60 + m,
+          status: s.status,
+        };
+      })
+      .sort((a, b) => a.minutes - b.minutes);
+
+    const startIndex = sortedSlots.findIndex((s) => s.minutes === start);
+    if (startIndex === -1) {
+      console.log(
+        `⛔ Slot ${startTime}: não encontrado → duração = ${durationMinutes}min`
+      );
+      return false;
+    }
+    if (date) {
+      const [year, month, day] = date.split("-").map(Number);
+      const d = new Date(year, month - 1, day); // cria data local
+      const dayOfWeek = d.getDay(); // 0=Dom, 1=Seg, ..., 3=Qua
+      if (dayOfWeek === 3 && start >= 14 * 60) {
+        console.log(`⛔ Slot ${startTime}: bloqueado (quarta-feira após 14h)`);
+        return false;
+      }
+    }
+
+    if (startTime === "18:30") {
+      console.log(`⛔ Slot ${startTime}: bloqueado → não é permitido`);
+      return false;
+    }
+
+    const limit = 18 * 60 + 40; // 18h30 em minutos
+    if (end > limit) {
+      console.log(
+        `⛔ Slot ${startTime}: duração ${durationMinutes}min ultrapassa 18:30`
+      );
+      return false;
+    }
+
+    const slotStatus = sortedSlots[startIndex].status;
+
+    if (slotStatus !== "available") {
+      console.log(
+        `⛔ Slot ${startTime}: status = ${slotStatus} → duração = ${durationMinutes}min`
+      );
+      return false;
+    }
+
+    const startHour = Math.floor(start / 60);
+    const endHour = Math.floor(end / 60);
+
+    if (durationMinutes > 60 || (endHour > startHour && durationMinutes > 10)) {
+      const nextSlot = sortedSlots[startIndex + 1];
+      if (!nextSlot) {
+        console.log(
+          `⛔ Slot ${startTime}: status = ${slotStatus} → duração = ${durationMinutes}min → não existe próximo slot`
+        );
+        return false;
+      }
+
+      if (nextSlot.minutes % 60 !== 0) {
+        console.log(
+          `⛔ Slot ${startTime}: status = ${slotStatus} → duração = ${durationMinutes}min → próximo slot ${String(
+            Math.floor(nextSlot.minutes / 60)
+          ).padStart(2, "0")}:${String(nextSlot.minutes % 60).padStart(
+            2,
+            "0"
+          )} não é hora cheia`
+        );
+        return false;
+      }
+
+      console.log(
+        `✅ Slot ${startTime}: status = ${slotStatus} → duração = ${durationMinutes}min → próximo slot em hora cheia OK`
+      );
+    } else {
+      console.log(
+        `✅ Slot ${startTime}: status = ${slotStatus} → duração = ${durationMinutes}min (termina na mesma hora) liberado`
+      );
+    }
+
+    return true;
+  };
+
+  const processedSlots = useMemo(() => {
+    if (!rescheduleDate || !selectedAppointment) return [];
+    const durationMinutes = parseDuration(selectedAppointment.duration || 30);
+    const now = new Date();
+    const nowPlus3h = new Date(now.getTime() + 3 * 60 * 60 * 1000);
+
+    const [year, month, day] = rescheduleDate.split("-").map(Number);
+    const selectedDate = new Date(year, month - 1, day);
+    const dayOfWeek = selectedDate.getDay();
+    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+
+    return availableTimes.map((slot) => {
+      const slotSelectable = canFitInSlot(
+        slot.time,
+        durationMinutes,
+        availableTimes,
+        rescheduleDate
+      );
+
+      const [h, m] = slot.time.split(":").map(Number);
+      const slotDate = new Date(year, month - 1, day, h, m);
+      const isToday = now.toISOString().split("T")[0] === rescheduleDate;
+      const isBeforeLimit = isToday && slotDate < nowPlus3h;
+
+      let displayStatus = slot.status;
+      if (
+        !slotSelectable ||
+        isBeforeLimit ||
+        isWeekend ||
+        blockedDate.bloqueada
+      ) {
+        displayStatus = "blocked";
+      }
+
+      return {
+        ...slot,
+        slotSelectable:
+          slotSelectable &&
+          !isBeforeLimit &&
+          !isWeekend &&
+          !blockedDate.bloqueada,
+        displayStatus,
+      };
+    });
+  }, [availableTimes, rescheduleDate, selectedAppointment]);
+
+  const formatDuration = (duration: string | number) => {
+    const minutes = parseDuration(duration);
+    if (minutes >= 60) {
+      const h = Math.floor(minutes / 60);
+      const m = minutes % 60;
+      return m > 0 ? `${h}h ${m}min` : `${h}h`;
+    }
+    return `${minutes}min`;
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto space-y-8">
-          {/* Header do Perfil */}
+          {/* Perfil */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <User className="w-5 h-5" />
-                Meu Perfil
+                <User className="w-5 h-5" /> Meu Perfil
               </CardTitle>
               <CardDescription>
                 Gerencie suas informações pessoais e visualize seus agendamentos
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Avatar */}
               <div className="flex items-center gap-4">
                 <Avatar className="w-24 h-24">
                   <AvatarImage src={previewUrl || profile.avatar_url || ""} />
@@ -460,18 +544,8 @@ const ProfilePage = () => {
                 </div>
               </div>
 
-              {/* Informações do Perfil */}
+              {/* Nome e telefone */}
               <div className="grid grid-cols-1 md:grid-cols-1 gap-0">
-                {/* Email (sempre visual) */}
-                <div className="space-y-1">
-                  {isEditing && <Label htmlFor="email">Email</Label>}
-                  <div className="flex items-center gap-2 text-sm">
-                    <Mail className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-sm">{user.email}</span>
-                  </div>
-                </div>
-
-                {/* Nome */}
                 <div className="space-y-0 p-1">
                   {isEditing ? (
                     <>
@@ -491,14 +565,11 @@ const ProfilePage = () => {
                   ) : (
                     <div className="flex items-center gap-2 text-sm">
                       <User className="w-4 h-4 text-muted-foreground" />
-                      <span className="text-sm">
-                        {profile.display_name || "Sem nome"}
-                      </span>
+                      <span>{profile.display_name || "Sem nome"}</span>
                     </div>
                   )}
                 </div>
 
-                {/* Telefone */}
                 <div className="space-y-2">
                   {isEditing ? (
                     <>
@@ -518,22 +589,23 @@ const ProfilePage = () => {
                   ) : (
                     <div className="flex items-center gap-2 text-sm">
                       <Phone className="w-4 h-4 text-muted-foreground" />
-                      <span className="text-sm">
-                        {profile.phone || "Telefone não informado"}
-                      </span>
+                      <span>{profile.phone || "Telefone não informado"}</span>
                     </div>
                   )}
+                </div>
+
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 text-sm">
+                    <Mail className="w-4 h-4 text-muted-foreground" />
+                    <span>{user.email}</span>
+                  </div>
                 </div>
               </div>
 
               <Button
-                onClick={() => {
-                  if (isEditing) {
-                    handleProfileUpdate();
-                  } else {
-                    setIsEditing(true);
-                  }
-                }}
+                onClick={() =>
+                  isEditing ? handleProfileUpdate() : setIsEditing(true)
+                }
                 disabled={loading}
               >
                 {loading
@@ -549,8 +621,7 @@ const ProfilePage = () => {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Calendar className="w-5 h-5" />
-                Próximos Agendamentos
+                <Calendar className="w-5 h-5" /> Próximos Agendamentos
               </CardTitle>
               <CardDescription>Seus atendimentos futuros</CardDescription>
             </CardHeader>
@@ -623,7 +694,7 @@ const ProfilePage = () => {
                         </DialogHeader>
 
                         <div className="space-y-4">
-                          {/* Informações do agendamento */}
+                          {/* Info */}
                           <div className="p-4 bg-muted rounded-lg">
                             <h4 className="font-medium mb-2">
                               {appointment.service}
@@ -641,13 +712,17 @@ const ProfilePage = () => {
                                 <Clock className="w-4 h-4" />
                                 {appointment.appointment_time}
                               </div>
+                              <div className="flex items-center gap-1">
+                                <Clock className="w-4 h-4" />
+                                {formatDuration(appointment.duration)}
+                              </div>
                             </div>
                           </div>
 
-                          {/* Inputs de reagendamento */}
+                          {/* Reagendamento */}
                           {appointment.status !== "cancelled" &&
                             appointment.status !== "PENDING" && (
-                              <>
+                              <div className="space-y-4">
                                 <div className="space-y-3">
                                   <Label>Nova data</Label>
                                   <Input
@@ -660,92 +735,110 @@ const ProfilePage = () => {
                                   />
                                 </div>
 
-                                <div className="space-y-3">
-                                  <Label>Novo horário</Label>
-                                  <select
-                                    className="w-full p-2 border rounded-md"
-                                    value={rescheduleTime}
-                                    onChange={(e) =>
-                                      setRescheduleTime(e.target.value)
-                                    }
-                                  >
-                                    <option value="">
-                                      Horários disponíveis
-                                    </option>
-                                    {availableTimes
-                                      .filter(
-                                        (slot) => slot.status === "available" // só horários livres
-                                      )
-                                      .map((slot) => (
-                                        <option
-                                          key={slot.time}
-                                          value={slot.time}
-                                        >
-                                          {slot.time}
-                                        </option>
-                                      ))}
-                                  </select>
+                                <Label>Novo horário</Label>
+                                <div>
+                                  {processedSlots.map((slot) => {
+                                    const isSelected =
+                                      rescheduleTime === slot.time;
+                                    const isAvailable =
+                                      slot.displayStatus === "available";
+
+                                    return (
+                                      <button
+                                        key={slot.time}
+                                        type="button"
+                                        onClick={() =>
+                                          isAvailable &&
+                                          slot.slotSelectable &&
+                                          setRescheduleTime(slot.time)
+                                        }
+                                        disabled={
+                                          !isAvailable || !slot.slotSelectable
+                                        }
+                                        className={`
+          p-3 rounded-lg text-sm font-medium transition-all border-2
+          ${
+            isSelected && isAvailable && slot.slotSelectable
+              ? "border-primary bg-primary text-primary-foreground"
+              : isAvailable && slot.slotSelectable
+              ? "border-[hsl(var(--status-available))] bg-[hsl(var(--status-available)/0.1)] text-[hsl(var(--status-available))] hover:bg-[hsl(var(--status-available)/0.2)]"
+              : slot.displayStatus === "PENDING"
+              ? "border-[hsl(var(--status-pending))] bg-[hsl(var(--status-pending)/0.1)] text-[hsl(var(--status-pending))] cursor-not-allowed"
+              : slot.displayStatus === "CONFIRMED"
+              ? "border-[hsl(var(--status-confirmed))] bg-[hsl(var(--status-confirmed)/0.1)] text-[hsl(var(--status-confirmed))] cursor-not-allowed"
+              : "border-[hsl(var(--status-blocked))] bg-[hsl(var(--status-blocked)/0.1)] text-[hsl(var(--status-blocked))] cursor-not-allowed"
+          }
+        `}
+                                      >
+                                        <div className="text-center">
+                                          <div>{slot.time}</div>
+                                          <div className="text-xs mt-1">
+                                            {isAvailable && slot.slotSelectable
+                                              ? "Disponível"
+                                              : slot.displayStatus === "PENDING"
+                                              ? "Pendente"
+                                              : slot.displayStatus ===
+                                                "CONFIRMED"
+                                              ? "Ocupado"
+                                              : "Bloqueado"}
+                                          </div>
+                                        </div>
+                                      </button>
+                                    );
+                                  })}
                                 </div>
-                              </>
-                            )}
 
-                          {/* Botões só aparecem se não estiver CANCELADO */}
-                          {appointment.status !== "cancelled" ? (
-                            <div className="flex gap-2">
-                              <Button
-                                onClick={handleRescheduleAppointment}
-                                disabled={
-                                  loading || !rescheduleDate || !rescheduleTime
-                                }
-                                className="flex-1"
-                              >
-                                <RotateCcw className="w-4 h-4 mr-2" />
-                                {loading ? "Reagendando..." : "Reagendar"}
-                              </Button>
-
-                              <AlertDialog>
-                                <AlertDialogTrigger asChild>
+                                <div className="flex gap-2">
                                   <Button
-                                    variant="destructive"
+                                    onClick={handleRescheduleAppointment}
+                                    disabled={
+                                      loading ||
+                                      !rescheduleDate ||
+                                      !rescheduleTime
+                                    }
                                     className="flex-1"
                                   >
-                                    <X className="w-4 h-4 mr-2" />
-                                    Cancelar agendamento
+                                    Reagendar
                                   </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>
-                                      Cancelar agendamento
-                                    </AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                      Tem certeza que deseja cancelar este
-                                      agendamento? Esta ação não pode ser
-                                      desfeita.
-                                    </AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel>
-                                      Voltar
-                                    </AlertDialogCancel>
-                                    <AlertDialogAction
-                                      onClick={() => {
-                                        handleCancelAppointment(appointment.id);
-                                        setDialogOpen(false);
-                                      }}
-                                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                    >
-                                      Cancelar agendamento
-                                    </AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
-                            </div>
-                          ) : (
-                            <div className="p-3 text-sm text-center text-red-600 bg-red-100 rounded-md">
-                              Este agendamento já foi cancelado.
-                            </div>
-                          )}
+
+                                  <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                      <Button
+                                        variant="destructive"
+                                        className="flex-1"
+                                      >
+                                        Cancelar agendamento
+                                      </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                      <AlertDialogHeader>
+                                        <AlertDialogTitle>
+                                          Tem certeza?
+                                        </AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                          Ao confirmar, o agendamento será
+                                          cancelado.
+                                        </AlertDialogDescription>
+                                      </AlertDialogHeader>
+                                      <AlertDialogFooter>
+                                        <AlertDialogCancel>
+                                          Cancelar
+                                        </AlertDialogCancel>
+                                        <AlertDialogAction
+                                          onClick={() =>
+                                            handleCancelAppointment(
+                                              appointment.id
+                                            )
+                                          }
+                                        >
+                                          Confirmar
+                                        </AlertDialogAction>
+                                      </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                  </AlertDialog>
+                                </div>
+                              </div>
+                            )}
                         </div>
                       </DialogContent>
                     </Dialog>
@@ -755,78 +848,53 @@ const ProfilePage = () => {
             </CardContent>
           </Card>
 
-          {/* Histórico de Agendamentos */}
+          {/* Histórico */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Clock className="w-5 h-5" />
-                Histórico de Atendimentos
-              </CardTitle>
-              <CardDescription>Seus atendimentos anteriores</CardDescription>
+              <CardTitle>Histórico de Agendamentos</CardTitle>
+              <CardDescription>Agendamentos anteriores</CardDescription>
             </CardHeader>
             <CardContent>
               {pastAppointments.length === 0 ? (
                 <p className="text-muted-foreground text-center py-8">
-                  Você ainda não teve atendimentos
+                  Nenhum agendamento concluído
                 </p>
               ) : (
                 <div className="space-y-4">
                   {pastAppointments.map((appointment) => (
-                    <Dialog
+                    <Card
                       key={appointment.id}
-                      open={
-                        dialogOpen && selectedAppointment?.id === appointment.id
-                      }
-                      onOpenChange={(open) => {
-                        if (!open) {
-                          setSelectedAppointment(null);
-                          setRescheduleDate("");
-                          setRescheduleTime("");
-                        }
-                        setDialogOpen(open);
-                      }}
+                      className="border-l-4 border-l-muted"
                     >
-                      <DialogTrigger asChild>
-                        <Card
-                          className="border-l-4 border-l-muted cursor-pointer hover:shadow-md transition-shadow"
-                          onClick={() => {
-                            setSelectedAppointment(appointment);
-                            setDialogOpen(true);
-                          }}
-                        >
-                          <CardContent className="p-4">
-                            <div className="flex justify-between items-start">
-                              <div className="space-y-2">
-                                <div className="flex items-center gap-2">
-                                  <h4 className="font-medium">
-                                    {appointment.service}
-                                  </h4>
-                                  <Badge
-                                    {...getStatusBadge(appointment.status)}
-                                  >
-                                    {getStatusBadge(appointment.status).label}
-                                  </Badge>
-                                </div>
-                                <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                                  <div className="flex items-center gap-1">
-                                    <Calendar className="w-4 h-4" />
-                                    {format(
-                                      parseISO(appointment.appointment_date),
-                                      "dd 'de' MMMM 'de' yyyy",
-                                      { locale: ptBR }
-                                    )}
-                                  </div>
-                                  <div className="flex items-center gap-1">
-                                    <Clock className="w-4 h-4" />
-                                    {appointment.appointment_time}
-                                  </div>
-                                </div>
+                      <CardContent>
+                        <div className="flex justify-between items-start">
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2">
+                              <h4 className="font-medium">
+                                {appointment.service} {appointment.price}
+                              </h4>
+                              <Badge {...getStatusBadge(appointment.status)}>
+                                {getStatusBadge(appointment.status).label}
+                              </Badge>
+                            </div>
+                            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                              <div className="flex items-center gap-1">
+                                <Calendar className="w-4 h-4" />
+                                {format(
+                                  parseISO(appointment.appointment_date),
+                                  "dd 'de' MMMM 'de' yyyy",
+                                  { locale: ptBR }
+                                )}
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Clock className="w-4 h-4" />
+                                {appointment.appointment_time}
                               </div>
                             </div>
-                          </CardContent>
-                        </Card>
-                      </DialogTrigger>
-                    </Dialog>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
                   ))}
                 </div>
               )}

@@ -2,7 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 
 import { serviceOptions } from "../data/servicesData";
 import { useState } from "react";
-
+import { Link } from "react-router-dom";
 const ServicesSection = () => {
   const [showAll, setShowAll] = useState(false);
 
@@ -38,31 +38,60 @@ const ServicesSection = () => {
                 key={index}
                 className="group hover:shadow-elegant transition-all duration-300 hover:-translate-y-2 border-0 bg-white/80 backdrop-blur-sm"
               >
-                <CardContent className="p-8 text-center h-[420px] flex flex-col justify-between">
+                <CardContent className="p-6 flex flex-col justify-between h-full">
                   <div>
-                    <div
-                      className="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform"
-                      data-aos="fade-right"
-                    >
-                      <service.icon className="w-8 h-8 text-white" />
-                    </div>
+                    {/* Imagem do serviço */}
+                    {service.image && (
+                      <img
+                        src={service.image}
+                        alt={service.value}
+                        className="w-full h-60 object-cover rounded-xl mb-4 shadow-md group-hover:scale-105 transition-transform"
+                        data-aos="zoom-in"
+                      />
+                    )}
 
-                    <h3 className="w-full text-xl font-semibold text-foreground mb-3">
+                    {/* Nome e descrição */}
+                    <h3
+                      className="text-xl font-semibold text-foreground mb-3"
+                      data-aos="fade-left"
+                    >
                       {service.value}
                     </h3>
-
-                    <div className="text-muted-foreground mb-6 leading-relaxed max-h-40 overflow-y-auto">
+                    <div
+                      className="text-muted-foreground mb-6 leading-relaxed max-h-32 overflow-y-auto"
+                      data-aos="fade-right"
+                    >
                       {service.description}
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <div className="text-2xl font-bold text-primary">
-                      {service.price}
+                  {/* Preço + Duração + Botão */}
+                  <div className="flex items-center justify-between mt-4">
+                    <div className="text-left">
+                      <div
+                        className="text-2xl font-bold text-primary"
+                        data-aos="fade-right"
+                      >
+                        {service.price}
+                      </div>
+                      <div
+                        className="text-sm text-muted-foreground"
+                        data-aos="fade-right"
+                      >
+                        Duração: {service.duration}
+                      </div>
                     </div>
-                    <div className="text-sm text-muted-foreground">
-                      Duração: {service.duration}
-                    </div>
+
+                    <Link
+                      to={`/agendamento?service=${service.value}&price=${service.price}&duration=${service.duration}`}
+                    >
+                      <button
+                        className="px-4 py-2 rounded-xl bg-primary text-white hover:bg-primary/90 transition"
+                        data-aos="fade-left"
+                      >
+                        Agendar
+                      </button>
+                    </Link>
                   </div>
                 </CardContent>
               </Card>

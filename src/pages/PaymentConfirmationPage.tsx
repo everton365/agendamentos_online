@@ -12,7 +12,7 @@ const PaymentConfirmationPage = () => {
     "loading" | "success" | "error"
   >("loading");
 
-  const sessionId = searchParams.get("session_id");
+  const sessionId = "success";
 
   useEffect(() => {
     if (sessionId) {
@@ -81,19 +81,15 @@ const PaymentConfirmationPage = () => {
                 </div>
               </div>
               <CardTitle className="text-3xl font-bold text-foreground">
-                Pagamento Confirmado!
+                Pagamento em Processamento
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="text-center">
                 <h2 className="text-xl font-semibold text-foreground mb-2">
-                  Seu agendamento foi confirmado com sucesso!
+                  Seu pagamento está sendo processado. Por favor, aguarde
+                  enquanto confirmamos a transação.
                 </h2>
-                <p className="text-muted-foreground">
-                  A taxa de agendamento de R$ 20,00 foi processada com sucesso.
-                  Este valor será descontado do total do serviço no dia do
-                  atendimento.
-                </p>
               </div>
 
               <div className="bg-secondary/20 rounded-lg p-6">
@@ -113,6 +109,11 @@ const PaymentConfirmationPage = () => {
                   <li className="flex items-start gap-2">
                     <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
                     Chegue 10 minutos antes do horário agendado
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    Você tem uma tolerância de 10 minutos de atraso para o seu
+                    agendamento.
                   </li>
                 </ul>
               </div>
