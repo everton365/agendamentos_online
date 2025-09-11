@@ -290,6 +290,14 @@ const AppointmentBookingPage = () => {
       const d = new Date(year, month - 1, day);
       const dayOfWeek = d.getDay(); // 0=Dom, 1=Seg, 2=Ter, ...
 
+      if (dayOfWeek === 1) {
+        // segunda-feira
+        console.log(
+          `⛔ Slot ${startTime}: bloqueado (nenhum horário permitido na segunda-feira)`
+        );
+        return false;
+      }
+
       if (dayOfWeek === 2) {
         // terça-feira
         const limiteFim = 14 * 60 + 30; // 14:30
@@ -301,7 +309,6 @@ const AppointmentBookingPage = () => {
         }
       }
     }
-
     if (startTime === "18:30") {
       console.log(`⛔ Slot ${startTime}: bloqueado → não é permitido`);
       return false;
