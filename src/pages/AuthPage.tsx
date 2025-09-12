@@ -34,6 +34,7 @@ const cleanupAuthState = () => {
 const AuthPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
   const [signInData, setSignInData] = useState({ email: "", password: "" });
   const [signUpData, setSignUpData] = useState({
     email: "",
@@ -98,6 +99,43 @@ const AuthPage = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!signInData.email) {
+      toast({
+        title: "Email necessário",
+        description: "Digite seu email para recuperar a senha.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setResetLoading(true);
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(
+        signInData.email,
+        {
+          redirectTo: `${window.location.origin}/reset-password`,
+        }
+      );
+
+      if (error) throw error;
+
+      toast({
+        title: "Email enviado!",
+        description: "Verifique seu email para redefinir sua senha.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erro",
+        description: error.message || "Ocorreu um erro ao enviar o email.",
+        variant: "destructive",
+      });
+    } finally {
+      setResetLoading(false);
     }
   };
 
@@ -276,6 +314,15 @@ const AuthPage = () => {
                     disabled={loading}
                   >
                     {loading ? "Entrando..." : "Entrar"}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="w-full mt-2"
+                    onClick={handleForgotPassword}
+                    disabled={resetLoading}
+                  >
+                    {resetLoading ? "Enviando..." : "Esqueci minha senha"}
                   </Button>
                 </form>
               </TabsContent>

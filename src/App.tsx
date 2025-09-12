@@ -11,6 +11,7 @@ import PaymentMethodPage from "./pages/PaymentMethodPage";
 import PaymentPage from "./pages/PaymentPage";
 import PaymentConfirmationPage from "./pages/PaymentConfirmationPage";
 import ProfilePage from "./pages/ProfilePage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,6 +28,7 @@ const App = () => (
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/agendamento" element={<AppointmentBookingPage />} />
             <Route path="/perfil" element={<ProfilePage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="/pagamento" element={<PaymentMethodPage />} />
             <Route path="/agendamento-confirmado" element={<PaymentConfirmationPage />} />
             <Route path="/pagamento-old" element={<PaymentPage />} />
