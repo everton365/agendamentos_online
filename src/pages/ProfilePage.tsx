@@ -65,7 +65,7 @@ type Slot = {
 };
 
 const ProfilePage = () => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -104,11 +104,13 @@ const ProfilePage = () => {
     return hours + minutes;
   };
   const fetchProfile = async () => {
+    if (!user?.id) return;
+    
     try {
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
-        .eq("user_id", user?.id)
+        .eq("user_id", user.id)
         .maybeSingle();
       if (error) throw error;
       if (data) {
@@ -124,11 +126,13 @@ const ProfilePage = () => {
   };
 
   const fetchAppointments = async () => {
+    if (!user?.id) return;
+    
     try {
       const { data, error } = await supabase
         .from("appointments")
         .select("*")
-        .eq("user_id", user?.id)
+        .eq("user_id", user.id)
         .order("appointment_date", { ascending: false });
       if (error) throw error;
       const appointmentsWithPrice: Appointment[] = (data || []).map(
@@ -497,6 +501,21 @@ const ProfilePage = () => {
     return `${minutes}min`;
   };
 
+  // Show loading while auth is initializing
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p>Carregando...</p>
+      </div>
+    );
+  }
+
+  // Redirect to auth if not logged in
+  if (!user) {
+    window.location.href = '/auth';
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -518,7 +537,7 @@ const ProfilePage = () => {
                   <AvatarImage src={previewUrl || profile.avatar_url || ""} />
                   <AvatarFallback className="bg-gradient-primary text-white text-2xl">
                     {profile.display_name?.charAt(0) ||
-                      user.email?.charAt(0).toUpperCase() ||
+                      (user?.email?.charAt(0).toUpperCase()) ||
                       "U"}
                   </AvatarFallback>
                 </Avatar>
