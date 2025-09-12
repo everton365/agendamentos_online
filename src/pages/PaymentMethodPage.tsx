@@ -56,6 +56,7 @@ const PaymentMethodPage = () => {
   const [loading, setLoading] = useState(false);
   const [preferenceUrl, setPreferenceUrl] = useState(null);
   const [appointmentId, setAppointmentId] = useState<string>("");
+  const [acceptedPolicy, setAcceptedPolicy] = useState(false);
 
   // Redirect if no appointment data
   if (!appointmentData) {
@@ -63,6 +64,13 @@ const PaymentMethodPage = () => {
     return null;
   }
 
+  useEffect(() => {
+    const savedAppointmentId = localStorage.getItem("appointmentId");
+    console.log("tem salvo", savedAppointmentId);
+    if (savedAppointmentId) {
+      setPreferenceUrl(savedAppointmentId);
+    }
+  }, []);
   const getServicePrice = (service: string): number => {
     const prices: Record<string, number> = {
       design: 8000, // R$ 80,00 in cents
@@ -113,7 +121,8 @@ const PaymentMethodPage = () => {
     },
   ];
 
-  const handlePayment = async () => {
+  {
+    /*const handlePayment = async () => {
     if (!selectedPaymentMethod) return;
 
     setLoading(true);
@@ -182,9 +191,17 @@ const PaymentMethodPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  };*/
+  }
 
   useEffect(() => {
+    if (!appointmentData || preferenceUrl) return;
+    const savedAppointmentId = localStorage.getItem("appointmentId");
+    if (savedAppointmentId) {
+      setAppointmentId(savedAppointmentId);
+
+      return; // não cria novo agendamento nem preferência
+    }
     const runFlow = async () => {
       setLoading(true);
 
@@ -221,23 +238,20 @@ const PaymentMethodPage = () => {
               items: [
                 {
                   id: appointmentId,
-                  title: appointmentData.service,
+                  title: "Taxa de agendamento",
                   quantity: 1,
                   unit_price: 1,
                 },
               ],
             }),
           });
-
           if (!response.ok)
             throw new Error("Erro ao criar preferência de pagamento");
-
           const data = await response.json();
-          console.log("Checkout preference:", data);
           setPreferenceUrl(data.preference_url);
+          localStorage.setItem("appointmentId", data.preference_url);
         };
 
-        // Fluxo sequencial
         const id = await createAppointment(appointmentData);
         setAppointmentId(id);
         await createPreference(id);
@@ -253,8 +267,7 @@ const PaymentMethodPage = () => {
     };
 
     runFlow();
-  }, [appointmentData]);
-
+  }, [appointmentData, appointmentId]);
   return (
     <div className="min-h-screen bg-gradient-hero">
       <Header />
@@ -280,8 +293,8 @@ const PaymentMethodPage = () => {
               </span>
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Selecione sua forma de pagamento preferida para confirmar o
-              agendamento.
+              Para confirmar seu agendamento, selecione sua forma de pagamento
+              clicando em 'Pagar com Mercado Pago'.
             </p>
           </div>
 
@@ -364,12 +377,23 @@ const PaymentMethodPage = () => {
                 <div className="mt-6 p-4 bg-secondary/50 rounded-lg">
                   <h4 className="font-semibold mb-2 flex items-center gap-2">
                     <Info className="w-4 h-4 text-primary" />
-                    Política de Pagamento
+                    Política de Pagamento e reagendamento
                   </h4>
                   <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>• Pagamento necessário para confirmar agendamento</li>
-                    <li>• Reagendamento gratuito até 3h antes do horário</li>
-                    <li>• Não comparecimento: valor não será reembolsado</li>
+                    <li>
+                      • Taxa de agendamento de R$ 20,00 para confirmar o horário
+                      (será descontada do valor do serviço)
+                    </li>
+                    <li>• Pagamento via Pix ou cartão de crédito</li>
+                    <li>
+                      • Reagendamento gratuito até 3 horas antes do horário
+                    </li>
+                    <li>
+                      • Após o prazo de 3 horas, será necessário pagar nova taxa
+                      para reagendamento
+                    </li>
+                    <li>• Não comparecimento: taxa não será reembolsada</li>
+                    <li>• Tolerância de atraso: 10 minutos</li>
                   </ul>
                 </div>
               </CardContent>
@@ -379,10 +403,11 @@ const PaymentMethodPage = () => {
             <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-elegant">
               <CardHeader>
                 <CardTitle className="text-foreground">
-                  Método de Pagamento
+                  Confirmar e Pagar
                 </CardTitle>
               </CardHeader>
               <CardContent>
+                {/*
                 <RadioGroup
                   value={selectedPaymentMethod}
                   onValueChange={setSelectedPaymentMethod}
@@ -413,62 +438,30 @@ const PaymentMethodPage = () => {
                     </div>
                   ))}
                 </RadioGroup>
+*/}
 
-                {/* Payment Details Dialog */}
-                {selectedPaymentMethod && (
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button variant="outline" className="w-full mt-4">
-                        <Info className="w-4 h-4 mr-2" />
-                        Ver detalhes do método selecionado
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Detalhes do Pagamento</DialogTitle>
-                        <DialogDescription>
-                          {selectedPaymentMethod === "credit_card" && (
-                            <div className="space-y-2">
-                              <p>
-                                • Pagamento processado via cartão de crédito
-                              </p>
-                              <p>• Cobrança aparecerá como "Beauty Clinic"</p>
-                              <p>
-                                • Parcelamento disponível em até 3x sem juros
-                              </p>
-                              <p>• Pagamento seguro via SSL</p>
-                            </div>
-                          )}
-                          {selectedPaymentMethod === "pix" && (
-                            <div className="space-y-2">
-                              <p>• Pagamento instantâneo via PIX</p>
-                              <p>• QR Code será gerado para pagamento</p>
-                              <p>• Confirmação automática em poucos segundos</p>
-                              <p>• Disponível 24h por dia</p>
-                            </div>
-                          )}
-                          {selectedPaymentMethod === "cash" && (
-                            <div className="space-y-2">
-                              <p>• Pagamento em dinheiro na clínica</p>
-                              <p>• Disponível no dia do atendimento</p>
-                              <p>• Recomendamos levar o valor exato</p>
-                              <p>
-                                • Agendamento será confirmado antecipadamente
-                              </p>
-                            </div>
-                          )}
-                        </DialogDescription>
-                      </DialogHeader>
-                    </DialogContent>
-                  </Dialog>
-                )}
+                <label className="flex items-center space-x-2 mt-4">
+                  <input
+                    type="checkbox"
+                    checked={acceptedPolicy}
+                    onChange={(e) => setAcceptedPolicy(e.target.checked)}
+                    className="accent-primary w-6 h-6"
+                  />
+                  <span className="text-sm text-muted-foreground">
+                    Li e aceito a política de pagamento e reagendamento
+                  </span>
+                </label>
                 {preferenceUrl && (
                   <Button
-                    onClick={() => (window.location.href = preferenceUrl)}
-                    disabled={loading} // desabilita enquanto processa
+                    onClick={() => {
+                      localStorage.removeItem("appointmentId");
+                      // Redireciona para a preferência de pagamento
+                      window.location.href = preferenceUrl;
+                    }}
+                    disabled={loading || !acceptedPolicy}
                     variant="primary"
                     size="lg"
-                    className="w-full mt-6 flex justify-center items-center"
+                    className="w-full mt-6 flex justify-center items-center py-8"
                   >
                     {loading ? (
                       "Processando..."
@@ -480,7 +473,7 @@ const PaymentMethodPage = () => {
                     )}
                   </Button>
                 )}
-
+                {/*
                 <Button
                   onClick={handlePayment}
                   disabled={!selectedPaymentMethod || loading}
@@ -497,6 +490,7 @@ const PaymentMethodPage = () => {
                     </>
                   )}
                 </Button>
+                */}
               </CardContent>
             </Card>
           </div>

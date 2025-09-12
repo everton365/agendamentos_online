@@ -412,7 +412,7 @@ const AppointmentBookingPage = () => {
     <div className="min-h-screen bg-gradient-hero">
       <Header />
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="mx-auto w-4/5 px-4 py-8">
         <div className="max-w-4xl mx-auto">
           {/* Back Button */}
           <Button
@@ -429,7 +429,7 @@ const AppointmentBookingPage = () => {
             <h1 className="text-4xl font-bold text-foreground mb-4">
               Agendar{" "}
               <span className="bg-gradient-primary bg-clip-text text-transparent">
-                Consulta
+                Horario
               </span>
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -489,8 +489,20 @@ const AppointmentBookingPage = () => {
                 <CardContent>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span>Segunda - Sexta:</span>
-                      <span className="font-medium">8h às 17h</span>
+                      <span>Terça-feira:</span>
+                      <span className="font-medium">9h às 14h</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Quarta-feira:</span>
+                      <span className="font-medium">9h às 17h</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span> Quinta-feira:</span>
+                      <span className="font-medium">9 às 18:30</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Sexta-feira:</span>
+                      <span className="font-medium"> 9h às 18:30</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Sábado:</span>
