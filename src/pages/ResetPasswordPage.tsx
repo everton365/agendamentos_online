@@ -24,25 +24,52 @@ const ResetPasswordPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if we have the required tokens in the URL
-    const accessToken = searchParams.get("access_token");
-    const refreshToken = searchParams.get("refresh_token");
+    const checkSession = async () => {
+      // Get the hash fragment from the URL (Supabase uses hash-based routing for password reset)
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const accessToken = hashParams.get("access_token");
+      const refreshToken = hashParams.get("refresh_token");
+      const type = hashParams.get("type");
 
-    if (accessToken && refreshToken) {
-      // Set the session with the tokens from the URL
-      supabase.auth.setSession({
-        access_token: accessToken,
-        refresh_token: refreshToken,
-      });
-    } else {
-      // If no tokens, redirect to login
-      toast({
-        title: "Link inválido",
-        description: "O link de recuperação de senha é inválido ou expirou.",
-        variant: "destructive",
-      });
-      navigate("/auth");
-    }
+      // Also check URL search params as fallback
+      const urlAccessToken = searchParams.get("access_token");
+      const urlRefreshToken = searchParams.get("refresh_token");
+      const urlType = searchParams.get("type");
+
+      const finalAccessToken = accessToken || urlAccessToken;
+      const finalRefreshToken = refreshToken || urlRefreshToken;
+      const finalType = type || urlType;
+
+      if (finalAccessToken && finalRefreshToken && finalType === "recovery") {
+        try {
+          const { data, error } = await supabase.auth.setSession({
+            access_token: finalAccessToken,
+            refresh_token: finalRefreshToken,
+          });
+
+          if (error) throw error;
+
+          // Session is valid, user can reset password
+        } catch (error: any) {
+          toast({
+            title: "Link inválido",
+            description: "O link de recuperação de senha é inválido ou expirou.",
+            variant: "destructive",
+          });
+          navigate("/auth");
+        }
+      } else {
+        // If no proper tokens, redirect to login
+        toast({
+          title: "Link inválido",
+          description: "O link de recuperação de senha é inválido ou expirou.",
+          variant: "destructive",
+        });
+        navigate("/auth");
+      }
+    };
+
+    checkSession();
   }, [searchParams, navigate, toast]);
 
   const handleResetPassword = async (e: React.FormEvent) => {
