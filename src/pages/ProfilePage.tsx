@@ -379,11 +379,26 @@ const ProfilePage = () => {
     }
     if (date) {
       const [year, month, day] = date.split("-").map(Number);
-      const d = new Date(year, month - 1, day); // cria data local
-      const dayOfWeek = d.getDay(); // 0=Dom, 1=Seg, ..., 3=Qua
-      if (dayOfWeek === 3 && start >= 14 * 60) {
-        console.log(`⛔ Slot ${startTime}: bloqueado (quarta-feira após 14h)`);
+      const d = new Date(year, month - 1, day);
+      const dayOfWeek = d.getDay(); // 0=Dom, 1=Seg, 2=Ter, ...
+
+      if (dayOfWeek === 1) {
+        // segunda-feira
+        console.log(
+          `⛔ Slot ${startTime}: bloqueado (nenhum horário permitido na segunda-feira)`
+        );
         return false;
+      }
+
+      if (dayOfWeek === 2) {
+        // terça-feira
+        const limiteFim = 14 * 60 + 30; // 14:30
+        if (end > limiteFim) {
+          console.log(
+            `⛔ Slot ${startTime}: bloqueado (não pode ultrapassar 14:30 na terça-feira)`
+          );
+          return false;
+        }
       }
     }
 
