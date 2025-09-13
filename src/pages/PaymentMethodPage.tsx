@@ -194,11 +194,9 @@ const PaymentMethodPage = () => {
   };*/
   }
 
-  const hasRun = useRef(false);
+  
 
 useEffect(() => {
-  if (hasRun.current) return; // já rodou, não executa de novo
-  hasRun.current = true;
     if (!appointmentData || preferenceUrl) return;
     const savedAppointmentId = localStorage.getItem("appointmentId");
     if (savedAppointmentId) {
