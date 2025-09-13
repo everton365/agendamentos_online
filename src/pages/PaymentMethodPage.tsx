@@ -269,7 +269,7 @@ useEffect(() => {
     };
 
     runFlow();
-  }, [appointmentData, appointmentId]);
+  }, [appointmentData]);
   return (
     <div className="min-h-screen bg-gradient-hero">
       <Header />
