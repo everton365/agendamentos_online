@@ -384,7 +384,8 @@ const PaymentMethodPage = () => {
                       • Taxa de agendamento de R$ 20,00 para confirmar o horário
                       (será descontada do valor do serviço)
                     </li>
-                    <li>• Pagamento via Pix ou cartão de crédito</li>
+                    <li>• Pagamento do serviço no lacal</li>
+                    <li>• Pagamento da taxa via Pix ou cartão de crédito</li>
                     <li>
                       • Reagendamento gratuito até 3 horas antes do horário
                     </li>

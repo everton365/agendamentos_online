@@ -65,6 +65,12 @@ const AppointmentBookingPage = () => {
   }, [user, navigate]);
 
   useEffect(() => {
+    // Remove do localStorage depois de pegar
+    localStorage.removeItem("appointmentId");
+    console.log("appointmentId removido do localStorage");
+  }, []);
+
+  useEffect(() => {
     const service = queryParams.get("service");
 
     if (service) {
@@ -113,7 +119,6 @@ const AppointmentBookingPage = () => {
 
       const data = await res.json();
       if (!data.schedule) return [];
-      console.log(data);
 
       // Primeiro, transformamos cada slot em um objeto com start e end
       const slotsWithTime = data.schedule.map(
@@ -165,8 +170,6 @@ const AppointmentBookingPage = () => {
   };
 
   const handleInputChange = async (field: string, value: string) => {
-    console.log("📝 handleInputChange chamado com:", field, value);
-
     setFormData((prev) => ({ ...prev, [field]: value }));
 
     // Só entra se o campo alterado for a data ou o serviço
@@ -267,7 +270,7 @@ const AppointmentBookingPage = () => {
     const [sh, sm] = startTime.split(":").map(Number);
     const start = sh * 60 + sm;
     const end = start + durationMinutes;
-    console.log(date);
+
     const sortedSlots = slots
       .map((s) => {
         const [h, m] = s.time.split(":").map(Number);
@@ -280,9 +283,6 @@ const AppointmentBookingPage = () => {
 
     const startIndex = sortedSlots.findIndex((s) => s.minutes === start);
     if (startIndex === -1) {
-      console.log(
-        `⛔ Slot ${startTime}: não encontrado → duração = ${durationMinutes}min`
-      );
       return false;
     }
     if (date) {
