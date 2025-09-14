@@ -194,7 +194,9 @@ const PaymentMethodPage = () => {
   };*/
   }
 
-  useEffect(() => {
+  
+
+useEffect(() => {
     if (!appointmentData || preferenceUrl) return;
     const savedAppointmentId = localStorage.getItem("appointmentId");
     if (savedAppointmentId) {
@@ -267,7 +269,7 @@ const PaymentMethodPage = () => {
     };
 
     runFlow();
-  }, [appointmentData, appointmentId]);
+  }, [appointmentData]);
   return (
     <div className="min-h-screen bg-gradient-hero">
       <Header />
