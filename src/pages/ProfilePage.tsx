@@ -88,10 +88,22 @@ const ProfilePage = () => {
       status: "available" | "PENDING" | "CONFIRMED" | "blocked";
     }[]
   >([]);
-
+  const [blockedDate, setBlockedDate] = useState<{ bloqueada: boolean }>({
+    bloqueada: false,
+  });
   const baseURL = import.meta.env.VITE_API_URL;
 
-  const blockedDate = { bloqueada: false }; // Definição mínima
+  useEffect(() => {
+    if (!rescheduleDate) return;
+
+    fetch(`${baseURL}/user/appointments/date-bloqueada/${rescheduleDate}`)
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("📅 Resposta da API bloqueada:", data);
+        setBlockedDate(data);
+      })
+      .catch((err) => console.error(err));
+  }, [rescheduleDate]);
 
   const parseDuration = (duration: string | number) => {
     if (typeof duration === "number") return duration; // já é em minutos
@@ -105,7 +117,7 @@ const ProfilePage = () => {
   };
   const fetchProfile = async () => {
     if (!user?.id) return;
-    
+
     try {
       const { data, error } = await supabase
         .from("profiles")
@@ -127,7 +139,7 @@ const ProfilePage = () => {
 
   const fetchAppointments = async () => {
     if (!user?.id) return;
-    
+
     try {
       const { data, error } = await supabase
         .from("appointments")
@@ -379,11 +391,26 @@ const ProfilePage = () => {
     }
     if (date) {
       const [year, month, day] = date.split("-").map(Number);
-      const d = new Date(year, month - 1, day); // cria data local
-      const dayOfWeek = d.getDay(); // 0=Dom, 1=Seg, ..., 3=Qua
-      if (dayOfWeek === 3 && start >= 14 * 60) {
-        console.log(`⛔ Slot ${startTime}: bloqueado (quarta-feira após 14h)`);
+      const d = new Date(year, month - 1, day);
+      const dayOfWeek = d.getDay(); // 0=Dom, 1=Seg, 2=Ter, ...
+
+      if (dayOfWeek === 1) {
+        // segunda-feira
+        console.log(
+          `⛔ Slot ${startTime}: bloqueado (nenhum horário permitido na segunda-feira)`
+        );
         return false;
+      }
+
+      if (dayOfWeek === 2) {
+        // terça-feira
+        const limiteFim = 14 * 60 + 30; // 14:30
+        if (end > limiteFim) {
+          console.log(
+            `⛔ Slot ${startTime}: bloqueado (não pode ultrapassar 14:30 na terça-feira)`
+          );
+          return false;
+        }
       }
     }
 
@@ -489,7 +516,7 @@ const ProfilePage = () => {
         displayStatus,
       };
     });
-  }, [availableTimes, rescheduleDate, selectedAppointment]);
+  }, [availableTimes, rescheduleDate, selectedAppointment, blockedDate]);
 
   const formatDuration = (duration: string | number) => {
     const minutes = parseDuration(duration);
@@ -512,7 +539,7 @@ const ProfilePage = () => {
 
   // Redirect to auth if not logged in
   if (!user) {
-    window.location.href = '/auth';
+    window.location.href = "/auth";
     return null;
   }
 
@@ -537,7 +564,7 @@ const ProfilePage = () => {
                   <AvatarImage src={previewUrl || profile.avatar_url || ""} />
                   <AvatarFallback className="bg-gradient-primary text-white text-2xl">
                     {profile.display_name?.charAt(0) ||
-                      (user?.email?.charAt(0).toUpperCase()) ||
+                      user?.email?.charAt(0).toUpperCase() ||
                       "U"}
                   </AvatarFallback>
                 </Avatar>
