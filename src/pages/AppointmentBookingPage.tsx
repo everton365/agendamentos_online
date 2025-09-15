@@ -63,10 +63,11 @@ const AppointmentBookingPage = () => {
     if (!user) {
       navigate("/auth");
     } else {
-      // Auto-fill email from user
+      // Auto-fill email and phone from user
       setFormData((prev) => ({
         ...prev,
         email: user.email || "",
+        phone: user.user_metadata?.phone || "",
       }));
     }
   }, [user, navigate]);
