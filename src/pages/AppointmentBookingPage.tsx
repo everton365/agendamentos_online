@@ -721,6 +721,8 @@ const AppointmentBookingPage = () => {
                           handleInputChange("date", e.target.value)
                         }
                         min={new Date().toISOString().split("T")[0]}
+                        autoComplete="off"
+                        name="appointment_date_x"
                         required
                       />
                     </div>
