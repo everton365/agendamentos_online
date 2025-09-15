@@ -29,12 +29,14 @@ const AppointmentBookingPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [emailValid, setEmailValid] = useState(true);
-  const [selectedServices, setSelectedServices] = useState<Array<{
-    value: string;
-    label: string;
-    price: string;
-    duration: string;
-  }>>([]);
+  const [selectedServices, setSelectedServices] = useState<
+    Array<{
+      value: string;
+      label: string;
+      price: string;
+      duration: string;
+    }>
+  >([]);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -67,7 +69,8 @@ const AppointmentBookingPage = () => {
       // Auto-fill name, email and phone from user
       setFormData((prev) => ({
         ...prev,
-        name: user.user_metadata?.full_name || user.user_metadata?.name || "",
+        name:
+          user.user_metadata?.display_name || user.user_metadata?.name || "",
         email: user.email || "",
         phone: user.user_metadata?.phone || "",
       }));
@@ -86,12 +89,14 @@ const AppointmentBookingPage = () => {
     if (service) {
       const selected = serviceOptions.find((s) => s.value === service);
       if (selected) {
-        setSelectedServices([{
-          value: selected.value,
-          label: selected.label,
-          price: selected.price,
-          duration: selected.duration,
-        }]);
+        setSelectedServices([
+          {
+            value: selected.value,
+            label: selected.label,
+            price: selected.price,
+            duration: selected.duration,
+          },
+        ]);
       }
     }
   }, [location.search]);
@@ -114,7 +119,9 @@ const AppointmentBookingPage = () => {
 
   const getTotalPrice = () => {
     return selectedServices.reduce((total, service) => {
-      const priceValue = parseFloat(service.price.replace('R$ ', '').replace(',', '.'));
+      const priceValue = parseFloat(
+        service.price.replace("R$ ", "").replace(",", ".")
+      );
       return total + priceValue;
     }, 0);
   };
@@ -223,20 +230,25 @@ const AppointmentBookingPage = () => {
     }
   };
 
-  const handleServiceToggle = (service: typeof serviceOptions[0]) => {
-    const isSelected = selectedServices.some(s => s.value === service.value);
-    
+  const handleServiceToggle = (service: (typeof serviceOptions)[0]) => {
+    const isSelected = selectedServices.some((s) => s.value === service.value);
+
     if (isSelected) {
-      setSelectedServices(prev => prev.filter(s => s.value !== service.value));
+      setSelectedServices((prev) =>
+        prev.filter((s) => s.value !== service.value)
+      );
     } else {
-      setSelectedServices(prev => [...prev, {
-        value: service.value,
-        label: service.label,
-        price: service.price,
-        duration: service.duration
-      }]);
+      setSelectedServices((prev) => [
+        ...prev,
+        {
+          value: service.value,
+          label: service.label,
+          price: service.price,
+          duration: service.duration,
+        },
+      ]);
     }
-    
+
     // Update time slots after service change
     setTimeout(updateTimeSlots, 100);
   };
@@ -253,7 +265,8 @@ const AppointmentBookingPage = () => {
     ) {
       toast({
         title: "Campos obrigatórios",
-        description: "Por favor, preencha todos os campos obrigatórios e selecione pelo menos um serviço.",
+        description:
+          "Por favor, preencha todos os campos obrigatórios e selecione pelo menos um serviço.",
         variant: "destructive",
       });
       return;
@@ -277,11 +290,12 @@ const AppointmentBookingPage = () => {
       // Prepare appointment data with services info
       const appointmentData = {
         ...formData,
-        service: selectedServices.map(s => s.label).join(', '),
-        price: `R$ ${getTotalPrice().toFixed(2).replace('.', ',')}`,
+        service: selectedServices.map((s) => s.label).join(", "),
+        price: `R$ ${getTotalPrice().toFixed(2).replace(".", ",")}`,
         duration: formatTotalDuration(getTotalDuration()),
         services: selectedServices,
-        name: user?.user_metadata?.name || user?.email?.split('@')[0] || 'Cliente',
+        name:
+          user?.user_metadata?.name || user?.email?.split("@")[0] || "Cliente",
       };
 
       // Navigate to payment page
@@ -415,7 +429,7 @@ const AppointmentBookingPage = () => {
   const processedSlots = useMemo(() => {
     const totalDuration = getTotalDuration();
     if (!totalDuration || !formData.date) return [];
-    
+
     const now = new Date();
     const nowPlus3h = new Date(now.getTime() + 3 * 60 * 60 * 1000);
 
@@ -618,14 +632,16 @@ const AppointmentBookingPage = () => {
                     <Label>Serviços Desejados</Label>
                     <div className="space-y-2 max-h-64 overflow-y-auto border rounded-lg p-3">
                       {serviceOptions.map((service) => {
-                        const isSelected = selectedServices.some(s => s.value === service.value);
+                        const isSelected = selectedServices.some(
+                          (s) => s.value === service.value
+                        );
                         return (
                           <div
                             key={service.value}
                             className={`p-3 rounded-lg border cursor-pointer transition-all ${
-                              isSelected 
-                                ? 'border-primary bg-primary/10' 
-                                : 'border-border hover:border-primary/50'
+                              isSelected
+                                ? "border-primary bg-primary/10"
+                                : "border-border hover:border-primary/50"
                             }`}
                             onClick={() => handleServiceToggle(service)}
                           >
@@ -642,9 +658,13 @@ const AppointmentBookingPage = () => {
                                 <span className="text-primary font-semibold">
                                   {service.price}
                                 </span>
-                                <div className={`w-4 h-4 rounded border ${
-                                  isSelected ? 'bg-primary border-primary' : 'border-border'
-                                }`}>
+                                <div
+                                  className={`w-4 h-4 rounded border ${
+                                    isSelected
+                                      ? "bg-primary border-primary"
+                                      : "border-border"
+                                  }`}
+                                >
                                   {isSelected && (
                                     <div className="w-full h-full flex items-center justify-center">
                                       <div className="w-2 h-2 bg-white rounded-sm"></div>
@@ -657,12 +677,17 @@ const AppointmentBookingPage = () => {
                         );
                       })}
                     </div>
-                    
+
                     {selectedServices.length > 0 && (
                       <div className="p-3 bg-secondary/50 rounded-lg space-y-2">
-                        <h4 className="font-medium text-foreground">Serviços Selecionados:</h4>
+                        <h4 className="font-medium text-foreground">
+                          Serviços Selecionados:
+                        </h4>
                         {selectedServices.map((service) => (
-                          <div key={service.value} className="flex justify-between text-sm">
+                          <div
+                            key={service.value}
+                            className="flex justify-between text-sm"
+                          >
                             <span>{service.label}</span>
                             <span>{service.price}</span>
                           </div>
@@ -670,11 +695,15 @@ const AppointmentBookingPage = () => {
                         <div className="pt-2 border-t border-border/50">
                           <div className="flex justify-between font-semibold">
                             <span>Total:</span>
-                            <span>R$ {getTotalPrice().toFixed(2).replace('.', ',')}</span>
+                            <span>
+                              R$ {getTotalPrice().toFixed(2).replace(".", ",")}
+                            </span>
                           </div>
                           <div className="flex justify-between text-sm text-muted-foreground">
                             <span>Duração total:</span>
-                            <span>{formatTotalDuration(getTotalDuration())}</span>
+                            <span>
+                              {formatTotalDuration(getTotalDuration())}
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -746,8 +775,8 @@ const AppointmentBookingPage = () => {
                         </div>
                       ) : (
                         <div className="text-center p-4 text-muted-foreground">
-                          Selecione pelo menos um serviço e uma data para ver os horários
-                          disponíveis
+                          Selecione pelo menos um serviço e uma data para ver os
+                          horários disponíveis
                         </div>
                       )}
 
