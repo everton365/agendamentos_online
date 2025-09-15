@@ -36,6 +36,7 @@ const AppointmentBookingPage = () => {
     duration: string;
   }>>([]);
   const [formData, setFormData] = useState({
+    name: "",
     email: "",
     phone: "",
     date: "",
@@ -63,9 +64,10 @@ const AppointmentBookingPage = () => {
     if (!user) {
       navigate("/auth");
     } else {
-      // Auto-fill email and phone from user
+      // Auto-fill name, email and phone from user
       setFormData((prev) => ({
         ...prev,
+        name: user.user_metadata?.full_name || user.user_metadata?.name || "",
         email: user.email || "",
         phone: user.user_metadata?.phone || "",
       }));
@@ -572,6 +574,19 @@ const AppointmentBookingPage = () => {
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="name">Nome</Label>
+                      <Input
+                        id="name"
+                        type="text"
+                        value={formData.name}
+                        placeholder="Seu nome"
+                        className="bg-muted/50"
+                        readOnly
+                        required
+                      />
+                    </div>
+
                     <div className="space-y-2">
                       <Label htmlFor="email">Email</Label>
                       <Input
