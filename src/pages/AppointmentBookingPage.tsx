@@ -578,23 +578,11 @@ const AppointmentBookingPage = () => {
                         id="email"
                         type="email"
                         value={formData.email}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          handleInputChange("email", value);
-
-                          // validação do email
-                          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                          setEmailValid(emailRegex.test(value));
-                        }}
                         placeholder="exemplo@email.com"
-                        className={!emailValid ? "border-red-500" : ""}
+                        className="bg-muted/50"
+                        readOnly
                         required
                       />
-                      {!emailValid && (
-                        <p className="text-red-500 text-sm">
-                          Digite um email válido.
-                        </p>
-                      )}
                     </div>
 
                     <div className="space-y-2">
