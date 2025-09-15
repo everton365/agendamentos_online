@@ -29,17 +29,18 @@ const AppointmentBookingPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [emailValid, setEmailValid] = useState(true);
+  const [selectedServices, setSelectedServices] = useState<Array<{
+    value: string;
+    label: string;
+    price: string;
+    duration: string;
+  }>>([]);
   const [formData, setFormData] = useState({
-    name: "",
     email: "",
     phone: "",
-    service: "",
-    price: "",
     date: "",
     time: "",
-    duration: "",
     message: "",
-    cpf: "",
   });
 
   const [timeSlots, setTimeSlots] = useState<
@@ -57,10 +58,16 @@ const AppointmentBookingPage = () => {
   const toggleService = (value: string) => {
     setOpenService(openService === value ? null : value);
   };
-  // Redirect to auth if not logged in
+  // Auto-fill user data and redirect if not logged in
   useEffect(() => {
     if (!user) {
       navigate("/auth");
+    } else {
+      // Auto-fill email from user
+      setFormData((prev) => ({
+        ...prev,
+        email: user.email || "",
+      }));
     }
   }, [user, navigate]);
 
@@ -76,12 +83,12 @@ const AppointmentBookingPage = () => {
     if (service) {
       const selected = serviceOptions.find((s) => s.value === service);
       if (selected) {
-        setFormData((prev) => ({
-          ...prev,
-          service: selected.value,
+        setSelectedServices([{
+          value: selected.value,
+          label: selected.label,
           price: selected.price,
           duration: selected.duration,
-        }));
+        }]);
       }
     }
   }, [location.search]);
@@ -94,6 +101,29 @@ const AppointmentBookingPage = () => {
       .then((data) => setBlockedDate(data))
       .catch((err) => console.error(err));
   }, [formData.date]);
+
+  // Calculate total duration and price from selected services
+  const getTotalDuration = () => {
+    return selectedServices.reduce((total, service) => {
+      return total + parseDuration(service.duration);
+    }, 0);
+  };
+
+  const getTotalPrice = () => {
+    return selectedServices.reduce((total, service) => {
+      const priceValue = parseFloat(service.price.replace('R$ ', '').replace(',', '.'));
+      return total + priceValue;
+    }, 0);
+  };
+
+  const formatTotalDuration = (minutes: number) => {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    if (hours > 0) {
+      return mins > 0 ? `${hours}h ${mins}min` : `${hours}h`;
+    }
+    return `${mins}min`;
+  };
 
   const parseDuration = (duration?: string): number => {
     if (!duration) return 10;
@@ -110,10 +140,10 @@ const AppointmentBookingPage = () => {
 
   const getTimeSlotsForDate = async (
     date: string,
-    serviceDuration?: string
+    totalDurationMinutes?: number
   ) => {
     try {
-      const durationMinutes = parseDuration(serviceDuration);
+      const durationMinutes = totalDurationMinutes || getTotalDuration() || 10;
       const res = await fetch(`${baseURL}/user/appointments/status/${date}`);
       if (!res.ok) throw new Error("Erro ao buscar horários");
 
@@ -139,9 +169,9 @@ const AppointmentBookingPage = () => {
         }
       );
 
-      // Filtra os horários disponíveis considerando a duração do serviço
+      // Filtra os horários disponíveis considerando a duração total dos serviços
       const slotsWithStatus = slotsWithTime.map((slot: any) => {
-        // Calcula o horário final do slot baseado na duração do serviço selecionado
+        // Calcula o horário final do slot baseado na duração total dos serviços selecionados
         const slotEnd = new Date(
           slot.slotStart.getTime() + durationMinutes * 60000
         );
@@ -172,39 +202,55 @@ const AppointmentBookingPage = () => {
   const handleInputChange = async (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
 
-    // Só entra se o campo alterado for a data ou o serviço
-    if (field === "date" || field === "service") {
-      const selectedService = serviceOptions.find((s) =>
-        field === "service" ? s.value === value : s.value === formData.service
-      );
-      const serviceDuration = selectedService?.duration || "10min";
-
-      const slots = await getTimeSlotsForDate(
-        field === "date" ? value : formData.date,
-        serviceDuration
-      );
-
+    // Só entra se o campo alterado for a data
+    if (field === "date") {
+      const totalDuration = getTotalDuration();
+      const slots = await getTimeSlotsForDate(value, totalDuration);
       setTimeSlots(slots);
       setFormData((prev) => ({ ...prev, time: "" }));
     }
+  };
+
+  const updateTimeSlots = async () => {
+    if (formData.date && selectedServices.length > 0) {
+      const totalDuration = getTotalDuration();
+      const slots = await getTimeSlotsForDate(formData.date, totalDuration);
+      setTimeSlots(slots);
+      setFormData((prev) => ({ ...prev, time: "" }));
+    }
+  };
+
+  const handleServiceToggle = (service: typeof serviceOptions[0]) => {
+    const isSelected = selectedServices.some(s => s.value === service.value);
+    
+    if (isSelected) {
+      setSelectedServices(prev => prev.filter(s => s.value !== service.value));
+    } else {
+      setSelectedServices(prev => [...prev, {
+        value: service.value,
+        label: service.label,
+        price: service.price,
+        duration: service.duration
+      }]);
+    }
+    
+    // Update time slots after service change
+    setTimeout(updateTimeSlots, 100);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (
-      !formData.name ||
-      !formData.cpf ||
       !formData.email ||
       !formData.phone ||
-      !formData.service ||
+      selectedServices.length === 0 ||
       !formData.date ||
-      !formData.time ||
-      !formData.duration
+      !formData.time
     ) {
       toast({
         title: "Campos obrigatórios",
-        description: "Por favor, preencha todos os campos obrigatórios.",
+        description: "Por favor, preencha todos os campos obrigatórios e selecione pelo menos um serviço.",
         variant: "destructive",
       });
       return;
@@ -212,7 +258,8 @@ const AppointmentBookingPage = () => {
 
     try {
       // Check availability one more time before navigating
-      const slots = await getTimeSlotsForDate(formData.date);
+      const totalDuration = getTotalDuration();
+      const slots = await getTimeSlotsForDate(formData.date, totalDuration);
       const selectedSlot = slots.find((slot) => slot.time === formData.time);
       if (!selectedSlot || selectedSlot.status !== "available") {
         toast({
@@ -224,10 +271,20 @@ const AppointmentBookingPage = () => {
         return;
       }
 
-      // Apenas navega para a página de pagamento, sem salvar ainda
+      // Prepare appointment data with services info
+      const appointmentData = {
+        ...formData,
+        service: selectedServices.map(s => s.label).join(', '),
+        price: `R$ ${getTotalPrice().toFixed(2).replace('.', ',')}`,
+        duration: formatTotalDuration(getTotalDuration()),
+        services: selectedServices,
+        name: user?.user_metadata?.name || user?.email?.split('@')[0] || 'Cliente',
+      };
+
+      // Navigate to payment page
       navigate("/pagamento", {
         state: {
-          appointmentData: formData,
+          appointmentData,
         },
       });
     } catch (error) {
@@ -241,23 +298,9 @@ const AppointmentBookingPage = () => {
     }
   };
 
-  const getServicePrice = (serviceValue: string) => {
-    const service = serviceOptions.find((s) => s.value === serviceValue);
-    return service?.price || "";
-  };
-
   if (!user) {
     return null; // Will redirect via useEffect
   }
-  const getServiceDescription = (value: string) => {
-    const service = serviceOptions.find((s) => s.value === value);
-    return service ? service.description : "";
-  };
-
-  const getServiceDuration = (value: string) => {
-    const service = serviceOptions.find((s) => s.value === value);
-    return service ? service.duration : "";
-  };
 
   type Slot = { time: string; status: string };
 
@@ -367,9 +410,9 @@ const AppointmentBookingPage = () => {
     return true;
   };
   const processedSlots = useMemo(() => {
-    if (!formData.duration || !formData.date) return [];
-    const durationMinutes = parseDuration(formData.duration);
-
+    const totalDuration = getTotalDuration();
+    if (!totalDuration || !formData.date) return [];
+    
     const now = new Date();
     const nowPlus3h = new Date(now.getTime() + 3 * 60 * 60 * 1000);
 
@@ -382,7 +425,7 @@ const AppointmentBookingPage = () => {
     return timeSlots.map((slot) => {
       const slotSelectable = canFitInSlot(
         slot.time,
-        durationMinutes,
+        totalDuration,
         timeSlots,
         formData.date
       );
@@ -406,7 +449,7 @@ const AppointmentBookingPage = () => {
           slotSelectable && !isBeforeLimit && !isWeekend && !isBlockedDate,
       };
     });
-  }, [timeSlots, formData.duration, formData.date, blockedDate]);
+  }, [timeSlots, selectedServices, formData.date, blockedDate]);
 
   return (
     <div className="min-h-screen bg-gradient-hero">
@@ -529,19 +572,7 @@ const AppointmentBookingPage = () => {
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="name">Nome Completo</Label>
-                      <Input
-                        id="name"
-                        value={formData.name}
-                        onChange={(e) =>
-                          handleInputChange("name", e.target.value)
-                        }
-                        placeholder="Seu nome completo"
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="name">Email</Label>
+                      <Label htmlFor="email">Email</Label>
                       <Input
                         id="email"
                         type="email"
@@ -557,46 +588,12 @@ const AppointmentBookingPage = () => {
                         placeholder="exemplo@email.com"
                         className={!emailValid ? "border-red-500" : ""}
                         required
-                      />{" "}
+                      />
                       {!emailValid && (
                         <p className="text-red-500 text-sm">
                           Digite um email válido.
                         </p>
                       )}
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="name">CPF</Label>
-                      <Input
-                        id="cpf"
-                        type="text"
-                        maxLength={14}
-                        value={formData.cpf}
-                        onChange={(e) => {
-                          let value = e.target.value.replace(/\D/g, ""); // mantém só números
-
-                          // aplica a máscara 000.000.000-00
-                          if (value.length > 3) {
-                            value = value.replace(/^(\d{3})(\d)/, "$1.$2");
-                          }
-                          if (value.length > 6) {
-                            value = value.replace(
-                              /^(\d{3})\.(\d{3})(\d)/,
-                              "$1.$2.$3"
-                            );
-                          }
-                          if (value.length > 9) {
-                            value = value.replace(
-                              /^(\d{3})\.(\d{3})\.(\d{3})(\d)/,
-                              "$1.$2.$3-$4"
-                            );
-                          }
-
-                          handleInputChange("cpf", value);
-                        }}
-                        placeholder="000.000.000-00"
-                        required
-                      />
                     </div>
 
                     <div className="space-y-2">
@@ -614,49 +611,69 @@ const AppointmentBookingPage = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="service">Serviço Desejado</Label>
-                    <Select
-                      value={formData.service}
-                      onValueChange={(value) => {
-                        const selectedService = serviceOptions.find(
-                          (s) => s.value === value
-                        );
-                        if (selectedService) {
-                          setFormData((prev) => ({
-                            ...prev,
-                            service: selectedService.value,
-                            price: selectedService.price,
-                            duration: selectedService.duration,
-                          }));
-                          handleInputChange("service", selectedService.value);
-                        }
-                      }}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione o serviço" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {serviceOptions.map((service) => (
-                          <SelectItem key={service.value} value={service.value}>
-                            <div className="flex justify-between items-center w-full">
-                              <span>{service.label}</span>
-                              <span className="text-primary font-semibold ml-4">
-                                {service.price}
-                              </span>
+                    <Label>Serviços Desejados</Label>
+                    <div className="space-y-2 max-h-64 overflow-y-auto border rounded-lg p-3">
+                      {serviceOptions.map((service) => {
+                        const isSelected = selectedServices.some(s => s.value === service.value);
+                        return (
+                          <div
+                            key={service.value}
+                            className={`p-3 rounded-lg border cursor-pointer transition-all ${
+                              isSelected 
+                                ? 'border-primary bg-primary/10' 
+                                : 'border-border hover:border-primary/50'
+                            }`}
+                            onClick={() => handleServiceToggle(service)}
+                          >
+                            <div className="flex justify-between items-center">
+                              <div className="flex flex-col">
+                                <span className="font-medium text-foreground">
+                                  {service.label}
+                                </span>
+                                <span className="text-xs text-muted-foreground">
+                                  {service.duration}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-primary font-semibold">
+                                  {service.price}
+                                </span>
+                                <div className={`w-4 h-4 rounded border ${
+                                  isSelected ? 'bg-primary border-primary' : 'border-border'
+                                }`}>
+                                  {isSelected && (
+                                    <div className="w-full h-full flex items-center justify-center">
+                                      <div className="w-2 h-2 bg-white rounded-sm"></div>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
                             </div>
-                          </SelectItem>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    
+                    {selectedServices.length > 0 && (
+                      <div className="p-3 bg-secondary/50 rounded-lg space-y-2">
+                        <h4 className="font-medium text-foreground">Serviços Selecionados:</h4>
+                        {selectedServices.map((service) => (
+                          <div key={service.value} className="flex justify-between text-sm">
+                            <span>{service.label}</span>
+                            <span>{service.price}</span>
+                          </div>
                         ))}
-                      </SelectContent>
-                    </Select>
-                    {formData.service && (
-                      <>
-                        <p className="text-sm text-muted-foreground">
-                          Duração: {getServiceDuration(formData.service)}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {getServiceDescription(formData.service)}
-                        </p>
-                      </>
+                        <div className="pt-2 border-t border-border/50">
+                          <div className="flex justify-between font-semibold">
+                            <span>Total:</span>
+                            <span>R$ {getTotalPrice().toFixed(2).replace('.', ',')}</span>
+                          </div>
+                          <div className="flex justify-between text-sm text-muted-foreground">
+                            <span>Duração total:</span>
+                            <span>{formatTotalDuration(getTotalDuration())}</span>
+                          </div>
+                        </div>
+                      </div>
                     )}
                   </div>
 
@@ -725,7 +742,7 @@ const AppointmentBookingPage = () => {
                         </div>
                       ) : (
                         <div className="text-center p-4 text-muted-foreground">
-                          Selecione um serviço e uma data para ver os horários
+                          Selecione pelo menos um serviço e uma data para ver os horários
                           disponíveis
                         </div>
                       )}
