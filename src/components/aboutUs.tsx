@@ -19,35 +19,48 @@ const AboutUs = () => {
           data-aos="fade-right"
         >
           Bem-vindo ao{" "}
-          <span className="font-semibold">Lariza Freitas Studio</span>! Aqui,
-          minha paixão pela beleza e a precisão técnica se encontram. Minha
-          missão é realçar a sua beleza única, criando um design de sobrancelhas
-          impecável e totalmente personalizado. Eu uso as técnicas mais modernas
-          e produtos da mais alta qualidade para garantir resultados
-          espetaculares e a sua total satisfação.
+          <span className="font-semibold">Lariza Freitas Studio</span>{" "}
+          Especialista em sobrancelhas naturais! Aqui, minha paixão pela beleza
+          e a precisão técnica se encontram. Minha missão é realçar a sua beleza
+          única, criando um design de sobrancelhas impecável e totalmente
+          personalizado. Eu uso as técnicas mais modernas e produtos da mais
+          alta qualidade para garantir resultados espetaculares e a sua total
+          satisfação.
         </p>
 
         <div className="space-y-4">
           <div className="flex items-center gap-3">
-            <div className="w-2 h-2 bg-primary rounded-full"></div>
+            <div
+              style={{ backgroundColor: "#D4AF37" }}
+              className="w-2 h-2 bg-primary rounded-full"
+            ></div>
             <span className="text-foreground" data-aos="fade-right">
               Técnicas modernas e seguras
             </span>
           </div>
           <div className="flex items-center gap-3">
-            <div className="w-2 h-2 bg-primary rounded-full"></div>
+            <div
+              style={{ backgroundColor: "#D4AF37" }}
+              className="w-2 h-2 bg-primary rounded-full"
+            ></div>
             <span className="text-foreground" data-aos="fade-right">
               Produtos de alta qualidade
             </span>
           </div>
           <div className="flex items-center gap-3">
-            <div className="w-2 h-2 bg-primary rounded-full"></div>
+            <div
+              style={{ backgroundColor: "#D4AF37" }}
+              className="w-2 h-2 bg-primary rounded-full"
+            ></div>
             <span className="text-foreground" data-aos="fade-right">
               Atendimento humanizado
             </span>
           </div>
           <div className="flex items-center gap-3">
-            <div className="w-2 h-2 bg-primary rounded-full"></div>
+            <div
+              style={{ backgroundColor: "#D4AF37" }}
+              className="w-2 h-2 bg-primary rounded-full"
+            ></div>
             <span className="text-foreground" data-aos="fade-right">
               Resultados naturais e duradouros
             </span>

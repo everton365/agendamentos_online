@@ -37,7 +37,7 @@ const HeroSection = () => {
       {/* Conteúdo */}
       <div className="relative z-10 container mx-auto px-4 py-20 text-center">
         <div className="space-y-8 animate-fade-in">
-          {/* Estrelas + Avaliações */}
+          {/* Estrelas + Avaliações 
           <div className="flex justify-center items-center  gap-2 text-primary">
             <Star className="w-5 h-5 fill-current" />
             <Star className="w-5 h-5 fill-current" />
@@ -47,49 +47,54 @@ const HeroSection = () => {
             <span className="text-sm font-medium">
               Mais de 500 clientes satisfeitas
             </span>
-          </div>
+          </div>*/}
 
           {/* Título */}
-          <h1 className="text-5xl lg:text-6xl  font-bold text-foreground leading-tight">
-            Sobrancelhas{" "}
-            <span className="bg-gradient-primary bg-clip-text text-transparent">
-              Perfeitas
+          <h1 className="text-6xl lg:text-8xl font-cinzel font-extrabold leading-tight">
+            <span className="block text-6xl text-transparent bg-clip-text bg-gradient-to-b from-black to-yellow-400">
+              Lariza Freitas
             </span>
-            <br />
-            para Você
+            <span className="block text-2xl text-transparent bg-clip-text bg-gradient-to-b from-yellow-400 to-black -mt-2">
+              Especialista em sobrancelhas naturais
+            </span>
           </h1>
 
           {/* Descrição */}
           <p className="text-xl text-muted-foreground max-w-lg mx-auto leading-relaxed">
-            Especialista em design, microblading e técnicas avançadas.
-            Transforme seu olhar com sobrancelhas perfeitamente moldadas.
+            Especialista em design, microblading e técnicas avançadas. Realce
+            sua beleza com sobrancelhas naturais, leves e perfeitamente
+            moldadas.
           </p>
 
           {/* Botões */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4  justify-center items-center">
             <Button
-              variant="primary"
               size="lg"
               onClick={handleScheduleClick}
-              className="group"
+              className="group w-48"
+              style={{ backgroundColor: "#D4AF37", color: "#000000ff" }}
             >
-              <Calendar className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
-              Agendar Consulta
+              <Calendar
+                style={{ color: "#000000ff" }}
+                className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform"
+              />
+              Agendar Horário
             </Button>
+
             <Button
-              variant="outline"
               size="lg"
               onClick={() =>
                 document.getElementById("resultados")?.scrollIntoView({
                   behavior: "smooth",
                 })
               }
+              className="w-48 bg-transparent border-2 border-black text-black hover:bg-black hover:text-white transition"
             >
               Ver Resultados
             </Button>
           </div>
 
-          {/* Estatísticas */}
+          {/* Estatísticas 
           <div className="grid grid-cols-3 gap-x-1 pt-6">
             <div className="text-center space-y-1">
               <div className="text-3xl font-bold text-primary">5+</div>
@@ -108,12 +113,13 @@ const HeroSection = () => {
               <div className="text-sm text-muted-foreground">Satisfação</div>
             </div>
           </div>
+          */}
 
           {/* Badge flutuante */}
           <div className="flex justify-center pt-12">
             <div className="bg-white rounded-2xl shadow-soft p-6 animate-fade-in inline-flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-primary rounded-full flex items-center justify-center">
-                <Star className="w-6 h-6 text-white fill-current" />
+              <div className="w-12 h-12 rounded-full flex items-center justify-center bg-black">
+                <Star className="w-6 h-6 text-[#D4AF37] fill-current" />
               </div>
               <div>
                 <div className="font-semibold text-foreground">Certificada</div>

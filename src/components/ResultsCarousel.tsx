@@ -45,6 +45,7 @@ const ResultsCarousel = () => {
           >
             Resultados{" "}
             <span
+              style={{ color: "#D4AF37" }}
               className="bg-gradient-primary bg-clip-text text-transparent"
               data-aos="fade-left"
             >

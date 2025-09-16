@@ -42,7 +42,10 @@ const TestimonialsSection = () => {
             data-aos="fade-top"
           >
             O que nossas{" "}
-            <span className="bg-gradient-primary bg-clip-text text-transparent">
+            <span
+              style={{ color: "#D4AF37" }}
+              className="bg-gradient-primary bg-clip-text text-transparent"
+            >
               Clientes
             </span>{" "}
             dizem
@@ -93,8 +96,11 @@ const TestimonialsSection = () => {
         </div>
 
         <div className="text-center mt-16">
-          <div className="inline-flex items-center gap-2 bg-gradient-primary text-white px-8 py-4 rounded-2xl shadow-soft">
-            <Star className="w-6 h-6 fill-current" />
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-black to-yellow-400 text-white px-8 py-4 rounded-2xl shadow-soft">
+            <Star
+              style={{ color: "#D4AF37" }}
+              className="w-6 h-6 fill-current"
+            />
             <span className="text-lg font-semibold">4.9/5 estrelas</span>
             <span className="text-white/80">• Mais de 200 avaliações</span>
           </div>

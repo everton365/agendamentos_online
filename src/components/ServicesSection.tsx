@@ -17,7 +17,10 @@ const ServicesSection = () => {
             data-aos="fade-left"
           >
             Nossos{" "}
-            <span className="bg-gradient-primary bg-clip-text text-transparent">
+            <span
+              style={{ color: "#D4AF37" }}
+              className="bg-gradient-primary bg-clip-text text-transparent"
+            >
               Serviços
             </span>
           </h2>
@@ -69,6 +72,7 @@ const ServicesSection = () => {
                   <div className="flex items-center justify-between mt-4">
                     <div className="text-left">
                       <div
+                        style={{ color: "#D4AF37" }}
                         className="text-2xl font-bold text-primary"
                         data-aos="fade-right"
                       >
@@ -87,6 +91,7 @@ const ServicesSection = () => {
                     >
                       <button
                         className="px-4 py-2 rounded-xl bg-primary text-white hover:bg-primary/90 transition"
+                        style={{ backgroundColor: "#D4AF37" }}
                         data-aos="fade-left"
                       >
                         Agendar
@@ -103,6 +108,7 @@ const ServicesSection = () => {
             <button
               onClick={() => setShowAll(!showAll)}
               className="mt-8 px-6 py-2 rounded-xl bg-primary text-white hover:bg-primary/90 transition"
+              style={{ backgroundColor: "#D4AF37" }}
             >
               {showAll ? "Ver menos" : "Ver todos"}
             </button>

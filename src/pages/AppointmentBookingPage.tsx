@@ -489,7 +489,7 @@ const AppointmentBookingPage = () => {
             <h1 className="text-4xl font-bold text-foreground mb-4">
               Agendar{" "}
               <span className="bg-gradient-primary bg-clip-text text-transparent">
-                Horario
+                Horário
               </span>
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -548,6 +548,10 @@ const AppointmentBookingPage = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span>Segunda-feira:</span>
+                      <span className="font-medium">Fechado</span>
+                    </div>
                     <div className="flex justify-between">
                       <span>Terça-feira:</span>
                       <span className="font-medium">9h às 14h</span>
