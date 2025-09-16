@@ -57,12 +57,18 @@ const PaymentMethodPage = () => {
   const [preferenceUrl, setPreferenceUrl] = useState(null);
   const [appointmentId, setAppointmentId] = useState<string>("");
   const [acceptedPolicy, setAcceptedPolicy] = useState(false);
-
+  const [adjustedPrice, setAdjustedPrice] = useState(0);
   // Redirect if no appointment data
   if (!appointmentData) {
     navigate("/agendamento");
     return null;
   }
+
+  useEffect(() => {
+    const numericPrice = Number(appointmentData.price); // converte string para number
+    const newPrice = numericPrice < 20 ? numericPrice : 20;
+    setAdjustedPrice(newPrice);
+  }, [appointmentData.price]);
 
   useEffect(() => {
     const savedAppointmentId = localStorage.getItem("appointmentId");
@@ -93,8 +99,8 @@ const PaymentMethodPage = () => {
     return names[service] || service;
   };
 
-  const formatPrice = (priceInCents: number): string => {
-    return `R$ ${(priceInCents / 100).toFixed(2).replace(".", ",")}`;
+  const formatPrice = (price: number): string => {
+    return `R$ ${price.toFixed(2).replace(".", ",")}`;
   };
 
   const formatDate = (dateString: string): string => {
@@ -106,9 +112,9 @@ const PaymentMethodPage = () => {
       day: "numeric",
     });
   };
-  console.log("dados passados", appointmentData.price);
+
   const Price = getServicePrice(appointmentData.price);
-  const bookingFee = 2000; // R$ 20,00 booking fee
+  const bookingFee = 20; // R$ 20,00 booking fee
   const totalPrice = bookingFee; // Only charge booking fee via Stripe
   const baseURL = import.meta.env.VITE_API_URL;
   const paymentMethods = [
@@ -194,9 +200,7 @@ const PaymentMethodPage = () => {
   };*/
   }
 
-  
-
-useEffect(() => {
+  useEffect(() => {
     if (!appointmentData || preferenceUrl) return;
     const savedAppointmentId = localStorage.getItem("appointmentId");
     if (savedAppointmentId) {
@@ -230,7 +234,16 @@ useEffect(() => {
           console.log("📥 Resposta do backend:", data);
           return data.appointmentId;
         };
+        console.log("valor para", appointmentData.price);
+        const numericPrice = Number(
+          String(appointmentData.price)
+            .replace(/[^\d,.-]/g, "") // remove R$, espaços, etc
+            .replace(",", ".") // transforma vírgula em ponto
+        );
 
+        const newPrice = numericPrice < 20 ? numericPrice : 20;
+        setAdjustedPrice(newPrice);
+        console.log("valor para a preferencia", newPrice);
         // Função interna para criar a preferência de pagamento
         const createPreference = async (appointmentId: string) => {
           const response = await fetch(`${baseURL}/user/checkout`, {
@@ -242,11 +255,12 @@ useEffect(() => {
                   id: appointmentId,
                   title: "Taxa de agendamento",
                   quantity: 1,
-                  unit_price: 1,
+                  unit_price: newPrice,
                 },
               ],
             }),
           });
+
           if (!response.ok)
             throw new Error("Erro ao criar preferência de pagamento");
           const data = await response.json();
@@ -290,7 +304,10 @@ useEffect(() => {
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold text-foreground mb-4">
               Escolha o{" "}
-              <span className="bg-gradient-primary bg-clip-text text-transparent">
+              <span
+                style={{ color: "#D4AF37" }}
+                className="bg-gradient-primary bg-clip-text text-transparent"
+              >
                 Pagamento
               </span>
             </h1>
@@ -344,7 +361,7 @@ useEffect(() => {
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Local:</span>
                     <span className="font-medium">
-                      Rua das Sobrancelhas, 123 - Centro, SP
+                      Rua Otoni Sá,395 - Centro -Aquiraz- CE
                     </span>
                   </div>
                   {appointmentData.message && (
@@ -462,16 +479,16 @@ useEffect(() => {
                       window.location.href = preferenceUrl;
                     }}
                     disabled={loading || !acceptedPolicy}
-                    variant="primary"
                     size="lg"
-                    className="w-full mt-6 flex justify-center items-center py-8"
+                    className="w-full mt-6 text-white flex justify-center items-center py-8"
+                    style={{ backgroundColor: "#D4AF37" }}
                   >
                     {loading ? (
                       "Processando..."
                     ) : (
                       <>
                         <CheckCircle className="w-5 h-5 mr-2" />
-                        Pagar com Mercado Pago {formatPrice(totalPrice)}
+                        Pagar com Mercado Pago {formatPrice(adjustedPrice)}
                       </>
                     )}
                   </Button>

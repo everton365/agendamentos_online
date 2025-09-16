@@ -127,8 +127,8 @@ const PaymentConfirmationPage = () => {
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button
                   onClick={() => navigate("/")}
-                  variant="primary"
-                  className="flex-1 flex items-center justify-center"
+                  className="flex-1 text-white flex items-center justify-center"
+                  style={{ backgroundColor: "#D4AF37" }}
                 >
                   <Home className="w-4 h-4 mr-2" />
                   Voltar ao Início

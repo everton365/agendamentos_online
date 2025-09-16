@@ -19,6 +19,12 @@ export default {
       },
     },
     extend: {
+      fontSize: {
+        "10xl": "10rem",
+        "11xl": "12rem",
+        "12xl": "14rem",
+      },
+
       fontFamily: {
         cinzel: ["Cinzel", "serif"],
         garamond: ["Cormorant Garamond", "serif"],
@@ -30,8 +36,8 @@ export default {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
+          DEFAULT: "#D4AF37",
+          foreground: "#000000", // ou qualquer cor de contraste
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",

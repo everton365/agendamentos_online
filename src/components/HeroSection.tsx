@@ -37,30 +37,51 @@ const HeroSection = () => {
       {/* Conteúdo */}
       <div className="relative z-10 container mx-auto px-4 py-20 text-center">
         <div className="space-y-8 animate-fade-in">
-          {/* Estrelas + Avaliações 
-          <div className="flex justify-center items-center  gap-2 text-primary">
-            <Star className="w-5 h-5 fill-current" />
-            <Star className="w-5 h-5 fill-current" />
-            <Star className="w-5 h-5 fill-current" />
-            <Star className="w-5 h-5 fill-current" />
-            <Star className="w-5 h-5 fill-current" />
-            <span className="text-sm font-medium">
-              Mais de 500 clientes satisfeitas
-            </span>
-          </div>*/}
-
           {/* Título */}
-          <h1 className="text-6xl lg:text-8xl font-cinzel font-extrabold leading-tight">
-            <span className="block text-6xl text-transparent bg-clip-text bg-gradient-to-b from-black to-yellow-400">
+          <h1 className="font-cinzel font-extrabold leading-tight text-center relative">
+            {/* --- Título principal 3D --- */}
+            <span
+              className="absolute inset-0 text-yellow-500 [text-shadow:2px_2px_0_#a7a7a7,4px_4px_0_#7a7a7a,6px_6px_8px_rgba(0,0,0,0.35)]"
+              style={{ fontSize: "clamp(3rem, 8vw, 10rem)" }}
+              aria-hidden="true"
+            >
               Lariza Freitas
             </span>
-            <span className="block text-2xl text-transparent bg-clip-text bg-gradient-to-b from-yellow-400 to-black -mt-2">
+            <span
+              className="relative block text-transparent bg-clip-text bg-gradient-to-b from-black to-yellow-400"
+              style={{ fontSize: "clamp(3rem, 8vw, 10rem)" }}
+            >
+              Lariza Freitas
+            </span>
+
+            {/* --- Subtítulo 3D --- 
+            <span
+              className="absolute inset-0 text-yellow-500 [text-shadow:2px_2px_0_#c3c3c3,4px_4px_0_#a5a5a5,6px_6px_8px_rgba(0,0,0,0.35)]"
+              style={{
+                fontSize: "clamp(1.5rem, 3vw, 3rem)",
+                top: "100%",
+                transform: "translateY(-0.25em)",
+              }}
+              aria-hidden="true"
+            >
+              Especialista em sobrancelhas naturais
+            </span>
+*/}
+            {/* --- Camada visível com gradiente do subtítulo --- */}
+            <span
+              className="relative block text-transparent bg-clip-text bg-gradient-to-b from-black to-yellow-400"
+              style={{
+                fontSize: "clamp(1.5rem, 3vw, 3rem)",
+                marginTop: "-0.25em", // mantém alinhamento com a sombra 3D
+              }}
+            >
               Especialista em sobrancelhas naturais
             </span>
           </h1>
+          <br></br>
 
           {/* Descrição */}
-          <p className="text-xl text-muted-foreground max-w-lg mx-auto leading-relaxed">
+          <p className="text-xl mt-8 text-muted-foreground max-w-lg mx-auto leading-relaxed mt-6">
             Especialista em design, microblading e técnicas avançadas. Realce
             sua beleza com sobrancelhas naturais, leves e perfeitamente
             moldadas.
@@ -129,6 +150,36 @@ const HeroSection = () => {
               </div>
             </div>
           </div>
+          {/* Estrelas + Avaliações 
+          <div className="flex justify-center items-center  gap-2 text-primary">
+            <Star
+              style={{ color: "#D4AF37" }}
+              className="w-5 h-5 fill-current"
+            />
+            <Star
+              style={{ color: "#D4AF37" }}
+              className="w-5 h-5 fill-current"
+            />
+            <Star
+              style={{ color: "#D4AF37" }}
+              className="w-5 h-5 fill-current"
+            />
+            <Star
+              style={{ color: "#D4AF37" }}
+              className="w-5 h-5 fill-current"
+            />
+            <Star
+              style={{ color: "#D4AF37" }}
+              className="w-5 h-5 fill-current"
+            />
+            <span
+              style={{ color: "#000000ff" }}
+              className="text-sm font-medium"
+            >
+              Mais de 500 <span>clientes</span> satisfeitas
+            </span>
+          </div>
+           */}
         </div>
       </div>
     </section>

@@ -374,7 +374,8 @@ const AppointmentBookingPage = () => {
       return false;
     }
 
-    const limit = 18 * 60 + 40; // 18h30 em minutos
+    const limit = 18 * 60 + 30; // 18h30 em minutos
+
     if (end > limit) {
       console.log(
         `⛔ Slot ${startTime}: duração ${durationMinutes}min ultrapassa 18:30`
@@ -488,7 +489,10 @@ const AppointmentBookingPage = () => {
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold text-foreground mb-4">
               Agendar{" "}
-              <span className="bg-gradient-primary bg-clip-text text-transparent">
+              <span
+                style={{ color: "#D4AF37" }}
+                className="bg-gradient-primary bg-clip-text text-transparent"
+              >
                 Horário
               </span>
             </h1>
@@ -523,7 +527,10 @@ const AppointmentBookingPage = () => {
                             {service.duration}
                           </span>
                         </div>
-                        <span className="text-primary font-semibold">
+                        <span
+                          style={{ color: "#D4AF37" }}
+                          className="text-primary font-semibold"
+                        >
                           {service.price}
                         </span>
                       </div>
@@ -542,7 +549,10 @@ const AppointmentBookingPage = () => {
               <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-soft">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-foreground">
-                    <Clock className="w-5 h-5 text-primary" />
+                    <Clock
+                      style={{ color: "#D4AF37" }}
+                      className="w-5 h-5 text-primary"
+                    />
                     Horário de Funcionamento
                   </CardTitle>
                 </CardHeader>
@@ -821,9 +831,9 @@ const AppointmentBookingPage = () => {
 
                   <Button
                     type="submit"
-                    variant="primary"
                     size="lg"
-                    className="w-full"
+                    className="w-full text-white"
+                    style={{ backgroundColor: "#D4AF37" }}
                   >
                     <Calendar className="w-5 h-5 mr-2" />
                     Continuar para Pagamento
