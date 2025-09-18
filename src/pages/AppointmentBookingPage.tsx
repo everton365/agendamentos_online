@@ -118,9 +118,7 @@ const AppointmentBookingPage = () => {
   useEffect(() => {
     if (!formData.date) return;
 
-    fetch(
-      `http://localhost:3000/user/appointments/date-bloqueada/${formData.date}`
-    )
+    fetch(`${baseURL}/user/appointments/date-bloqueada/${formData.date}`)
       .then((res) => res.json())
       .then((data: BlockedDateResponse) => {
         setBlockedDate(data);
