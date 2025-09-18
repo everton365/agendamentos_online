@@ -54,9 +54,23 @@ const AppointmentBookingPage = () => {
   >([]);
   const baseURL = import.meta.env.VITE_API_URL;
   const [openService, setOpenService] = useState<string | null>(null);
-  const [blockedDate, setBlockedDate] = useState<{ bloqueada: boolean }>({
-    bloqueada: false,
-  });
+  type BlockedDateResponse =
+    | {
+        bloqueada: true;
+        data: {
+          date: string;
+          motivo?: string;
+          time_bloqueados?: string;
+          horas_bloqueadas: string[];
+        };
+      }
+    | {
+        bloqueada: false;
+      };
+
+  const [blockedDate, setBlockedDate] = useState<BlockedDateResponse | null>(
+    null
+  );
 
   const toggleService = (value: string) => {
     setOpenService(openService === value ? null : value);
@@ -104,11 +118,16 @@ const AppointmentBookingPage = () => {
   useEffect(() => {
     if (!formData.date) return;
 
-    fetch(`${baseURL}/user/appointments/date-bloqueada/${formData.date}`)
+    fetch(
+      `http://localhost:3000/user/appointments/date-bloqueada/${formData.date}`
+    )
       .then((res) => res.json())
-      .then((data) => setBlockedDate(data))
-      .catch((err) => console.error(err));
-  }, [formData.date]);
+      .then((data: BlockedDateResponse) => {
+        setBlockedDate(data);
+        console.log("data bloqueada", data);
+      })
+      .catch((err) => console.error("Erro ao buscar data bloqueada:", err));
+  }, [formData.date, selectedServices]);
 
   // Calculate total duration and price from selected services
   const getTotalDuration = () => {
@@ -440,6 +459,12 @@ const AppointmentBookingPage = () => {
     const dayOfWeek = selectedDate.getDay(); // 0 = domingo, 6 = sábado
     const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
 
+    // 🔥 pega as horas bloqueadas (se existirem)
+    const blockedHours =
+      blockedDate && blockedDate.bloqueada
+        ? blockedDate.data.time_bloqueados || []
+        : [];
+
     return timeSlots.map((slot) => {
       const slotSelectable = canFitInSlot(
         slot.time,
@@ -458,13 +483,13 @@ const AppointmentBookingPage = () => {
       // se for hoje, bloqueia horários antes de 3h do horário atual
       const isBeforeLimit = isToday && slotDate < nowPlus3h;
 
-      // 🔥 verifica se a data está bloqueada
-      const isBlockedDate = blockedDate.bloqueada;
+      // verifica se esse horário específico está bloqueado
+      const isBlockedHour = blockedHours.includes(slot.time);
 
       return {
         ...slot,
         slotSelectable:
-          slotSelectable && !isBeforeLimit && !isWeekend && !isBlockedDate,
+          slotSelectable && !isBeforeLimit && !isWeekend && !isBlockedHour,
       };
     });
   }, [timeSlots, selectedServices, formData.date, blockedDate]);
