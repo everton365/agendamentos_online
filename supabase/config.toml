@@ -66,3 +66,6 @@ template = "Your code is {{ .Code }} ."
 
 [functions.create-payment]
 verify_jwt = false
+
+[functions.whatsapp-reminder]
+verify_jwt = false
