@@ -246,10 +246,15 @@ const AuthPage = () => {
 
         <Card className="bg-white/95 backdrop-blur border-0 shadow-elegant">
           <CardHeader className="text-center">
-            <div className="w-12 h-12 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-white font-bold text-lg">B</span>
+            <div
+              style={{ backgroundColor: "#D4AF37" }}
+              className="w-12 h-12  rounded-full flex items-center justify-center mx-auto mb-4"
+            >
+              <span className="text-white font-cinzel font-bold text-lg">
+                L
+              </span>
             </div>
-            <CardTitle className="text-2xl font-bold">Beauty Clinic</CardTitle>
+            <CardTitle className="text-2xl font-bold">Login</CardTitle>
             <CardDescription>
               Entre em sua conta ou crie uma nova
             </CardDescription>
@@ -309,7 +314,7 @@ const AuthPage = () => {
                   </div>
                   <Button
                     type="submit"
-                    variant="primary"
+                    style={{ backgroundColor: "#D4AF37", color: "#ffffffff" }}
                     className="w-full"
                     disabled={loading}
                   >
@@ -420,7 +425,7 @@ const AuthPage = () => {
                   </div>
                   <Button
                     type="submit"
-                    variant="primary"
+                    style={{ backgroundColor: "#D4AF37", color: "#ffffffff" }}
                     className="w-full"
                     disabled={loading}
                   >

@@ -1,5 +1,5 @@
-import donaEstudio from "../assets/dona-estudio.jpg"; // troque pelo caminho da foto real
-
+import donaEstudio from "../assets/estudio1.jpg"; // troque pelo caminho da foto real
+import donaEstudio1 from "../assets/estudio2.jpg";
 const AboutUs = () => {
   return (
     <section
@@ -72,6 +72,14 @@ const AboutUs = () => {
       <div className="flex justify-center md:justify-end" data-aos="fade-left">
         <img
           src={donaEstudio}
+          alt="Dona do Estúdio"
+          className="w-full h-full object-cover rounded-2xl shadow-lg border-4 border-white"
+          data-aos="fade-left"
+        />
+      </div>
+      <div className="flex justify-center md:justify-end" data-aos="fade-left">
+        <img
+          src={donaEstudio1}
           alt="Dona do Estúdio"
           className="w-full h-full object-cover rounded-2xl shadow-lg border-4 border-white"
           data-aos="fade-left"

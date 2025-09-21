@@ -6,31 +6,40 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Card, CardContent } from "@/components/ui/card";
-import beforeAfter1 from "@/assets/before-after-1.jpg";
-import beforeAfter2 from "@/assets/before-after-2.jpg";
-import beforeAfter3 from "@/assets/before-after-3.jpg";
+import beforeAfter1 from "/lovable-uploads/service1.jpg";
+import beforeAfter2 from "/lovable-uploads/service2.jpg";
+import beforeAfter3 from "/lovable-uploads/service3.jpg";
+import beforeAfter0 from "/lovable-uploads/service4.jpg";
 import { Badge } from "@/components/ui/badge";
 
 const results = [
   {
-    image: beforeAfter1,
-    title: "Microblading - Preenchimento Natural",
-    description:
-      "Transformação completa com técnica de microblading para criar fios naturais",
-    technique: "Microblading",
-  },
-  {
     image: beforeAfter2,
-    title: "Design Personalizado",
+    title: "Labial Hidragloss",
     description:
-      "Modelagem e design personalizado respeitando as características faciais",
-    technique: "Design",
+      "Hidragloss: hidratação profunda com estímulo ao colágeno, lábios mais firmes, volumosos e com brilho natural.",
+    technique: "Labial Hidragloss",
   },
   {
     image: beforeAfter3,
-    title: "Henna + Design",
-    description: "Coloração com henna e design para realçar o formato natural",
-    technique: "Henna",
+    title: "Lash Lifting",
+    description:
+      "Lifting de cílios: curva e levanta os fios naturalmente, realçando o olhar por até 8 semanas sem necessidade de extensões.",
+    technique: "Lash Lifting",
+  },
+  {
+    image: beforeAfter1,
+    title: "Nano fios realistas",
+    description:
+      "Nano fios realistas: técnica que corrige falhas das sobrancelhas com naturalidade, garantindo o efeito “nasci assim”, sem aparência de micro.",
+    technique: "Nano fios realistas",
+  },
+  {
+    image: beforeAfter0,
+    title: "Reconstrução Sobrancelhas",
+    description:
+      "Conjunto de técnicas que estimula o crescimento dos fios, devolve o formato natural das sobrancelhas e aumenta o volume, com argiloterapia e alta frequência.",
+    technique: "Reconstrução Sobrancelhas",
   },
 ];
 
@@ -75,7 +84,7 @@ const ResultsCarousel = () => {
                         <img
                           src={result.image}
                           alt={result.title}
-                          className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
+                          className="w-full min-h-[16rem] object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                         <div className="absolute top-4 left-4">
                           <Badge

@@ -45,7 +45,7 @@ const AppointmentBookingPage = () => {
     time: "",
     message: "",
   });
-
+  console.log("metadataaqui", formData);
   const [timeSlots, setTimeSlots] = useState<
     {
       time: string;
@@ -303,16 +303,30 @@ const AppointmentBookingPage = () => {
         });
         return;
       }
+      const formatPhoneForDB = (phone: string) => {
+        // Remove tudo que não for número
+        let digits = phone.replace(/\D/g, "");
 
+        // Adiciona o código do país 55 caso não comece com ele
+        if (!digits.startsWith("55")) {
+          digits = "55" + digits;
+        }
+
+        return digits;
+      };
       // Prepare appointment data with services info
       const appointmentData = {
         ...formData,
+        phone: formatPhoneForDB(formData.phone),
         service: selectedServices.map((s) => s.label).join(", "),
         price: `R$ ${getTotalPrice().toFixed(2).replace(".", ",")}`,
         duration: formatTotalDuration(getTotalDuration()),
         services: selectedServices,
         name:
-          user?.user_metadata?.name || user?.email?.split("@")[0] || "Cliente",
+          formData.name ||
+          user?.user_metadata?.name ||
+          user?.email?.split("@")[0] ||
+          "Cliente",
       };
 
       // Navigate to payment page
@@ -453,14 +467,14 @@ const AppointmentBookingPage = () => {
 
     // 🔥 monta a data local sem UTC
     const [year, month, day] = formData.date.split("-").map(Number);
-    const selectedDate = new Date(year, month - 1, day); // mês começa em 0
+    const selectedDate = new Date(year, month - 1, day);
     const dayOfWeek = selectedDate.getDay(); // 0 = domingo, 6 = sábado
     const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
 
-    // 🔥 pega as horas bloqueadas (se existirem)
+    // 🔥 agora só pega as horas bloqueadas
     const blockedHours =
-      blockedDate && blockedDate.bloqueada
-        ? blockedDate.data.time_bloqueados || []
+      blockedDate && blockedDate.bloqueada && "data" in blockedDate
+        ? blockedDate.data.horas_bloqueadas
         : [];
 
     return timeSlots.map((slot) => {
@@ -471,17 +485,12 @@ const AppointmentBookingPage = () => {
         formData.date
       );
 
-      // monta o Date do slot
       const [h, m] = slot.time.split(":").map(Number);
       const slotDate = new Date(year, month - 1, day, h, m);
 
-      // só aplica a regra se a data do form for HOJE
       const isToday = now.toISOString().split("T")[0] === formData.date;
-
-      // se for hoje, bloqueia horários antes de 3h do horário atual
       const isBeforeLimit = isToday && slotDate < nowPlus3h;
 
-      // verifica se esse horário específico está bloqueado
       const isBlockedHour = blockedHours.includes(slot.time);
 
       return {
@@ -631,9 +640,11 @@ const AppointmentBookingPage = () => {
                         id="name"
                         type="text"
                         value={formData.name}
+                        onChange={(e) =>
+                          handleInputChange("name", e.target.value)
+                        }
                         placeholder="Seu nome"
                         className="bg-muted/50"
-                        readOnly
                         required
                       />
                     </div>

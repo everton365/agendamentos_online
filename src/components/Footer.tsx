@@ -10,8 +10,11 @@ const Footer = () => {
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
             {/* Brand */}
             <div className="lg:col-span-2">
-              <h3 className="text-2xl font-cinzel font-extrabold text-foreground mb-4 text-[#D4AF37] bg-clip-text text-transparent">
-                Sobrancelhas Perfeitas
+              <h3
+                style={{ color: "#D4AF37" }}
+                className="text-2xl font-cinzel font-extrabold text-foreground mb-4 text-[#D4AF37] bg-clip-text text-transparent"
+              >
+                Lariza Freitas
               </h3>
               <p className="text-background/80 mb-6 leading-relaxed">
                 Especializada em design, microblading e técnicas avançadas para
@@ -180,10 +183,7 @@ const Footer = () => {
 
             <div className="border-t border-background/20 pt-8">
               <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-background/60">
-                <p>
-                  &copy; 2024 Sobrancelhas Perfeitas. Todos os direitos
-                  reservados.
-                </p>
+                <p>&copy; 2024 Lariza Freitas. Todos os direitos reservados.</p>
                 <div className="flex gap-6 text-sm">
                   <a
                     href="#"

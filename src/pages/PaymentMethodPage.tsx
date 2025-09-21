@@ -70,6 +70,7 @@ const PaymentMethodPage = () => {
     setAdjustedPrice(newPrice);
   }, [appointmentData.price]);
 
+  console.log("matadata", appointmentData);
   useEffect(() => {
     const savedAppointmentId = localStorage.getItem("appointmentId");
     console.log("tem salvo", savedAppointmentId);
@@ -202,12 +203,14 @@ const PaymentMethodPage = () => {
 
   useEffect(() => {
     if (!appointmentData || preferenceUrl) return;
+
+    // se já tiver um appointmentId salvo, reaproveita
     const savedAppointmentId = localStorage.getItem("appointmentId");
     if (savedAppointmentId) {
       setAppointmentId(savedAppointmentId);
-
       return; // não cria novo agendamento nem preferência
     }
+
     const runFlow = async () => {
       setLoading(true);
 
@@ -216,12 +219,15 @@ const PaymentMethodPage = () => {
           data: { user },
           error: userError,
         } = await supabase.auth.getUser();
+
         if (userError || !user) throw new Error("Usuário não autenticado");
         console.log("Usuário logado:", user);
-        // Função interna para criar o agendamento
+
+        // cria agendamento
         const createAppointment = async (appointmentData: AppointmentData) => {
-          const bodyData = { ...appointmentData, totalPrice, user_id: user.id }; // adicione totalPrice e user_id se precisar
+          const bodyData = { ...appointmentData, totalPrice, user_id: user.id };
           console.log("dados para o banco ", bodyData);
+
           const response = await fetch(`${baseURL}/user/create-appointment`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -232,19 +238,22 @@ const PaymentMethodPage = () => {
 
           const data = await response.json();
           console.log("📥 Resposta do backend:", data);
-          return data.appointmentId;
+
+          // retorna tudo (appointmentId + status)
+          return data;
         };
-        console.log("valor para", appointmentData.price);
+
+        // calcula preço ajustado
         const numericPrice = Number(
           String(appointmentData.price)
-            .replace(/[^\d,.-]/g, "") // remove R$, espaços, etc
-            .replace(",", ".") // transforma vírgula em ponto
+            .replace(/[^\d,.-]/g, "")
+            .replace(",", ".")
         );
-
         const newPrice = numericPrice < 20 ? numericPrice : 20;
         setAdjustedPrice(newPrice);
         console.log("valor para a preferencia", newPrice);
-        // Função interna para criar a preferência de pagamento
+
+        // cria preferência de pagamento
         const createPreference = async (appointmentId: string) => {
           const response = await fetch(`${baseURL}/user/checkout`, {
             method: "POST",
@@ -263,14 +272,28 @@ const PaymentMethodPage = () => {
 
           if (!response.ok)
             throw new Error("Erro ao criar preferência de pagamento");
+
           const data = await response.json();
           setPreferenceUrl(data.preference_url);
-          localStorage.setItem("appointmentId", data.preference_url);
+
+          // salva ambos no localStorage
+          localStorage.setItem("appointmentId", appointmentId);
+          localStorage.setItem("preferenceUrl", data.preference_url);
         };
 
-        const id = await createAppointment(appointmentData);
-        setAppointmentId(id);
-        await createPreference(id);
+        // fluxo principal
+        const { appointmentId, status } = await createAppointment(
+          appointmentData
+        );
+        console.log("status aqui", status);
+
+        if (status === "CONFIRMED") {
+          window.location.href = "/perfil";
+          return;
+        }
+
+        setAppointmentId(appointmentId);
+        await createPreference(appointmentId);
       } catch (error) {
         console.error("Erro no fluxo de agendamento e checkout:", error);
         toast({
@@ -284,6 +307,7 @@ const PaymentMethodPage = () => {
 
     runFlow();
   }, [appointmentData]);
+
   return (
     <div className="min-h-screen bg-gradient-hero">
       <Header />
@@ -312,8 +336,7 @@ const PaymentMethodPage = () => {
               </span>
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Para confirmar seu agendamento, selecione sua forma de pagamento
-              clicando em 'Pagar com Mercado Pago'.
+              Para confirmar seu agendamento, click em 'Pagar com Mercado Pago'.
             </p>
           </div>
 
@@ -361,7 +384,7 @@ const PaymentMethodPage = () => {
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Local:</span>
                     <span className="font-medium">
-                      Rua Otoni Sá,395 - Centro -Aquiraz- CE
+                      Rua Otoni Sá,395 -Centro-Aquiraz- CE
                     </span>
                   </div>
                   {appointmentData.message && (
@@ -403,14 +426,19 @@ const PaymentMethodPage = () => {
                       • Taxa de agendamento de R$ 20,00 para confirmar o horário
                       (será descontada do valor do serviço)
                     </li>
+                    <li>
+                      • O agendamento ficará reservado por 20 minutos. Após esse
+                      período, se o pagamento não for confirmado, ele voltará a
+                      ficar disponível.
+                    </li>
                     <li>• Pagamento do serviço no lacal</li>
-                    <li>• Pagamento da taxa via Pix ou cartão de crédito</li>
+                    <li>• Pagamento da taxa via Pix</li>
                     <li>
                       • Reagendamento gratuito até 3 horas antes do horário
                     </li>
                     <li>
                       • Após o prazo de 3 horas, será necessário pagar nova taxa
-                      para reagendamento
+                      para agendamento
                     </li>
                     <li>• Não comparecimento: taxa não será reembolsada</li>
                     <li>• Tolerância de atraso: 10 minutos</li>

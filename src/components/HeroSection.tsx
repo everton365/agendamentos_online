@@ -109,7 +109,7 @@ const HeroSection = () => {
                   behavior: "smooth",
                 })
               }
-              className="w-48 bg-transparent border-2 border-black text-black hover:bg-black hover:text-white transition"
+              className="w-48 bg-transparent border-2 border-black text-black hover:#D4AF37 hover:text-white transition"
             >
               Ver Resultados
             </Button>

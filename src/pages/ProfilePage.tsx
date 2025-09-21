@@ -88,9 +88,23 @@ const ProfilePage = () => {
       status: "available" | "PENDING" | "CONFIRMED" | "blocked";
     }[]
   >([]);
-  const [blockedDate, setBlockedDate] = useState<{ bloqueada: boolean }>({
-    bloqueada: false,
-  });
+  type BlockedDateResponse =
+    | {
+        bloqueada: true;
+        data: {
+          date: string;
+          motivo?: string;
+          time_bloqueados?: string;
+          horas_bloqueadas: string[];
+        };
+      }
+    | {
+        bloqueada: false;
+      };
+
+  const [blockedDate, setBlockedDate] = useState<BlockedDateResponse | null>(
+    null
+  );
   const baseURL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
@@ -413,7 +427,6 @@ const ProfilePage = () => {
         }
       }
     }
-
     if (startTime === "18:30") {
       console.log(`⛔ Slot ${startTime}: bloqueado → não é permitido`);
       return false;
@@ -483,6 +496,12 @@ const ProfilePage = () => {
     const dayOfWeek = selectedDate.getDay();
     const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
 
+    // pega as horas bloqueadas se existirem
+    const blockedHours: string[] =
+      blockedDate?.bloqueada && blockedDate.data?.horas_bloqueadas
+        ? blockedDate.data.horas_bloqueadas
+        : [];
+
     return availableTimes.map((slot) => {
       const slotSelectable = canFitInSlot(
         slot.time,
@@ -496,23 +515,17 @@ const ProfilePage = () => {
       const isToday = now.toISOString().split("T")[0] === rescheduleDate;
       const isBeforeLimit = isToday && slotDate < nowPlus3h;
 
-      let displayStatus = slot.status;
-      if (
-        !slotSelectable ||
-        isBeforeLimit ||
-        isWeekend ||
-        blockedDate.bloqueada
-      ) {
-        displayStatus = "blocked";
-      }
+      const isBlockedHour = blockedHours.includes(slot.time);
+
+      const displayStatus =
+        !slotSelectable || isBeforeLimit || isWeekend || isBlockedHour
+          ? "blocked"
+          : slot.status;
 
       return {
         ...slot,
         slotSelectable:
-          slotSelectable &&
-          !isBeforeLimit &&
-          !isWeekend &&
-          !blockedDate.bloqueada,
+          slotSelectable && !isBeforeLimit && !isWeekend && !isBlockedHour,
         displayStatus,
       };
     });

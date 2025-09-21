@@ -167,7 +167,10 @@ const Header = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button variant="primary" onClick={() => navigate("/auth")}>
+              <Button
+                style={{ backgroundColor: "#D4AF37", color: "#ffffffff" }}
+                onClick={() => navigate("/auth")}
+              >
                 Entrar
               </Button>
             )}
