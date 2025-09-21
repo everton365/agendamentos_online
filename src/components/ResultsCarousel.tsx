@@ -14,14 +14,14 @@ import { Badge } from "@/components/ui/badge";
 
 const results = [
   {
-    image: beforeAfter2,
+    image: beforeAfter3,
     title: "Labial Hidragloss",
     description:
       "Hidragloss: hidratação profunda com estímulo ao colágeno, lábios mais firmes, volumosos e com brilho natural.",
     technique: "Labial Hidragloss",
   },
   {
-    image: beforeAfter3,
+    image: beforeAfter2,
     title: "Lash Lifting",
     description:
       "Lifting de cílios: curva e levanta os fios naturalmente, realçando o olhar por até 8 semanas sem necessidade de extensões.",

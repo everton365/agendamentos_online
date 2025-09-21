@@ -77,14 +77,6 @@ const AboutUs = () => {
           data-aos="fade-left"
         />
       </div>
-      <div className="flex justify-center md:justify-end" data-aos="fade-left">
-        <img
-          src={donaEstudio1}
-          alt="Dona do Estúdio"
-          className="w-full h-full object-cover rounded-2xl shadow-lg border-4 border-white"
-          data-aos="fade-left"
-        />
-      </div>
     </section>
   );
 };
