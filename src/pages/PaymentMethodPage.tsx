@@ -24,8 +24,8 @@ import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import { supabase } from "@/integrations/supabase/client";
 import { initMercadoPago, Wallet } from "@mercadopago/sdk-react";
-
-initMercadoPago("APP_USR-0c010b18-da83-4d1b-8aef-318f67dcf14d");
+const baseaCESS = import.meta.env.VITE_PAGO_ACESS;
+initMercadoPago(baseaCESS);
 interface AppointmentData {
   name: string;
   phone: string;
