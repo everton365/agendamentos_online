@@ -34,11 +34,11 @@ const testimonials = [
 
 const TestimonialsSection = () => {
   return (
-    <section className="py-20 bg-background">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-16 animate-fade-in">
+    <section className="py-24 bg-background">
+      <div className="container mx-auto px-6">
+        <div className="text-center mb-20 animate-fade-in">
           <h2
-            className="text-4xl font-bold text-foreground mb-4"
+            className="text-4xl font-cinzel font-bold text-foreground mb-6"
             data-aos="fade-top"
           >
             O que nossas{" "}
@@ -51,7 +51,7 @@ const TestimonialsSection = () => {
             dizem
           </h2>
           <p
-            className="text-xl text-muted-foreground max-w-2xl mx-auto"
+            className="text-xl font-poppins text-muted-foreground max-w-3xl mx-auto"
             data-aos="fade-top"
           >
             A satisfação das nossas clientes é nossa maior conquista. Confira
@@ -60,7 +60,7 @@ const TestimonialsSection = () => {
         </div>
 
         <div
-          className="grid md:grid-cols-2 lg:grid-cols-4 gap-8"
+          className="grid md:grid-cols-2 lg:grid-cols-4 gap-10"
           data-aos="fade-top"
         >
           {testimonials.map((testimonial, index) => (
@@ -68,7 +68,7 @@ const TestimonialsSection = () => {
               key={index}
               className="group hover:shadow-elegant transition-all duration-300 hover:-translate-y-2 border-0 bg-white shadow-soft"
             >
-              <CardContent className="p-8">
+              <CardContent className="p-10">
                 <div className="flex items-center mb-4">
                   {[...Array(testimonial.rating)].map((_, i) => (
                     <Star
@@ -78,15 +78,15 @@ const TestimonialsSection = () => {
                   ))}
                 </div>
 
-                <p className="text-muted-foreground mb-6 leading-relaxed italic">
+                <p className="text-muted-foreground font-poppins mb-8 leading-relaxed italic">
                   "{testimonial.review}"
                 </p>
 
-                <div className="border-t border-border pt-4">
-                  <div className="font-semibold text-foreground mb-1">
+                <div className="border-t border-border pt-6">
+                  <div className="font-semibold font-poppins text-foreground mb-2">
                     {testimonial.name}
                   </div>
-                  <div className="text-sm text-primary">
+                  <div className="text-sm font-poppins text-primary">
                     {testimonial.service}
                   </div>
                 </div>
@@ -95,14 +95,14 @@ const TestimonialsSection = () => {
           ))}
         </div>
 
-        <div className="text-center mt-16">
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-black to-yellow-400 text-white px-8 py-4 rounded-2xl shadow-soft">
+        <div className="text-center mt-20">
+          <div className="inline-flex items-center gap-3 bg-gradient-to-r from-black to-yellow-400 text-white px-10 py-5 rounded-2xl shadow-elegant">
             <Star
               style={{ color: "#D4AF37" }}
-              className="w-6 h-6 fill-current"
+              className="w-7 h-7 fill-current"
             />
-            <span className="text-lg font-semibold">4.9/5 estrelas</span>
-            <span className="text-white/80">• Mais de 200 avaliações</span>
+            <span className="text-xl font-poppins font-semibold">4.9/5 estrelas</span>
+            <span className="text-white/80 font-poppins">• Mais de 200 avaliações</span>
           </div>
         </div>
       </div>

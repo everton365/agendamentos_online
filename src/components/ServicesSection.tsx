@@ -9,11 +9,11 @@ const ServicesSection = () => {
   const visibleServices = showAll ? serviceOptions : serviceOptions.slice(0, 4); // 👈 só mostra 4 no início
 
   return (
-    <section className="py-20 bg-gradient-elegant">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-16 animate-fade-in">
+    <section className="py-24 bg-gradient-elegant">
+      <div className="container mx-auto px-6">
+        <div className="text-center mb-20 animate-fade-in">
           <h2
-            className="text-4xl font-bold text-foreground mb-4"
+            className="text-4xl font-cinzel font-bold text-foreground mb-6"
             data-aos="fade-left"
           >
             Nossos{" "}
@@ -25,7 +25,7 @@ const ServicesSection = () => {
             </span>
           </h2>
           <p
-            className="text-xl text-muted-foreground max-w-2xl mx-auto"
+            className="text-xl font-poppins text-muted-foreground max-w-3xl mx-auto"
             data-aos="fade-left"
           >
             Oferecemos uma gama completa de serviços especializados em
@@ -35,13 +35,13 @@ const ServicesSection = () => {
         </div>
 
         <div className="flex flex-col items-center">
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 w-full">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10 w-full">
             {visibleServices.map((service, index) => (
               <Card
                 key={index}
                 className="group hover:shadow-elegant transition-all duration-300 hover:-translate-y-2 border-0 bg-white/80 backdrop-blur-sm"
               >
-                <CardContent className="p-6 flex flex-col justify-between h-full">
+                <CardContent className="p-8 flex flex-col justify-between h-full">
                   <div>
                     {/* Imagem do serviço */}
                     {service.image && (
@@ -55,13 +55,13 @@ const ServicesSection = () => {
 
                     {/* Nome e descrição */}
                     <h3
-                      className="text-xl font-semibold text-foreground mb-3"
+                      className="text-xl font-poppins font-semibold text-foreground mb-4"
                       data-aos="fade-left"
                     >
                       {service.value}
                     </h3>
                     <div
-                      className="text-muted-foreground mb-6 leading-relaxed max-h-32 overflow-y-auto"
+                      className="text-muted-foreground font-poppins mb-6 leading-relaxed max-h-32 overflow-y-auto"
                       data-aos="fade-right"
                     >
                       {service.description}
@@ -73,13 +73,13 @@ const ServicesSection = () => {
                     <div className="text-left">
                       <div
                         style={{ color: "#D4AF37" }}
-                        className="text-2xl font-bold text-primary"
+                        className="text-2xl font-poppins font-bold text-primary"
                         data-aos="fade-right"
                       >
                         {service.price}
                       </div>
                       <div
-                        className="text-sm text-muted-foreground"
+                        className="text-sm font-poppins text-muted-foreground"
                         data-aos="fade-right"
                       >
                         Duração: {service.duration}
@@ -90,7 +90,7 @@ const ServicesSection = () => {
                       to={`/agendamento?service=${service.value}&price=${service.price}&duration=${service.duration}`}
                     >
                       <button
-                        className="px-4 py-2 rounded-xl bg-primary text-white hover:bg-primary/90 transition"
+                        className="px-6 py-3 rounded-xl bg-primary text-white hover:bg-primary/90 transition-all duration-300 shadow-button hover:shadow-elegant hover:scale-105 font-poppins font-medium"
                         style={{ backgroundColor: "#D4AF37" }}
                         data-aos="fade-left"
                       >
@@ -107,7 +107,7 @@ const ServicesSection = () => {
           {serviceOptions.length > 4 && (
             <button
               onClick={() => setShowAll(!showAll)}
-              className="mt-8 px-6 py-2 rounded-xl bg-primary text-white hover:bg-primary/90 transition"
+              className="mt-12 px-8 py-4 rounded-xl bg-primary text-white hover:bg-primary/90 transition-all duration-300 shadow-button hover:shadow-elegant hover:scale-105 font-poppins font-medium text-lg"
               style={{ backgroundColor: "#D4AF37" }}
             >
               {showAll ? "Ver menos" : "Ver todos"}

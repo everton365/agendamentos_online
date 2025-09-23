@@ -21,7 +21,7 @@ const HeroSection = () => {
   };
 
   return (
-    <section className="relative h-1/3 bg-gradient-hero overflow-hidden flex items-center justify-center">
+    <section className="relative min-h-screen bg-gradient-hero overflow-hidden flex items-center justify-center">
       {/* Imagem Desktop */}
       <video
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] object-cover opacity-50"
@@ -35,8 +35,8 @@ const HeroSection = () => {
       </video>
 
       {/* Conteúdo */}
-      <div className="relative z-10 container mx-auto px-4 py-20 text-center">
-        <div className="space-y-8 animate-fade-in">
+      <div className="relative z-10 container mx-auto px-6 py-32 text-center">
+        <div className="space-y-12 animate-fade-in">
           {/* Título */}
           <h1 className="font-cinzel font-extrabold leading-tight text-center relative">
             {/* --- Título principal 3D --- */}
@@ -78,21 +78,20 @@ const HeroSection = () => {
               Especialista em sobrancelhas naturais
             </span>
           </h1>
-          <br></br>
 
           {/* Descrição */}
-          <p className="text-xl mt-8 text-muted-foreground max-w-lg mx-auto leading-relaxed mt-6">
+          <p className="text-xl font-poppins text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             Especialista em design, microblading e técnicas avançadas. Realce
             sua beleza com sobrancelhas naturais, leves e perfeitamente
             moldadas.
           </p>
 
           {/* Botões */}
-          <div className="flex flex-col sm:flex-row gap-4  justify-center items-center">
+          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
             <Button
               size="lg"
               onClick={handleScheduleClick}
-              className="group w-48"
+              className="group w-56 h-14 text-base font-semibold"
               style={{ backgroundColor: "#D4AF37", color: "#000000ff" }}
             >
               <Calendar
@@ -104,12 +103,13 @@ const HeroSection = () => {
 
             <Button
               size="lg"
+              variant="outline"
               onClick={() =>
                 document.getElementById("resultados")?.scrollIntoView({
                   behavior: "smooth",
                 })
               }
-              className="w-48 bg-transparent border-2 border-black text-black hover:#D4AF37 hover:text-white transition"
+              className="w-56 h-14 text-base font-semibold border-black text-black hover:bg-black hover:text-white"
             >
               Ver Resultados
             </Button>
@@ -137,14 +137,14 @@ const HeroSection = () => {
           */}
 
           {/* Badge flutuante */}
-          <div className="flex justify-center pt-12">
-            <div className="bg-white rounded-2xl shadow-soft p-6 animate-fade-in inline-flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full flex items-center justify-center bg-black">
-                <Star className="w-6 h-6 text-[#D4AF37] fill-current" />
+          <div className="flex justify-center pt-16">
+            <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-elegant p-8 animate-fade-in inline-flex items-center gap-4">
+              <div className="w-14 h-14 rounded-full flex items-center justify-center bg-black">
+                <Star className="w-7 h-7 text-[#D4AF37] fill-current" />
               </div>
               <div>
-                <div className="font-semibold text-foreground">Certificada</div>
-                <div className="text-sm text-muted-foreground">
+                <div className="font-semibold text-foreground font-poppins text-lg">Certificada</div>
+                <div className="text-muted-foreground font-poppins">
                   Técnicas Avançadas
                 </div>
               </div>

@@ -45,11 +45,11 @@ const results = [
 
 const ResultsCarousel = () => {
   return (
-    <section className="py-20 bg-background">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-16 animate-fade-in">
+    <section className="py-24 bg-background">
+      <div className="container mx-auto px-6">
+        <div className="text-center mb-20 animate-fade-in">
           <h2
-            className="text-4xl font-bold text-foreground mb-4"
+            className="text-4xl font-cinzel font-bold text-foreground mb-6"
             data-aos="fade-right"
           >
             Resultados{" "}
@@ -62,7 +62,7 @@ const ResultsCarousel = () => {
             </span>
           </h2>
           <p
-            className="text-xl text-muted-foreground max-w-2xl mx-auto"
+            className="text-xl font-poppins text-muted-foreground max-w-3xl mx-auto"
             data-aos="fade-top"
           >
             Confira algumas das transformações realizadas em nossa clínica. Cada
@@ -96,11 +96,11 @@ const ResultsCarousel = () => {
                         </div>
                       </div>
 
-                      <div className="p-6">
-                        <h3 className="text-xl font-semibold text-foreground mb-2">
+                      <div className="p-8">
+                        <h3 className="text-xl font-poppins font-semibold text-foreground mb-3">
                           {result.title}
                         </h3>
-                        <p className="text-muted-foreground leading-relaxed">
+                        <p className="text-muted-foreground font-poppins leading-relaxed">
                           {result.description}
                         </p>
                       </div>
