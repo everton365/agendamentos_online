@@ -28,6 +28,7 @@ const AppointmentBookingPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [userRole, setUserRole] = useState<string | null>(null);
   const [emailValid, setEmailValid] = useState(true);
   const [selectedServices, setSelectedServices] = useState<
     Array<{
@@ -53,7 +54,7 @@ const AppointmentBookingPage = () => {
     }[]
   >([]);
   const baseURL = import.meta.env.VITE_API_URL;
-
+  console.log("user e", userRole);
   const [openService, setOpenService] = useState<string | null>(null);
   type BlockedDateResponse =
     | {
@@ -81,7 +82,7 @@ const AppointmentBookingPage = () => {
     if (!user) {
       navigate("/auth");
     } else {
-      // Auto-fill name, email and phone from user
+      // Auto-fill name, email e phone do user
       setFormData((prev) => ({
         ...prev,
         name:
@@ -115,6 +116,31 @@ const AppointmentBookingPage = () => {
       }
     }
   }, [location.search]);
+
+  // Novo useEffect só para pegar o role do usuário
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchUserRole = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("user_id", user.id)
+          .single<{ role: string }>();
+
+        if (error) throw error;
+
+        setUserRole(data?.role || "user");
+        console.log("Role do usuário:", data?.role);
+      } catch (err) {
+        console.error("Erro ao buscar role do usuário:", err);
+        setUserRole(null);
+      }
+    };
+
+    fetchUserRole();
+  }, []);
 
   useEffect(() => {
     if (!formData.date) return;
@@ -357,7 +383,8 @@ const AppointmentBookingPage = () => {
     startTime: string,
     durationMinutes: number,
     slots: Slot[],
-    date?: string
+    date?: string,
+    userRole?: string // <-- novo parâmetro
   ): boolean => {
     const [sh, sm] = startTime.split(":").map(Number);
     const start = sh * 60 + sm;
@@ -377,13 +404,18 @@ const AppointmentBookingPage = () => {
     if (startIndex === -1) {
       return false;
     }
+
+    // 🔥 Se for admin, ignora todas as regras de bloqueio de horário
+    if (userRole === "admin") {
+      return true;
+    }
+
     if (date) {
       const [year, month, day] = date.split("-").map(Number);
       const d = new Date(year, month - 1, day);
       const dayOfWeek = d.getDay(); // 0=Dom, 1=Seg, 2=Ter, ...
 
       if (dayOfWeek === 1) {
-        // segunda-feira
         console.log(
           `⛔ Slot ${startTime}: bloqueado (nenhum horário permitido na segunda-feira)`
         );
@@ -391,7 +423,6 @@ const AppointmentBookingPage = () => {
       }
 
       if (dayOfWeek === 2) {
-        // terça-feira
         const limiteFim = 14 * 60 + 30; // 14:30
         if (end > limiteFim) {
           console.log(
@@ -401,13 +432,13 @@ const AppointmentBookingPage = () => {
         }
       }
     }
+
     if (startTime === "18:30") {
       console.log(`⛔ Slot ${startTime}: bloqueado → não é permitido`);
       return false;
     }
 
     const limit = 18 * 60 + 30; // 18h30 em minutos
-
     if (end > limit) {
       console.log(
         `⛔ Slot ${startTime}: duração ${durationMinutes}min ultrapassa 18:30`
@@ -416,7 +447,6 @@ const AppointmentBookingPage = () => {
     }
 
     const slotStatus = sortedSlots[startIndex].status;
-
     if (slotStatus !== "available") {
       console.log(
         `⛔ Slot ${startTime}: status = ${slotStatus} → duração = ${durationMinutes}min`
@@ -459,6 +489,7 @@ const AppointmentBookingPage = () => {
 
     return true;
   };
+
   const processedSlots = useMemo(() => {
     const totalDuration = getTotalDuration();
     if (!totalDuration || !formData.date) return [];
@@ -466,24 +497,24 @@ const AppointmentBookingPage = () => {
     const now = new Date();
     const nowPlus3h = new Date(now.getTime() + 3 * 60 * 60 * 1000);
 
-    // 🔥 monta a data local sem UTC
     const [year, month, day] = formData.date.split("-").map(Number);
     const selectedDate = new Date(year, month - 1, day);
     const dayOfWeek = selectedDate.getDay(); // 0 = domingo, 6 = sábado
     const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
 
-    // 🔥 agora só pega as horas bloqueadas
     const blockedHours =
       blockedDate && blockedDate.bloqueada && "data" in blockedDate
         ? blockedDate.data.horas_bloqueadas
         : [];
 
     return timeSlots.map((slot) => {
+      // Passa o userRole para canFitInSlot
       const slotSelectable = canFitInSlot(
         slot.time,
         totalDuration,
         timeSlots,
-        formData.date
+        formData.date,
+        userRole // <-- libera regras para admin
       );
 
       const [h, m] = slot.time.split(":").map(Number);
@@ -494,13 +525,18 @@ const AppointmentBookingPage = () => {
 
       const isBlockedHour = blockedHours.includes(slot.time);
 
+      // Se for admin, ignora todas as validações adicionais
+      const finalSelectable =
+        userRole === "admin"
+          ? true
+          : slotSelectable && !isBeforeLimit && !isWeekend && !isBlockedHour;
+
       return {
         ...slot,
-        slotSelectable:
-          slotSelectable && !isBeforeLimit && !isWeekend && !isBlockedHour,
+        slotSelectable: finalSelectable,
       };
     });
-  }, [timeSlots, selectedServices, formData.date, blockedDate]);
+  }, [timeSlots, selectedServices, formData.date, blockedDate, userRole]);
 
   return (
     <div className="min-h-screen bg-gradient-hero">
