@@ -414,41 +414,38 @@ const PaymentMethodPage = () => {
                     </span>
                   </div>
                 </div>
-
-                {/* Payment Policy */}
-                <div className="mt-6 p-4 bg-secondary/50 rounded-lg">
-                  <h4 className="font-semibold mb-2 flex items-center gap-2">
-                    <Info className="w-4 h-4 text-primary" />
-                    Política de Pagamento e reagendamento
-                  </h4>
-                  <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>
-                      • Taxa de agendamento de R$ 20,00 para confirmar o horário
-                      (será descontada do valor do serviço)
-                    </li>
-                    <li>
-                      • O agendamento ficará reservado por 20 minutos. Após esse
-                      período, se o pagamento não for confirmado, ele voltará a
-                      ficar disponível.
-                    </li>
-                    <li>• Pagamento do serviço no lacal</li>
-                    <li>• Pagamento da taxa via Pix</li>
-                    <li>
-                      • Reagendamento gratuito até 3 horas antes do horário
-                    </li>
-                    <li>
-                      • Após o prazo de 3 horas, será necessário pagar nova taxa
-                      para agendamento
-                    </li>
-                    <li>• Não comparecimento: taxa não será reembolsada</li>
-                    <li>• Tolerância de atraso: 10 minutos</li>
-                  </ul>
-                </div>
               </CardContent>
             </Card>
 
             {/* Payment Methods */}
             <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-elegant">
+              {/* Payment Policy */}
+              <div className="mt-6 p-4 bg-secondary/50 rounded-lg">
+                <h4 className="font-semibold mb-2 flex items-center gap-2">
+                  <Info className="w-4 h-4 text-primary" />
+                  Política de Pagamento e reagendamento
+                </h4>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  <li>
+                    • Taxa de agendamento de R$ 20,00 para confirmar o horário
+                    (será descontada do valor do serviço)
+                  </li>
+                  <li>
+                    • O agendamento ficará reservado por 20 minutos. Após esse
+                    período, se o pagamento não for confirmado, ele voltará a
+                    ficar disponível.
+                  </li>
+                  <li>• Pagamento do serviço no lacal</li>
+                  <li>• Pagamento da taxa via Pix</li>
+                  <li>• Reagendamento gratuito até 3 horas antes do horário</li>
+                  <li>
+                    • Após o prazo de 3 horas, será necessário pagar nova taxa
+                    para agendamento
+                  </li>
+                  <li>• Não comparecimento: taxa não será reembolsada</li>
+                  <li>• Tolerância de atraso: 10 minutos</li>
+                </ul>
+              </div>
               <CardHeader>
                 <CardTitle className="text-foreground">
                   Confirmar e Pagar

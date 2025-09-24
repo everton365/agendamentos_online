@@ -19,8 +19,8 @@ export const serviceOptions = [
     icon: EyeClosed,
     value: "Avaliação Prévia – Nano Fios Realistas",
     label: "Avaliação Prévia – Nano Fios Realistas",
-    price: "R$ 450,00",
-    duration: "2h",
+    price: "R$ 40,00",
+    duration: "40 min",
     description:
       "Antes de realizar o procedimento, é indispensável uma avaliação personalizada. Nessa etapa, analisamos o formato natural das suas sobrancelhas, a estrutura do rosto, o tipo de pele e possíveis contraindicações. Também conversamos sobre suas expectativas e desejos para alcançar o resultado mais harmônico e natural possível — aquele estilo “nasci assim”, sem aspecto artificial.",
     image: "/lovable-uploads/image9.jpg",

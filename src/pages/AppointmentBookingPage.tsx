@@ -53,6 +53,7 @@ const AppointmentBookingPage = () => {
     }[]
   >([]);
   const baseURL = import.meta.env.VITE_API_URL;
+
   const [openService, setOpenService] = useState<string | null>(null);
   type BlockedDateResponse =
     | {
