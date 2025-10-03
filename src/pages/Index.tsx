@@ -40,7 +40,7 @@ const Index = () => {
   }, [location]);
 
   return (
-    <main className="min-h-screen">
+    <main className="h-screen">
       <div id="inicio">
         <Header />
       </div>
