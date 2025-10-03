@@ -55,7 +55,7 @@ const Index = () => {
         <ResultsCarousel />
       </div>
 
-      {/*<TestimonialsSection />*/}
+      <TestimonialsSection />
 
       <Footer />
     </main>

@@ -3,32 +3,60 @@ import { Star } from "lucide-react";
 
 const testimonials = [
   {
-    name: "Maria Silva",
+    name: "Thais Santos",
     review:
-      "Simplesmente perfeito! A profissional é muito atenciosa e o resultado ficou exatamente como eu queria. Minhas sobrancelhas nunca estiveram tão bonitas!",
+      "Faço minhas sobrancelhas com a Lariza há mais de 2 anos e recomendo de olhos fechados! Ela é uma excelente profissional, sempre se atualizando para entregar um resultado natural e bonito. Fizemos juntas a reconstrução da minha sobrancelha, que hoje está muito mais preenchida e harmoniosa graças ao trabalho dela.",
     rating: 5,
-    service: "Microblading",
+    service: "",
   },
   {
-    name: "Ana Costa",
+    name: "Yully Guilherme",
     review:
-      "Excelente atendimento e resultado incrível. O design ficou perfeito para o meu rosto. Super recomendo!",
+      "Profissional excelente! O atendimento vai muito além das necessidades: ela não cuida apenas da sua sobrancelha, mas transforma sua autoestima e renova você por completo.",
     rating: 5,
-    service: "Design + Henna",
+    service: "",
   },
   {
-    name: "Carolina Santos",
+    name: "Liana Fernandes",
     review:
-      "Profissional muito qualificada e ambiente super limpo e organizado. O resultado da laminação superou minhas expectativas!",
+      "Meu resultado ficou incrível! Superou minhas expectativas. Eu indico e voltarei sempre!",
     rating: 5,
-    service: "Laminação",
+    service: "",
   },
   {
-    name: "Juliana Oliveira",
+    name: "erica oliveira feitosa",
     review:
-      "Amei o resultado! Finalmente encontrei uma profissional que entende exatamente o que preciso. Voltarei sempre!",
+      "Lariza é uma excelente profissional! ✨ Faço minha sobrancelha com ela há um tempinho e amo o resultado. Sempre dedicada, está em constante aperfeiçoamento, o que faz toda diferença no atendimento maravilhoso que oferece. 💖😍😘",
     rating: 5,
-    service: "Design",
+    service: "",
+  },
+  {
+    name: "Aline Delfino Moreira",
+    review:
+      "Atendimento maravilhoso, espaço lindo e um resultado incrível! Lariza é maravilhosa, super acolhedora e a certeza de sobrancelhas impecáveis.",
+    rating: 5,
+    service: "",
+  },
+  {
+    name: "Letícia Saraiva",
+    review:
+      "Ambiente acolhedor, organizado e que transmite uma sensação de cuidado em cada detalhe. A profissional é muito atenciosa e se preocupa em entregar o melhor resultado. Dá pra sentir que tudo é feito com carinho e dedicação. Saí me sentindo renovada e já quero voltar.",
+    rating: 5,
+    service: "",
+  },
+  {
+    name: "Evelyn Vitoria",
+    review:
+      "Amei o atendimento, profissional de muita qualidade, ambiente maravilhoso e amei o resultado da minha sobrancelha",
+    rating: 5,
+    service: "",
+  },
+  {
+    name: "Rayla Costa",
+    review:
+      "Maravilhosa!! Eu amo o trabalho dela. Só confio na melhor. Provem e vejam, tão bom quanto possam imaginar.",
+    rating: 5,
+    service: "",
   },
 ];
 
@@ -78,7 +106,7 @@ const TestimonialsSection = () => {
                   ))}
                 </div>
 
-                <p className="text-muted-foreground font-poppins mb-8 leading-relaxed italic">
+                <p className="text-muted-foreground font-poppins mb-6 leading-relaxed max-h-32 overflow-y-auto italic">
                   "{testimonial.review}"
                 </p>
 
@@ -101,8 +129,12 @@ const TestimonialsSection = () => {
               style={{ color: "#D4AF37" }}
               className="w-7 h-7 fill-current"
             />
-            <span className="text-xl font-poppins font-semibold">4.9/5 estrelas</span>
-            <span className="text-white/80 font-poppins">• Mais de 200 avaliações</span>
+            <span className="text-xl font-poppins font-semibold">
+              5/5 estrelas
+            </span>
+            <span className="text-white/80 font-poppins">
+              • Mais de 40 avaliações
+            </span>
           </div>
         </div>
       </div>
