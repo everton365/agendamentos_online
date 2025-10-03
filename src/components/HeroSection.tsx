@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import capaDesktop from "../assets/nanoFios.mp4";
+import capaDesktop from "../assets/estudio2.jpg";
 import capaMobile from "../assets/capa-mobile.jpg";
 import { useNavigate } from "react-router-dom";
 import { Calendar, Star, LogOut, User, Menu, X } from "lucide-react";
@@ -23,16 +23,11 @@ const HeroSection = () => {
   return (
     <section className="relative min-h-screen bg-gradient-hero overflow-hidden flex items-center justify-center">
       {/* Imagem Desktop */}
-      <video
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] object-cover opacity-50"
-        autoPlay
-        loop
-        muted
-        playsInline
-      >
-        <source src={capaDesktop} type="video/mp4" />
-        Seu navegador não suporta o vídeo.
-      </video>
+      <img
+        src={capaDesktop}
+        alt="Capa Desktop"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] object-cover opacity-40"
+      />
 
       {/* Conteúdo */}
       <div className="relative z-10 container mx-auto px-6 py-32 text-center">
@@ -143,7 +138,9 @@ const HeroSection = () => {
                 <Star className="w-7 h-7 text-[#D4AF37] fill-current" />
               </div>
               <div>
-                <div className="font-semibold text-foreground font-poppins text-lg">Certificada</div>
+                <div className="font-semibold text-foreground font-poppins text-lg">
+                  Certificada
+                </div>
                 <div className="text-muted-foreground font-poppins">
                   Técnicas Avançadas
                 </div>
