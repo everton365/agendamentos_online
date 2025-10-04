@@ -435,8 +435,17 @@ const AppointmentBookingPage = () => {
           return false;
         }
       }
-    }
 
+      if (dayOfWeek === 3) {
+        const limiteFim = 17 * 60; // 17:00
+        if (end > limiteFim) {
+          console.log(
+            `⛔ Slot ${startTime}: bloqueado (não pode ultrapassar 17:00 na quarta-feira)`
+          );
+          return false;
+        }
+      }
+    }
     if (startTime === "18:30") {
       console.log(`⛔ Slot ${startTime}: bloqueado → não é permitido`);
       return false;
