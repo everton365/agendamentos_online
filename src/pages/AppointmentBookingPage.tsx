@@ -294,8 +294,12 @@ const AppointmentBookingPage = () => {
     }
 
     // Update time slots after service change
-    setTimeout(updateTimeSlots, 100);
+    updateTimeSlots();
   };
+
+  useEffect(() => {
+    updateTimeSlots();
+  }, [selectedServices]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -474,6 +478,18 @@ const AppointmentBookingPage = () => {
             2,
             "0"
           )} não é hora cheia`
+        );
+        return false;
+      }
+      // Bloqueia se próximo slot estiver confirmado
+      if (nextSlot.status === "CONFIRMED" && end > nextSlot.minutes) {
+        console.log(
+          `⛔ Slot ${startTime}: próximo slot ${String(
+            Math.floor(nextSlot.minutes / 60)
+          ).padStart(2, "0")}:${String(nextSlot.minutes % 60).padStart(
+            2,
+            "0"
+          )} está CONFIRMED e a duração ultrapassa`
         );
         return false;
       }
