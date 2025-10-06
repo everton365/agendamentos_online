@@ -861,14 +861,7 @@ const ProfilePage = () => {
                                   </Button>
 
                                   <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                      <Button
-                                        variant="destructive"
-                                        className="flex-1"
-                                      >
-                                        Cancelar agendamento
-                                      </Button>
-                                    </AlertDialogTrigger>
+                                    
                                     <AlertDialogContent>
                                       <AlertDialogHeader>
                                         <AlertDialogTitle>
