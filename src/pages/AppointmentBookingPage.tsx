@@ -20,6 +20,8 @@ import Header from "@/components/Header";
 import { serviceOptions } from "@/data/servicesData";
 import { useMemo } from "react";
 import { useLocation } from "react-router-dom";
+import { FaWhatsapp } from "react-icons/fa";
+import WhatsAppButton from "../components/whatsappButton";
 
 const AppointmentBookingPage = () => {
   const location = useLocation();
@@ -73,7 +75,12 @@ const AppointmentBookingPage = () => {
   const [blockedDate, setBlockedDate] = useState<BlockedDateResponse | null>(
     null
   );
+  const phoneNumber = "5585991793971"; // coloque seu número com DDI (55 Brasil + DDD + número)
+  const message = "Olá! Gostaria de mais informações.";
 
+  const link = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
+    message
+  )}`;
   const toggleService = (value: string) => {
     setOpenService(openService === value ? null : value);
   };
@@ -940,6 +947,7 @@ const AppointmentBookingPage = () => {
           </div>
         </div>
       </div>
+      <WhatsAppButton />
     </div>
   );
 };

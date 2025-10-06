@@ -24,6 +24,7 @@ import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import { supabase } from "@/integrations/supabase/client";
 import { initMercadoPago, Wallet } from "@mercadopago/sdk-react";
+import WhatsAppButton from "../components/whatsappButton";
 const baseaCESS = import.meta.env.VITE_PAGO_ACESS;
 initMercadoPago(baseaCESS);
 interface AppointmentData {
@@ -628,6 +629,7 @@ const PaymentMethodPage = () => {
           </DialogContent>
         </Dialog>
       )}
+      <WhatsAppButton />
     </div>
   );
 };
