@@ -118,7 +118,7 @@ const PaymentMethodPage = () => {
   const Price = getServicePrice(appointmentData.price);
   const bookingFee = 20; // R$ 20,00 booking fee
   const totalPrice = bookingFee; // Only charge booking fee via Stripe
-  const baseURL = import.meta.env.VITE_API_URL;
+  const baseURL = import.meta.env.VITE_API_PAGAMENTO;
   const paymentMethods = [
     {
       id: "pix",

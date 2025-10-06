@@ -453,7 +453,7 @@ const AppointmentBookingPage = () => {
         }
       }
     }
-    if (startTime === "18:30") {
+    /* if (startTime === "18:30") {
       console.log(`⛔ Slot ${startTime}: bloqueado → não é permitido`);
       return false;
     }
@@ -465,7 +465,7 @@ const AppointmentBookingPage = () => {
       );
       return false;
     }
-
+*/
     const slotStatus = sortedSlots[startIndex].status;
     if (slotStatus !== "available") {
       console.log(
@@ -481,9 +481,9 @@ const AppointmentBookingPage = () => {
       const nextSlot = sortedSlots[startIndex + 1];
       if (!nextSlot) {
         console.log(
-          `⛔ Slot ${startTime}: status = ${slotStatus} → duração = ${durationMinutes}min → não existe próximo slot`
+          `✅ Slot ${startTime}: status = ${slotStatus} → duração = ${durationMinutes}min → não existe próximo slot`
         );
-        return false;
+        return true;
       }
 
       if (nextSlot.minutes % 60 !== 0) {
