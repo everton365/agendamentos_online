@@ -618,7 +618,7 @@ const AppointmentBookingPage = () => {
           <div className="grid lg:grid-cols-2 gap-12">
             {/* Services Info */}
             <div className="space-y-6">
-              <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-soft">
+              { /*  <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-soft">
                 <CardHeader>
                   <CardTitle className="text-foreground">
                     Nossos Serviços
@@ -648,7 +648,7 @@ const AppointmentBookingPage = () => {
                         </span>
                       </div>
 
-                      {/* Descrição aparece quando o serviço está aberto */}
+                      {/* Descrição aparece quando o serviço está aberto
                       {openService === service.value && (
                         <p className="mt-2 text-sm text-muted-foreground">
                           {service.description}
@@ -657,7 +657,7 @@ const AppointmentBookingPage = () => {
                     </div>
                   ))}
                 </CardContent>
-              </Card>
+              </Card>*/}
 
               <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-soft">
                 <CardHeader>
