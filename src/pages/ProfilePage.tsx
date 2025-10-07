@@ -41,6 +41,7 @@ interface Profile {
   display_name: string | null;
   phone: string | null;
   avatar_url: string | null;
+  role: string; // 👈 aqui pega a role
 }
 
 interface Appointment {
@@ -74,6 +75,7 @@ const ProfilePage = () => {
     display_name: null,
     phone: null,
     avatar_url: null,
+    role: null,
   });
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isEditing, setIsEditing] = useState(false);
@@ -144,6 +146,7 @@ const ProfilePage = () => {
           display_name: data.display_name || null,
           phone: data.phone || null,
           avatar_url: (data as any).avatar_url || null,
+          role: (data as any).role || "user", // 👈 aqui pega a role
         });
       }
     } catch (error) {
@@ -861,7 +864,6 @@ const ProfilePage = () => {
                                   </Button>
 
                                   <AlertDialog>
-                                    
                                     <AlertDialogContent>
                                       <AlertDialogHeader>
                                         <AlertDialogTitle>

@@ -418,6 +418,18 @@ const AppointmentBookingPage = () => {
 
     // 🔥 Se for admin, ignora todas as regras de bloqueio de horário
     if (userRole === "admin") {
+      const slotStatus = sortedSlots[startIndex]?.status;
+
+      if (slotStatus === "CONFIRMED") {
+        console.log(
+          `⛔ Slot ${startTime}: bloqueado (CONFIRMED mesmo para admin)`
+        );
+        return false;
+      }
+
+      console.log(
+        `✅ Slot ${startTime}: liberado (admin ignora bloqueios comuns)`
+      );
       return true;
     }
 
@@ -849,24 +861,28 @@ const AppointmentBookingPage = () => {
                         <div className="grid grid-cols-3 gap-2">
                           {processedSlots.map((slot) => {
                             const isSelected = formData.time === slot.time;
-                            const isAvailable = slot.status === "available";
+                            const isAdmin = userRole === "admin"; // ✅ checa se é admin
+                            const isSelectable =
+                              isAdmin ||
+                              (slot.status === "available" &&
+                                slot.slotSelectable);
 
                             return (
                               <button
                                 key={slot.time}
                                 type="button"
                                 onClick={() =>
-                                  isAvailable && slot.slotSelectable
+                                  isSelectable
                                     ? handleInputChange("time", slot.time)
                                     : null
                                 }
-                                disabled={!isAvailable || !slot.slotSelectable}
+                                disabled={!isSelectable}
                                 className={`
         p-3 rounded-lg text-sm font-medium transition-all border-2
         ${
-          isSelected && isAvailable && slot.slotSelectable
+          isSelected && isSelectable
             ? "border-primary bg-primary text-primary-foreground"
-            : isAvailable && slot.slotSelectable
+            : isSelectable
             ? "border-[hsl(var(--status-available))] bg-[hsl(var(--status-available)/0.1)] text-[hsl(var(--status-available))] hover:bg-[hsl(var(--status-available)/0.2)]"
             : slot.status === "PENDING"
             ? "border-[hsl(var(--status-pending))] bg-[hsl(var(--status-pending)/0.1)] text-[hsl(var(--status-pending))] cursor-not-allowed"
@@ -879,7 +895,10 @@ const AppointmentBookingPage = () => {
                                 <div className="text-center">
                                   <div>{slot.time}</div>
                                   <div className="text-xs mt-1">
-                                    {isAvailable && slot.slotSelectable
+                                    {isAdmin
+                                      ? "Disponível (admin)"
+                                      : slot.status === "available" &&
+                                        slot.slotSelectable
                                       ? "Disponível"
                                       : slot.status === "PENDING"
                                       ? "Pendente"
