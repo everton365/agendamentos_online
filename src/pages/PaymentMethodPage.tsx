@@ -59,6 +59,14 @@ const PaymentMethodPage = () => {
   const [appointmentId, setAppointmentId] = useState<string>("");
   const [acceptedPolicy, setAcceptedPolicy] = useState(false);
   const [adjustedPrice, setAdjustedPrice] = useState(0);
+  const [showPixDialog, setShowPixDialog] = useState(false);
+  const [pixPaymentData, setPixPaymentData] = useState<{
+    payment_id: number;
+    qr_code_base64: string;
+    qr_code_text: string;
+    status: string;
+  } | null>(null);
+  
   // Redirect if no appointment data
   if (!appointmentData) {
     navigate("/agendamento");
@@ -309,6 +317,65 @@ const PaymentMethodPage = () => {
     runFlow();
   }, [appointmentData]);
 
+  const handlePixPayment = async () => {
+    if (!appointmentId) {
+      toast({
+        title: "Erro",
+        description: "ID do agendamento não encontrado",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch(`${baseURL}/checkout`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: [
+            {
+              id: appointmentId,
+              title: "Taxa de agendamento",
+              quantity: 1,
+              unit_price: adjustedPrice,
+            },
+          ],
+        }),
+      });
+
+      if (!response.ok) throw new Error("Erro ao gerar PIX");
+
+      const data = await response.json();
+      setPixPaymentData(data);
+      setShowPixDialog(true);
+      
+      toast({
+        title: "PIX gerado com sucesso!",
+        description: "Use o QR Code para efetuar o pagamento.",
+      });
+    } catch (error: any) {
+      console.error("Erro ao gerar PIX:", error);
+      toast({
+        title: "Erro no pagamento",
+        description: error.message || "Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const copyPixCode = () => {
+    if (pixPaymentData?.qr_code_text) {
+      navigator.clipboard.writeText(pixPaymentData.qr_code_text);
+      toast({
+        title: "Copiado!",
+        description: "O código PIX foi copiado para a área de transferência.",
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-hero">
       <Header />
@@ -497,28 +564,27 @@ const PaymentMethodPage = () => {
                     Li e aceito a política de pagamento e reagendamento
                   </span>
                 </label>
-                {preferenceUrl && (
-                  <Button
-                    onClick={() => {
-                      localStorage.removeItem("appointmentId");
-                      // Redireciona para a preferência de pagamento
-                      window.location.href = preferenceUrl;
-                    }}
-                    disabled={loading || !acceptedPolicy}
-                    size="lg"
-                    className="w-full mt-6 text-white flex justify-center items-center py-8"
-                    style={{ backgroundColor: "#D4AF37" }}
-                  >
-                    {loading ? (
-                      "Processando..."
-                    ) : (
-                      <>
-                        <CheckCircle className="w-5 h-5 mr-2" />
-                        Finalizar pagamento {formatPrice(adjustedPrice)}
-                      </>
-                    )}
-                  </Button>
-                )}
+
+                <div className="space-y-4 mt-6">
+                  {appointmentId && (
+                    <Button
+                      onClick={handlePixPayment}
+                      disabled={loading || !acceptedPolicy}
+                      size="lg"
+                      className="w-full text-white flex justify-center items-center py-8"
+                      style={{ backgroundColor: "#D4AF37" }}
+                    >
+                      {loading ? (
+                        "Processando..."
+                      ) : (
+                        <>
+                          <Smartphone className="w-5 h-5 mr-2" />
+                          Pagar com PIX {formatPrice(adjustedPrice)}
+                        </>
+                      )}
+                    </Button>
+                  )}
+                </div>
                 {/*
                 <Button
                   onClick={handlePayment}
@@ -543,92 +609,103 @@ const PaymentMethodPage = () => {
         </div>
       </div>
       {/* Modal PIX */}
-      {pixQRCode && (
-        <Dialog
-          open={!!pixQRCode}
-          onOpenChange={(open) => {
-            // bloqueia fechamento automático
-            if (!open) setPixQRCode(pixQRCode);
-          }}
-        >
-          <DialogContent className="max-w-lg max-h-[100vh] mx-auto text-center overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>PIX - Pague usando o QR Code</DialogTitle>
-              <DialogDescription>
-                Abra o aplicativo do seu banco e escaneie o QR Code abaixo:
-              </DialogDescription>
-            </DialogHeader>
+      <Dialog open={showPixDialog} onOpenChange={setShowPixDialog}>
+        <DialogContent className="max-w-lg max-h-[90vh] mx-auto overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-cinzel text-center">
+              PIX - Pagamento Instantâneo
+            </DialogTitle>
+            <DialogDescription className="text-center">
+              Escaneie o QR Code ou copie o código para efetuar o pagamento
+            </DialogDescription>
+          </DialogHeader>
 
+          <div className="space-y-6 py-4">
             {/* QR Code */}
-            <img src={pixQRCode} alt="QR Code PIX" className="mx-auto my-4" />
+            {pixPaymentData?.qr_code_base64 && (
+              <div className="flex justify-center">
+                <img
+                  src={`data:image/png;base64,${pixPaymentData.qr_code_base64}`}
+                  alt="QR Code PIX"
+                  className="w-64 h-64 border-2 border-primary/20 rounded-lg p-2"
+                />
+              </div>
+            )}
 
-            {/* Informações do PIX */}
-            <div className="text-left text-sm mt-1">
-              <p>
-                <strong>Identificação:</strong> {pixData?.pixId}
-              </p>
-              <p>
-                <strong>Expira em:</strong>{" "}
-                {new Date(pixData?.expiresAt).toLocaleString("pt-BR", {
-                  day: "2-digit",
-                  month: "2-digit",
-                  year: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  second: "2-digit",
-                })}
-              </p>
-            </div>
-
-            {/* Copia e cola do PIX */}
-            {pixData?.copiaEcola && (
-              <div className="flex flex-col items-center mt-1 space-y-2">
+            {/* Código PIX para copiar */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-muted-foreground">
+                Código PIX (Copia e Cola):
+              </label>
+              <div className="flex gap-2">
                 <input
                   type="text"
                   readOnly
-                  value={pixData.copiaEcola}
-                  className="flex-1 w-full border rounded py-1 text-sm text-center"
+                  value={pixPaymentData?.qr_code_text || ""}
+                  className="flex-1 px-3 py-2 border rounded-md text-sm bg-secondary/50"
                 />
                 <Button
-                  onClick={() => {
-                    navigator.clipboard.writeText(pixData.copiaEcola);
-                    toast({
-                      title: "Copiado!",
-                      description:
-                        "O código PIX foi copiado para a área de transferência.",
-                    });
-                  }}
+                  onClick={copyPixCode}
+                  size="sm"
+                  style={{ backgroundColor: "#D4AF37" }}
+                  className="text-white"
                 >
                   Copiar
                 </Button>
               </div>
-            )}
+            </div>
 
-            {/* Passo a passo do pagamento */}
-            <div className="text-left mt-1 p-2 bg-gray-50 rounded-md">
-              <h3 className="font-semibold mb-2">Como pagar:</h3>
-              <ol className="list-decimal list-inside space-y-1">
-                <li>Abra o aplicativo do seu banco ou carteira digital.</li>
-                <li>Escolha a opção "PIX" ou "Pagamento via QR Code".</li>
-                <li>Escaneie o QR Code exibido acima.</li>
-                <li>Confirme os dados do pagamento.</li>
-                <li>Finalize a transação.</li>
+            {/* Informações do pagamento */}
+            <div className="bg-secondary/30 rounded-lg p-4 space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Valor:</span>
+                <span className="font-semibold">{formatPrice(adjustedPrice)}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Status:</span>
+                <span className="font-semibold capitalize">{pixPaymentData?.status}</span>
+              </div>
+            </div>
+
+            {/* Instruções de pagamento */}
+            <div className="bg-primary/5 rounded-lg p-4">
+              <h3 className="font-semibold mb-3 flex items-center gap-2">
+                <Info className="w-4 h-4 text-primary" />
+                Como pagar:
+              </h3>
+              <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground">
+                <li>Abra o aplicativo do seu banco ou carteira digital</li>
+                <li>Escolha a opção "PIX" ou "Ler QR Code"</li>
+                <li>Escaneie o QR Code acima ou cole o código copiado</li>
+                <li>Confirme os dados e finalize o pagamento</li>
+                <li>O pagamento é processado instantaneamente</li>
               </ol>
             </div>
 
-            {/* Botão Fechar */}
-            <Button
-              onClick={() => {
-                setPixQRCode(null);
-                navigate("/perfil");
-              }}
-              className="mt-4"
-            >
-              Ja fiz o pagamento
-            </Button>
-          </DialogContent>
-        </Dialog>
-      )}
+            {/* Botões de ação */}
+            <div className="flex gap-3">
+              <Button
+                onClick={() => {
+                  setShowPixDialog(false);
+                  navigate("/perfil");
+                }}
+                className="flex-1"
+                style={{ backgroundColor: "#D4AF37" }}
+              >
+                <CheckCircle className="w-4 h-4 mr-2" />
+                Já fiz o pagamento
+              </Button>
+              <Button
+                onClick={() => setShowPixDialog(false)}
+                variant="outline"
+                className="flex-1"
+              >
+                Fechar
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
       <WhatsAppButton />
     </div>
   );
