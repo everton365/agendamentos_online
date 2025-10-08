@@ -328,7 +328,7 @@ const PaymentMethodPage = () => {
           {/* Page Header */}
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold text-foreground mb-4">
-              Escolha o{" "}
+              Finalize seu{" "}
               <span
                 style={{ color: "#D4AF37" }}
                 className="bg-gradient-primary bg-clip-text text-transparent"
