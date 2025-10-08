@@ -9,7 +9,7 @@ const ServicesSection = () => {
   const visibleServices = showAll ? serviceOptions : serviceOptions.slice(0, 4); // 👈 só mostra 4 no início
 
   return (
-    <section className="py-24 bg-gradient-elegant">
+    <section className="py-24 ">
       <div className="container mx-auto px-6">
         <div className="text-center mb-20 animate-fade-in">
           <h2

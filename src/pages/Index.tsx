@@ -40,7 +40,7 @@ const Index = () => {
   }, [location]);
 
   return (
-    <main className="h-screen">
+    <main className="h-screen bg-gradient-elegant">
       <div id="inicio">
         <Header />
       </div>

@@ -1,13 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import capaDesktop from "../assets/estudio2.jpg";
-import capaMobile from "../assets/capa-mobile.jpg";
+import capaDesktop from "../assets/estudio3.jpg";
 import { useNavigate } from "react-router-dom";
-import { Calendar, Star, LogOut, User, Menu, X } from "lucide-react";
+import { Calendar, Star } from "lucide-react";
 
 const HeroSection = () => {
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -21,68 +20,74 @@ const HeroSection = () => {
   };
 
   return (
-    <section className="relative min-h-screen bg-gradient-hero overflow-hidden flex items-center justify-center">
-      {/* Imagem Desktop */}
+    <section className="relative w-full max-w-[1350px] mx-auto h-screen  overflow-hidden flex items-center justify-center">
+      {/* Imagem de fundo */}
       <img
         src={capaDesktop}
         alt="Capa Desktop"
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] object-cover opacity-40"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-40 w-auto h-[100dvh] max-w-full object-contain md:w-[120%] md:h-[120%] md:object-cover"
       />
 
       {/* Conteúdo */}
-      <div className="relative z-10 container mx-auto px-6 py-32 text-center">
-        <div className="space-y-12 animate-fade-in">
+      <div className="relative z-10 container mx-auto px-6 py-8 sm:py-10  w-full max-w-[900px] text-center">
+        <div className=" animate-fade-in">
           {/* Título */}
-          <h1 className="font-cinzel font-extrabold leading-tight text-center relative">
-            {/* --- Título principal 3D --- */}
+          <h1 className="font-cinzel font-extrabold text-center relative mt-0 mb-0 uppercase leading-none">
+            {/* Camada de sombra 3D */}
             <span
               className="absolute inset-0 text-yellow-500 [text-shadow:2px_2px_0_#a7a7a7,4px_4px_0_#7a7a7a,6px_6px_8px_rgba(0,0,0,0.35)]"
-              style={{ fontSize: "clamp(3rem, 8vw, 10rem)" }}
+              style={{
+                fontSize: "clamp(2rem, 10vw, 9rem)",
+                backgroundSize: "100% 100%",
+              }}
               aria-hidden="true"
-            >
-              Lariza Freitas
-            </span>
-            <span
-              className="relative block text-transparent bg-clip-text bg-gradient-to-b from-black to-yellow-400"
-              style={{ fontSize: "clamp(3rem, 8vw, 10rem)" }}
             >
               Lariza Freitas
             </span>
 
-            {/* --- Subtítulo 3D --- 
+            {/* Camada visível com gradiente */}
             <span
-              className="absolute inset-0 text-yellow-500 [text-shadow:2px_2px_0_#c3c3c3,4px_4px_0_#a5a5a5,6px_6px_8px_rgba(0,0,0,0.35)]"
+              className="relative block text-transparent bg-clip-text bg-gradient-to-b from-black/40 to-yellow-400 leading-none"
               style={{
-                fontSize: "clamp(1.5rem, 3vw, 3rem)",
-                top: "100%",
-                transform: "translateY(-0.25em)",
-              }}
-              aria-hidden="true"
-            >
-              Especialista em sobrancelhas naturais
-            </span>
-*/}
-            {/* --- Camada visível com gradiente do subtítulo --- */}
-            <span
-              className="relative block text-transparent bg-clip-text bg-gradient-to-b from-black to-yellow-400"
-              style={{
-                fontSize: "clamp(1.5rem, 3vw, 3rem)",
-                marginTop: "-0.25em", // mantém alinhamento com a sombra 3D
+                fontSize: "clamp(2rem, 10vw, 9rem)",
+                backgroundSize: "100% 100%",
               }}
             >
-              Especialista em sobrancelhas naturais
+              Lariza Freitas
             </span>
           </h1>
 
+          <h2 className="font-cinzel font-extrabold text-center relative mt-0 mb-5 uppercase leading-none">
+            {/* Subtítulo - dois spans lado a lado */}
+            <span
+              className="relative inline-block text-transparent bg-clip-text bg-gradient-to-b from-black/30 to-yellow-400 leading-none mr-1"
+              style={{
+                fontSize: "clamp(1.2rem, 2.5vw, 2.7rem)",
+                backgroundSize: "100% 100%",
+              }}
+            >
+              Especialista em
+            </span>
+            <span
+              className="relative inline-block text-transparent bg-clip-text bg-gradient-to-b from-black/30 to-yellow-400 leading-none"
+              style={{
+                fontSize: "clamp(1.2rem, 2.5vw, 2.7rem)",
+                backgroundSize: "100% 100%",
+              }}
+            >
+              sobrancelhas naturais
+            </span>
+          </h2>
+
           {/* Descrição */}
-          <p className="text-xl font-poppins text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+          <p className="text-lg font-poppins text-muted-foreground max-w-2xl mx-auto mb-10 leading-snug">
             Especialista em design, microblading e técnicas avançadas. Realce
             sua beleza com sobrancelhas naturais, leves e perfeitamente
             moldadas.
           </p>
 
           {/* Botões */}
-          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mb-14 justify-center items-center">
             <Button
               size="lg"
               onClick={handleScheduleClick}
@@ -104,36 +109,16 @@ const HeroSection = () => {
                   behavior: "smooth",
                 })
               }
-              className="w-56 h-14 text-base font-semibold border-black text-black hover:bg-black hover:text-white"
+              className="w-56 h-14 text-base font-semibold hover:bg-[#D4AF37] hover:text-black"
+              style={{ borderColor: "#D4AF37", color: "#000000ff" }}
             >
               Ver Resultados
             </Button>
           </div>
 
-          {/* Estatísticas 
-          <div className="grid grid-cols-3 gap-x-1 pt-6">
-            <div className="text-center space-y-1">
-              <div className="text-3xl font-bold text-primary">5+</div>
-              <div className="text-sm text-muted-foreground">
-                Anos de Experiência
-              </div>
-            </div>
-            <div className="text-center space-y-1">
-              <div className="text-3xl font-bold text-primary">500+</div>
-              <div className="text-sm text-muted-foreground">
-                Clientes Atendidas
-              </div>
-            </div>
-            <div className="text-center space-y-1">
-              <div className="text-3xl font-bold text-primary">100%</div>
-              <div className="text-sm text-muted-foreground">Satisfação</div>
-            </div>
-          </div>
-          */}
-
           {/* Badge flutuante */}
-          <div className="flex justify-center pt-16">
-            <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-elegant p-8 animate-fade-in inline-flex items-center gap-4">
+          <div className="flex justify-center mt-4 mb-4 sm:mb-6">
+            <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-elegant p-2 inline-flex items-center gap-4">
               <div className="w-14 h-14 rounded-full flex items-center justify-center bg-black">
                 <Star className="w-7 h-7 text-[#D4AF37] fill-current" />
               </div>
@@ -147,36 +132,6 @@ const HeroSection = () => {
               </div>
             </div>
           </div>
-          {/* Estrelas + Avaliações 
-          <div className="flex justify-center items-center  gap-2 text-primary">
-            <Star
-              style={{ color: "#D4AF37" }}
-              className="w-5 h-5 fill-current"
-            />
-            <Star
-              style={{ color: "#D4AF37" }}
-              className="w-5 h-5 fill-current"
-            />
-            <Star
-              style={{ color: "#D4AF37" }}
-              className="w-5 h-5 fill-current"
-            />
-            <Star
-              style={{ color: "#D4AF37" }}
-              className="w-5 h-5 fill-current"
-            />
-            <Star
-              style={{ color: "#D4AF37" }}
-              className="w-5 h-5 fill-current"
-            />
-            <span
-              style={{ color: "#000000ff" }}
-              className="text-sm font-medium"
-            >
-              Mais de 500 <span>clientes</span> satisfeitas
-            </span>
-          </div>
-           */}
         </div>
       </div>
     </section>

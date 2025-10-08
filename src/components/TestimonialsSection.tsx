@@ -125,23 +125,16 @@ const TestimonialsSection = () => {
 
         <div className="text-center mt-20">
           <div className="ext-center mt-20 inline-flex items-center gap-3 bg-gradient-to-r from-black to-yellow-400 text-white px-10 py-5 rounded-2xl shadow-elegant">
-            <a
-              href="https://www.google.com/search?hl=pt-BR&gl=br&q=Lariza+Freitas+-+R.+Otoni+S%C3%A1,+395+-+Centro,+Aquiraz+-+CE,+61700-000&ludocid=13655674792182171863&lsig=AB86z5Vs0Pcls4OST_nwQVz70Dve#lrd=0x7c75f7fe0d5f86f:0xbd82b3df644648d7,1,,,," // coloque seu link aqui
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-3 bg-gradient-to-r from-black to-yellow-400 text-white px-10 py-5 rounded-2xl shadow-elegant hover:opacity-90 transition"
-            >
-              <Star
-                style={{ color: "#D4AF37" }}
-                className="w-7 h-7 fill-current"
-              />
-              <span className="text-xl font-poppins font-semibold">
-                5/5 estrelas
-              </span>
-              <span className="text-white/80 font-poppins">
-                • Mais de 40 avaliações
-              </span>
-            </a>
+            <Star
+              style={{ color: "#D4AF37" }}
+              className="w-7 h-7 fill-current"
+            />
+            <span className="text-xl font-poppins font-semibold">
+              5/5 estrelas
+            </span>
+            <span className="text-white/80 font-poppins">
+              • Mais de 40 avaliações
+            </span>
           </div>
         </div>
       </div>
