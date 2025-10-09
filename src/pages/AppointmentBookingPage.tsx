@@ -470,7 +470,7 @@ const AppointmentBookingPage = () => {
       return false;
     }
 
-    const limit = 18 * 60 + 30; // 18h30 em minutos
+     const limit = 18 * 60 + 30; // 18h30 em minutos
     if (end > limit) {
       console.log(
         `⛔ Slot ${startTime}: duração ${durationMinutes}min ultrapassa 18:30`
@@ -568,12 +568,19 @@ const AppointmentBookingPage = () => {
       const isBeforeLimit = isToday && slotDate < nowPlus3h;
 
       const isBlockedHour = blockedHours.includes(slot.time);
+      const isBlocked1830 = slot.time === "18:30" && isBlockedHour;
 
       // Se for admin, ignora todas as validações adicionais
       const finalSelectable =
         userRole === "admin"
           ? true
           : slotSelectable && !isBeforeLimit && !isWeekend && !isBlockedHour;
+
+      if (isBlocked1830 && userRole !== "admin") {
+        console.log(
+          `⛔ Slot ${slot.time}: bloqueado → 18:30 está nas horas bloqueadas`
+        );
+      }
 
       return {
         ...slot,
@@ -618,7 +625,7 @@ const AppointmentBookingPage = () => {
           <div className="grid lg:grid-cols-2 gap-12">
             {/* Services Info */}
             <div className="space-y-6">
-              { /*  <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-soft">
+              {/*  <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-soft">
                 <CardHeader>
                   <CardTitle className="text-foreground">
                     Nossos Serviços
