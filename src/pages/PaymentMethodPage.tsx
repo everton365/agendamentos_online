@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   Dialog,
   DialogContent,
@@ -30,6 +31,7 @@ initMercadoPago(baseaCESS);
 interface AppointmentData {
   name: string;
   phone: string;
+  email: string;
   service: string;
   price: string;
   date: string;
@@ -48,6 +50,7 @@ interface PixResponse {
 const PaymentMethodPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { toast } = useToast();
   const [pixQRCode, setPixQRCode] = useState<string | null>(null);
   const [pixData, setPixData] = useState<PixResponse | null>(null);
@@ -56,7 +59,10 @@ const PaymentMethodPage = () => {
     useState<string>("");
   const [loading, setLoading] = useState(false);
   const [preferenceUrl, setPreferenceUrl] = useState(null);
-  const [appointmentId, setAppointmentId] = useState<string>("");
+  const [appointmentId, setAppointmentId] = useState<string>(
+    () => localStorage.getItem("appointmentId") || ""
+  );
+  const [userRole, setUserRole] = useState<string | null>(null);
   const [acceptedPolicy, setAcceptedPolicy] = useState(false);
   const [adjustedPrice, setAdjustedPrice] = useState(0);
   const [showPixDialog, setShowPixDialog] = useState(false);
@@ -66,13 +72,35 @@ const PaymentMethodPage = () => {
     qr_code_text: string;
     status: string;
   } | null>(null);
-  
+
   // Redirect if no appointment data
   if (!appointmentData) {
     navigate("/agendamento");
     return null;
   }
+  useEffect(() => {
+    if (!user) return;
 
+    const fetchUserRole = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("user_id", user.id)
+          .single<{ role: string }>();
+
+        if (error) throw error;
+
+        setUserRole(data?.role || "user");
+        console.log("Role do usuário:", data?.role);
+      } catch (err) {
+        console.error("Erro ao buscar role do usuário:", err);
+        setUserRole(null);
+      }
+    };
+
+    fetchUserRole();
+  }, []);
   useEffect(() => {
     const numericPrice = Number(appointmentData.price); // converte string para number
     const newPrice = numericPrice < 20 ? numericPrice : 20;
@@ -211,18 +239,10 @@ const PaymentMethodPage = () => {
   }
 
   useEffect(() => {
-    if (!appointmentData || preferenceUrl) return;
-
-    // se já tiver um appointmentId salvo, reaproveita
-    const savedAppointmentId = localStorage.getItem("appointmentId");
-    if (savedAppointmentId) {
-      setAppointmentId(savedAppointmentId);
-      return; // não cria novo agendamento nem preferência
-    }
+    if (!appointmentData || appointmentId || !userRole) return;
 
     const runFlow = async () => {
       setLoading(true);
-
       try {
         const {
           data: { user },
@@ -232,27 +252,39 @@ const PaymentMethodPage = () => {
         if (userError || !user) throw new Error("Usuário não autenticado");
         console.log("Usuário logado:", user);
 
-        // cria agendamento
-        const createAppointment = async (appointmentData: AppointmentData) => {
-          const bodyData = { ...appointmentData, totalPrice, user_id: user.id };
-          console.log("dados para o banco ", bodyData);
+        // Dados do agendamento
+        const bodyData = {
+          ...appointmentData,
+          totalPrice,
+          user_id: user.id,
+        } as any;
 
-          const response = await fetch(`${baseURL}/user/create-appointment`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(bodyData),
-          });
+        // Se for admin, já confirma o agendamento
+        if (userRole === "admin") {
+          bodyData.status = "CONFIRMED"; // envia para o backend já como confirmado
+        }
 
-          if (!response.ok) throw new Error("Erro ao criar agendamento");
+        const response = await fetch(`${baseURL}/user/create-appointment`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(bodyData),
+        });
 
-          const data = await response.json();
-          console.log("📥 Resposta do backend:", data);
+        if (!response.ok) throw new Error("Erro ao criar agendamento");
 
-          // retorna tudo (appointmentId + status)
-          return data;
-        };
+        const data = await response.json();
+        const { appointmentId: newAppointmentId, status } = data;
 
-        // calcula preço ajustado
+        setAppointmentId(newAppointmentId);
+        localStorage.setItem("appointmentId", newAppointmentId);
+
+        // Se admin, redireciona direto
+        if (userRole === "admin" || status === "CONFIRMED") {
+          navigate("/perfil");
+          return;
+        }
+
+        // Para usuários normais, calcula preço ajustado para PIX
         const numericPrice = Number(
           String(appointmentData.price)
             .replace(/[^\d,.-]/g, "")
@@ -260,54 +292,11 @@ const PaymentMethodPage = () => {
         );
         const newPrice = numericPrice < 20 ? numericPrice : 20;
         setAdjustedPrice(newPrice);
-        console.log("valor para a preferencia", newPrice);
-
-        // cria preferência de pagamento
-        const createPreference = async (appointmentId: string) => {
-          const response = await fetch(`${baseURL}/user/checkout`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              items: [
-                {
-                  id: appointmentId,
-                  title: "Taxa de agendamento",
-                  quantity: 1,
-                  unit_price: newPrice,
-                },
-              ],
-            }),
-          });
-
-          if (!response.ok)
-            throw new Error("Erro ao criar preferência de pagamento");
-
-          const data = await response.json();
-          setPreferenceUrl(data.preference_url);
-
-          // salva ambos no localStorage
-          localStorage.setItem("appointmentId", appointmentId);
-          localStorage.setItem("preferenceUrl", data.preference_url);
-        };
-
-        // fluxo principal
-        const { appointmentId, status } = await createAppointment(
-          appointmentData
-        );
-        console.log("status aqui", status);
-
-        if (status === "CONFIRMED") {
-          window.location.href = "/perfil";
-          return;
-        }
-
-        setAppointmentId(appointmentId);
-        await createPreference(appointmentId);
       } catch (error) {
-        console.error("Erro no fluxo de agendamento e checkout:", error);
+        console.error("Erro no fluxo de agendamento:", error);
         toast({
           title: "Erro",
-          description: "Não foi possível criar o agendamento ou checkout.",
+          description: "Não foi possível criar o agendamento.",
         });
       } finally {
         setLoading(false);
@@ -315,7 +304,7 @@ const PaymentMethodPage = () => {
     };
 
     runFlow();
-  }, [appointmentData]);
+  }, [appointmentData, appointmentId, userRole]);
 
   const handlePixPayment = async () => {
     if (!appointmentId) {
@@ -329,7 +318,10 @@ const PaymentMethodPage = () => {
 
     setLoading(true);
     try {
-      const response = await fetch(`${baseURL}/checkout`, {
+      console.log("📌 Gerando PIX para appointmentId:", appointmentId);
+
+      // Aqui você envia os dados do usuário diretamente
+      const response = await fetch(`${baseURL}/user/checkout`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -339,23 +331,32 @@ const PaymentMethodPage = () => {
               title: "Taxa de agendamento",
               quantity: 1,
               unit_price: adjustedPrice,
+              email: appointmentData.email,
+              first_name: appointmentData.name,
+              last_name: "", // ou você pode separar se tiver sobrenome
             },
           ],
         }),
       });
 
+      console.log("📌 Resposta do backend:", response.status);
+
       if (!response.ok) throw new Error("Erro ao gerar PIX");
 
       const data = await response.json();
+      console.log("📌 Dados do PIX recebidos:", data);
+
       setPixPaymentData(data);
       setShowPixDialog(true);
-      
+      localStorage.removeItem("appointmentId");
+      localStorage.removeItem("preferenceUrl");
+
       toast({
         title: "PIX gerado com sucesso!",
         description: "Use o QR Code para efetuar o pagamento.",
       });
     } catch (error: any) {
-      console.error("Erro ao gerar PIX:", error);
+      console.error("❌ Erro ao gerar PIX:", error);
       toast({
         title: "Erro no pagamento",
         description: error.message || "Tente novamente.",
@@ -609,7 +610,14 @@ const PaymentMethodPage = () => {
         </div>
       </div>
       {/* Modal PIX */}
-      <Dialog open={showPixDialog} onOpenChange={setShowPixDialog}>
+      <Dialog
+        open={showPixDialog}
+        onOpenChange={(open) => {
+          // evita fechar clicando fora
+          if (open) setShowPixDialog(true);
+        }}
+        modal={true} // importante: modo modal impede fechar fora/ESC
+      >
         <DialogContent className="max-w-lg max-h-[90vh] mx-auto overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-2xl font-cinzel text-center">
@@ -659,11 +667,15 @@ const PaymentMethodPage = () => {
             <div className="bg-secondary/30 rounded-lg p-4 space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Valor:</span>
-                <span className="font-semibold">{formatPrice(adjustedPrice)}</span>
+                <span className="font-semibold">
+                  {formatPrice(adjustedPrice)}
+                </span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Status:</span>
-                <span className="font-semibold capitalize">{pixPaymentData?.status}</span>
+                <span className="font-semibold capitalize">
+                  {pixPaymentData?.status}
+                </span>
               </div>
             </div>
 
