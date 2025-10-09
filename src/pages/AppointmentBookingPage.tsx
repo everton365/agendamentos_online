@@ -395,7 +395,8 @@ const AppointmentBookingPage = () => {
     durationMinutes: number,
     slots: Slot[],
     date?: string,
-    userRole?: string // <-- novo parâmetro
+    userRole?: string, // <-- novo parâmetro
+    blockedHours?: string[]
   ): boolean => {
     const [sh, sm] = startTime.split(":").map(Number);
     const start = sh * 60 + sm;
@@ -463,6 +464,15 @@ const AppointmentBookingPage = () => {
           );
           return false;
         }
+      }
+    }
+    if (blockedHours?.includes("18:30")) {
+      const limit1830 = 18 * 60 + 30;
+      if (end > limit1830) {
+        console.log(
+          `⛔ Slot ${startTime}: bloqueado → duração ultrapassa 18:30 (bloqueado na data)`
+        );
+        return false;
       }
     }
     /* if (startTime === "18:30") {
@@ -558,7 +568,8 @@ const AppointmentBookingPage = () => {
         totalDuration,
         timeSlots,
         formData.date,
-        userRole // <-- libera regras para admin
+        userRole, // <-- libera regras para admin
+        blockedHours
       );
 
       const [h, m] = slot.time.split(":").map(Number);
