@@ -48,7 +48,7 @@ const AppointmentBookingPage = () => {
     time: "",
     message: "",
   });
-  console.log("metadataaqui", formData);
+
   const [timeSlots, setTimeSlots] = useState<
     {
       time: string;
@@ -56,7 +56,7 @@ const AppointmentBookingPage = () => {
     }[]
   >([]);
   const baseURL = import.meta.env.VITE_API_URL;
-  console.log("user e", userRole);
+
   const [openService, setOpenService] = useState<string | null>(null);
   type BlockedDateResponse =
     | {
@@ -103,7 +103,6 @@ const AppointmentBookingPage = () => {
   useEffect(() => {
     // Remove do localStorage depois de pegar
     localStorage.removeItem("appointmentId");
-    console.log("appointmentId removido do localStorage");
   }, []);
 
   useEffect(() => {
@@ -139,7 +138,6 @@ const AppointmentBookingPage = () => {
         if (error) throw error;
 
         setUserRole(data?.role || "user");
-        console.log("Role do usuário:", data?.role);
       } catch (err) {
         console.error("Erro ao buscar role do usuário:", err);
         setUserRole(null);
@@ -156,7 +154,6 @@ const AppointmentBookingPage = () => {
       .then((res) => res.json())
       .then((data: BlockedDateResponse) => {
         setBlockedDate(data);
-        console.log("data bloqueada", data);
       })
       .catch((err) => console.error("Erro ao buscar data bloqueada:", err));
   }, [formData.date, selectedServices]);
@@ -204,54 +201,23 @@ const AppointmentBookingPage = () => {
     totalDurationMinutes?: number
   ) => {
     try {
-      const durationMinutes = totalDurationMinutes || getTotalDuration() || 10;
       const res = await fetch(`${baseURL}/user/appointments/status/${date}`);
       if (!res.ok) throw new Error("Erro ao buscar horários");
 
       const data = await res.json();
+
       if (!data.schedule) return [];
 
-      // Primeiro, transformamos cada slot em um objeto com start e end
-      const slotsWithTime = data.schedule.map(
-        (slot: { time: string; status: string; duration?: string }) => {
-          const slotStart = new Date(`${date}T${slot.time}`);
-          const slotDuration = parseDuration(slot.duration);
-          const slotEnd = new Date(slotStart.getTime() + slotDuration * 60000);
-
-          return {
-            time: slot.time.slice(0, 5),
-            status:
-              slot.status.toLowerCase() === "cancelled"
-                ? "available"
-                : slot.status,
-            slotStart,
-            slotEnd,
-          };
-        }
+      // Apenas formata cada slot, mantendo o status do banco (com ajuste de cancelled → available)
+      const slotsWithStatus = data.schedule.map(
+        (slot: { time: string; status: string; duration?: string }) => ({
+          time: slot.time.slice(0, 5), // só hora e minuto
+          status:
+            slot.status.toLowerCase() === "cancelled"
+              ? "available"
+              : slot.status,
+        })
       );
-
-      // Filtra os horários disponíveis considerando a duração total dos serviços
-      const slotsWithStatus = slotsWithTime.map((slot: any) => {
-        // Calcula o horário final do slot baseado na duração total dos serviços selecionados
-        const slotEnd = new Date(
-          slot.slotStart.getTime() + durationMinutes * 60000
-        );
-
-        // Verifica conflito com qualquer outro agendamento ativo
-        const conflict = slotsWithTime.some((other: any) => {
-          if (other === slot) return false;
-          return (
-            slot.slotStart < other.slotEnd &&
-            slotEnd > other.slotStart &&
-            other.status !== "available"
-          );
-        });
-
-        return {
-          time: slot.time,
-          status: conflict ? "blocked" : slot.status,
-        };
-      });
 
       return slotsWithStatus;
     } catch (err) {
@@ -423,7 +389,7 @@ const AppointmentBookingPage = () => {
 
       if (slotStatus === "CONFIRMED") {
         console.log(
-          `⛔ Slot ${startTime}: bloqueado (CONFIRMED mesmo para admin)`
+          `⛔7 Slot ${startTime}: bloqueado (CONFIRMED mesmo para admin)`
         );
         return false;
       }
@@ -441,7 +407,7 @@ const AppointmentBookingPage = () => {
 
       if (dayOfWeek === 1) {
         console.log(
-          `⛔ Slot ${startTime}: bloqueado (nenhum horário permitido na segunda-feira)`
+          `⛔6 Slot ${startTime}: bloqueado (nenhum horário permitido na segunda-feira)`
         );
         return false;
       }
@@ -450,7 +416,7 @@ const AppointmentBookingPage = () => {
         const limiteFim = 14 * 60 + 30; // 14:30
         if (end > limiteFim) {
           console.log(
-            `⛔ Slot ${startTime}: bloqueado (não pode ultrapassar 14:30 na terça-feira)`
+            `⛔5 Slot ${startTime}: bloqueado (não pode ultrapassar 14:30 na terça-feira)`
           );
           return false;
         }
@@ -460,7 +426,7 @@ const AppointmentBookingPage = () => {
         const limiteFim = 17 * 60; // 17:00
         if (end > limiteFim) {
           console.log(
-            `⛔ Slot ${startTime}: bloqueado (não pode ultrapassar 17:00 na quarta-feira)`
+            `⛔4 Slot ${startTime}: bloqueado (não pode ultrapassar 17:00 na quarta-feira)`
           );
           return false;
         }
@@ -470,7 +436,7 @@ const AppointmentBookingPage = () => {
       const limit1830 = 18 * 60 + 30;
       if (end > limit1830) {
         console.log(
-          `⛔ Slot ${startTime}: bloqueado → duração ultrapassa 18:30 (bloqueado na data)`
+          `⛔3 Slot ${startTime}: bloqueado → duração ultrapassa 18:30 (bloqueado na data)`
         );
         return false;
       }
@@ -489,9 +455,10 @@ const AppointmentBookingPage = () => {
     }
 */
     const slotStatus = sortedSlots[startIndex].status;
+
     if (slotStatus !== "available") {
       console.log(
-        `⛔ Slot ${startTime}: status = ${slotStatus} → duração = ${durationMinutes}min`
+        `⛔2 Slot ${startTime}: status = aqui ${slotStatus} → duração = ${durationMinutes}min`
       );
       return false;
     }
@@ -510,7 +477,7 @@ const AppointmentBookingPage = () => {
 
       if (nextSlot.minutes % 60 !== 0) {
         console.log(
-          `⛔ Slot ${startTime}: status = ${slotStatus} → duração = ${durationMinutes}min → próximo slot ${String(
+          `⛔1 Slot ${startTime}: status = ${slotStatus} → duração = ${durationMinutes}min → próximo slot ${String(
             Math.floor(nextSlot.minutes / 60)
           ).padStart(2, "0")}:${String(nextSlot.minutes % 60).padStart(
             2,
