@@ -889,7 +889,7 @@ const AppointmentBookingPage = () => {
                                       ? "Pendente"
                                       : slot.status === "CONFIRMED"
                                       ? "Ocupado"
-                                      : "Bloqueado"}
+                                      : "Ocupado"}
                                   </div>
                                 </div>
                               </button>
@@ -913,10 +913,6 @@ const AppointmentBookingPage = () => {
                           <div className="flex items-center gap-1">
                             <div className="w-3 h-3 rounded bg-[hsl(var(--status-confirmed))]"></div>
                             <span>Ocupado</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <div className="w-3 h-3 rounded bg-[hsl(var(--status-blocked))]"></div>
-                            <span>Excede o horário disponível</span>
                           </div>
                         </div>
                       )}
