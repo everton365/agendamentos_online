@@ -205,7 +205,7 @@ const AppointmentBookingPage = () => {
       if (!res.ok) throw new Error("Erro ao buscar horários");
 
       const data = await res.json();
-
+      console.log(data);
       if (!data.schedule) return [];
 
       // Apenas formata cada slot, mantendo o status do banco (com ajuste de cancelled → available)
@@ -475,14 +475,39 @@ const AppointmentBookingPage = () => {
         return true;
       }
 
-      if (nextSlot.minutes % 60 !== 0) {
+      for (let i = 0; i < sortedSlots.length; i++) {
+        const slot = sortedSlots[i];
+        const nextSlot = sortedSlots[i + 1];
+        const slotStart = slot.minutes;
+        const slotEnd = nextSlot ? nextSlot.minutes : slotStart + 10;
+
+        if (slot.status === "CONFIRMED" && slotStart < end && slotEnd > start) {
+          console.log(
+            `⛔ Slot ${startTime}: conflito com ${String(
+              Math.floor(slot.minutes / 60)
+            ).padStart(2, "0")}:${String(slot.minutes % 60).padStart(
+              2,
+              "0"
+            )} (CONFIRMED durante o intervalo do serviço)`
+          );
+          return false;
+        }
+      }
+
+      if (
+        nextSlot.minutes % 60 !== 0 && // não é hora cheia
+        !(
+          Math.floor(nextSlot.minutes / 60) === 18 &&
+          nextSlot.minutes % 60 === 30
+        ) // e também não é 18:30
+      ) {
         console.log(
           `⛔1 Slot ${startTime}: status = ${slotStatus} → duração = ${durationMinutes}min → próximo slot ${String(
             Math.floor(nextSlot.minutes / 60)
           ).padStart(2, "0")}:${String(nextSlot.minutes % 60).padStart(
             2,
             "0"
-          )} não é hora cheia`
+          )} não é hora cheia ou 18:30`
         );
         return false;
       }
