@@ -85,6 +85,24 @@ const AuthPage = () => {
       }
 
       if (data.user) {
+        // Verificar se o usuário pertence ao studio correto
+        const { data: profile, error: profileError } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("user_id", data.user.id)
+          .maybeSingle();
+
+        if (profileError || !profile) {
+          await supabase.auth.signOut();
+          throw new Error("Perfil de usuário não encontrado.");
+        }
+
+        const expectedStudioId = import.meta.env.VITE_STUDIO_ID;
+        if ((profile as any).studio_id !== expectedStudioId) {
+          await supabase.auth.signOut();
+          throw new Error("Você não tem permissão para acessar este studio.");
+        }
+
         toast({
           title: "Sucesso!",
           description: "Login realizado com sucesso.",
@@ -195,11 +213,13 @@ const AuthPage = () => {
       }
 
       if (data.user) {
-        // Create profile
+        // Create profile with studio_id
+        const studioId = import.meta.env.VITE_STUDIO_ID;
         const { error: profileError } = await supabase.from("profiles").insert({
           user_id: data.user.id,
           display_name: signUpData.displayName || null,
           phone: signUpData.phone || null,
+          studio_id: studioId,
         });
 
         if (profileError) {
