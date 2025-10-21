@@ -371,15 +371,17 @@ const AuthPage = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-phone">Telefone </Label>
+                    <Label htmlFor="signup-phone">Whatsapp </Label>
                     <Input
                       id="signup-phone"
                       value={signUpData.phone}
                       onChange={(e) =>
                         setSignUpData({ ...signUpData, phone: e.target.value })
                       }
-                      placeholder="(85) 99999-9999"
+                      placeholder="85999999999"
                       required
+                      pattern="\d{11,}" // mínimo 11 dígitos numéricos
+                      title="Digite o número com DDD"
                     />
                   </div>
                   <div className="space-y-2">
