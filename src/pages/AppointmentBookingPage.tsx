@@ -318,6 +318,9 @@ const AppointmentBookingPage = () => {
 
         return digits;
       };
+
+      const studioId = import.meta.env.VITE_STUDIO_ID;
+
       // Prepare appointment data with services info
       const appointmentData = {
         ...formData,
@@ -326,6 +329,7 @@ const AppointmentBookingPage = () => {
         price: `R$ ${getTotalPrice().toFixed(2).replace(".", ",")}`,
         duration: formatTotalDuration(getTotalDuration()),
         services: selectedServices,
+        studio_id: studioId,
         name:
           formData.name ||
           user?.user_metadata?.name ||
