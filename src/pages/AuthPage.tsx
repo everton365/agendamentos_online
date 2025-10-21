@@ -220,7 +220,7 @@ const AuthPage = () => {
           display_name: signUpData.displayName || null,
           phone: signUpData.phone || null,
           studio_id: studioId,
-          role: 'user',
+          role: "user",
         });
 
         if (profileError) {
@@ -378,7 +378,7 @@ const AuthPage = () => {
                       onChange={(e) =>
                         setSignUpData({ ...signUpData, phone: e.target.value })
                       }
-                      placeholder="(11) 99999-9999"
+                      placeholder="(85) 99999-9999"
                       required
                     />
                   </div>
