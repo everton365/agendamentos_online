@@ -192,6 +192,7 @@ const AuthPage = () => {
       }
 
       const redirectUrl = `${window.location.origin}/`;
+      const studioId = import.meta.env.VITE_STUDIO_ID;
 
       const { data, error } = await supabase.auth.signUp({
         email: signUpData.email,
@@ -207,14 +208,61 @@ const AuthPage = () => {
 
       if (error) {
         if (error.message.includes("User already registered")) {
-          throw new Error("Este email já está cadastrado. Tente fazer login.");
+          // Email já existe, verificar se tem perfil neste studio
+          try {
+            const loginResult = await supabase.auth.signInWithPassword({
+              email: signUpData.email,
+              password: signUpData.password,
+            });
+
+            if (loginResult.data?.user) {
+              const userId = loginResult.data.user.id;
+              
+              // Verificar se já existe perfil neste studio
+              // @ts-ignore - Type inference issue with Supabase
+              const profileQuery: any = await supabase
+                .from("profiles")
+                .select("id")
+                .eq("user_id", userId)
+                .eq("studio_id", studioId);
+
+              if (!profileQuery.data || profileQuery.data.length === 0) {
+                // Criar novo perfil para este studio
+                await supabase.from("profiles").insert({
+                  user_id: userId,
+                  display_name: signUpData.displayName || null,
+                  phone: signUpData.phone || null,
+                  studio_id: studioId,
+                  role: "user",
+                });
+
+                toast({
+                  title: "Perfil criado!",
+                  description: "Você agora tem acesso a este studio.",
+                });
+                window.location.href = "/";
+                return;
+              } else {
+                // Perfil já existe para este studio
+                toast({
+                  title: "Sucesso!",
+                  description: "Login realizado com sucesso.",
+                });
+                window.location.href = "/";
+                return;
+              }
+            }
+          } catch (loginError) {
+            throw new Error(
+              "Email já cadastrado mas senha incorreta. Tente fazer login."
+            );
+          }
         }
         throw error;
       }
 
       if (data.user) {
         // Create profile with studio_id
-        const studioId = import.meta.env.VITE_STUDIO_ID;
         const { error: profileError } = await supabase.from("profiles").insert({
           user_id: data.user.id,
           display_name: signUpData.displayName || null,
