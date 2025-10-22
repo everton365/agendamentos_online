@@ -128,6 +128,7 @@ const AppointmentBookingPage = () => {
           .from("profiles")
           .select("role")
           .eq("user_id", user.id)
+          .eq("studio_id", studioId)
           .single<{ role: string }>();
 
         if (error) throw error;
