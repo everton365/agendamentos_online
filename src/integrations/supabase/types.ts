@@ -26,6 +26,7 @@ export type Database = {
           id: string
           message: string | null
           name: string
+          note: string | null
           phone: string
           pix_id: string | null
           preference_id: string | null
@@ -33,6 +34,7 @@ export type Database = {
           service: string
           start_time: string | null
           status: string | null
+          studio_id: string | null
           updated_at: string
           user_id: string | null
         }
@@ -47,6 +49,7 @@ export type Database = {
           id?: string
           message?: string | null
           name: string
+          note?: string | null
           phone: string
           pix_id?: string | null
           preference_id?: string | null
@@ -54,6 +57,7 @@ export type Database = {
           service: string
           start_time?: string | null
           status?: string | null
+          studio_id?: string | null
           updated_at?: string
           user_id?: string | null
         }
@@ -68,6 +72,7 @@ export type Database = {
           id?: string
           message?: string | null
           name?: string
+          note?: string | null
           phone?: string
           pix_id?: string | null
           preference_id?: string | null
@@ -75,8 +80,45 @@ export type Database = {
           service?: string
           start_time?: string | null
           status?: string | null
+          studio_id?: string | null
           updated_at?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      assinaturas: {
+        Row: {
+          created_at: string
+          date_final: string | null
+          date_inicio: string | null
+          id: number
+          name: string | null
+          new_id: string | null
+          plano: string | null
+          senhas: string | null
+          status: string | null
+        }
+        Insert: {
+          created_at?: string
+          date_final?: string | null
+          date_inicio?: string | null
+          id?: number
+          name?: string | null
+          new_id?: string | null
+          plano?: string | null
+          senhas?: string | null
+          status?: string | null
+        }
+        Update: {
+          created_at?: string
+          date_final?: string | null
+          date_inicio?: string | null
+          id?: number
+          name?: string | null
+          new_id?: string | null
+          plano?: string | null
+          senhas?: string | null
+          status?: string | null
         }
         Relationships: []
       }
@@ -86,18 +128,24 @@ export type Database = {
           date: string | null
           id: number
           motivo: string | null
+          studio_id: string | null
+          time_bloqueados: string | null
         }
         Insert: {
           created_at?: string
           date?: string | null
           id?: number
           motivo?: string | null
+          studio_id?: string | null
+          time_bloqueados?: string | null
         }
         Update: {
           created_at?: string
           date?: string | null
           id?: number
           motivo?: string | null
+          studio_id?: string | null
+          time_bloqueados?: string | null
         }
         Relationships: []
       }
@@ -106,10 +154,10 @@ export type Database = {
           avatar_url: string | null
           created_at: string
           display_name: string | null
-          email: string | null
           id: string
-          password_hash: string | null
           phone: string | null
+          role: string | null
+          studio_id: string | null
           updated_at: string
           user_id: string | null
         }
@@ -117,10 +165,10 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           display_name?: string | null
-          email?: string | null
           id?: string
-          password_hash?: string | null
           phone?: string | null
+          role?: string | null
+          studio_id?: string | null
           updated_at?: string
           user_id?: string | null
         }
@@ -128,10 +176,10 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           display_name?: string | null
-          email?: string | null
           id?: string
-          password_hash?: string | null
           phone?: string | null
+          role?: string | null
+          studio_id?: string | null
           updated_at?: string
           user_id?: string | null
         }
