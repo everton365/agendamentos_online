@@ -83,13 +83,14 @@ const AuthPage = () => {
         }
         throw error;
       }
-
+      const expectedStudioId = import.meta.env.VITE_STUDIO_ID;
       if (data.user) {
         // Verificar se o usuário pertence ao studio correto
         const { data: profile, error: profileError } = await supabase
           .from("profiles")
           .select("*")
           .eq("user_id", data.user.id)
+          .eq("studio_id", expectedStudioId)
           .maybeSingle();
 
         if (profileError || !profile) {
@@ -97,7 +98,6 @@ const AuthPage = () => {
           throw new Error("Perfil de usuário não encontrado.");
         }
 
-        const expectedStudioId = import.meta.env.VITE_STUDIO_ID;
         if ((profile as any).studio_id !== expectedStudioId) {
           await supabase.auth.signOut();
           throw new Error("Você não tem permissão para acessar este studio.");
@@ -223,7 +223,7 @@ const AuthPage = () => {
 
             if (loginResult.data?.user) {
               const userId = loginResult.data.user.id;
-              
+
               // Verificar se já existe perfil neste studio
               // @ts-ignore
               const profileQuery = (await supabase
@@ -231,7 +231,7 @@ const AuthPage = () => {
                 .select("id, studio_id")
                 .eq("user_id", userId)
                 .eq("studio_id", studioId)) as any;
-              
+
               const existingProfiles = profileQuery.data;
               const profileError = profileQuery.error;
 
@@ -242,13 +242,15 @@ const AuthPage = () => {
 
               if (!existingProfiles || existingProfiles.length === 0) {
                 // Criar novo perfil para este studio
-                const insertResult: any = await supabase.from("profiles").insert({
-                  user_id: userId,
-                  display_name: signUpData.displayName || null,
-                  phone: signUpData.phone || null,
-                  studio_id: studioId,
-                  role: "user",
-                });
+                const insertResult: any = await supabase
+                  .from("profiles")
+                  .insert({
+                    user_id: userId,
+                    display_name: signUpData.displayName || null,
+                    phone: signUpData.phone || null,
+                    studio_id: studioId,
+                    role: "user",
+                  });
 
                 if (insertResult.error) {
                   console.error("Erro ao criar perfil:", insertResult.error);

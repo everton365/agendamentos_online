@@ -13,7 +13,7 @@ import { Calendar, LogOut, User, Menu, X } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import logo from "../assets/logo.png";
 import { supabase } from "@/integrations/supabase/client";
-
+const studioId = import.meta.env.VITE_STUDIO_ID;
 const Header = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
@@ -42,6 +42,7 @@ const Header = () => {
         .from("profiles")
         .select("*")
         .eq("user_id", user?.id)
+        .eq("studio_id", studioId)
         .maybeSingle();
       if (error) throw error;
       if (data) {

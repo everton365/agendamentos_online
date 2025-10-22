@@ -108,11 +108,13 @@ const ProfilePage = () => {
     null
   );
   const baseURL = import.meta.env.VITE_API_URL;
-
+  const studioId = import.meta.env.VITE_STUDIO_ID;
   useEffect(() => {
     if (!rescheduleDate) return;
 
-    fetch(`${baseURL}/user/appointments/date-bloqueada/${rescheduleDate}`)
+    fetch(
+      `${baseURL}/user/appointments/date-bloqueada/${rescheduleDate}?studioId=${studioId}`
+    )
       .then((res) => res.json())
       .then((data) => {
         console.log("📅 Resposta da API bloqueada:", data);
@@ -139,6 +141,7 @@ const ProfilePage = () => {
         .from("profiles")
         .select("*")
         .eq("user_id", user.id)
+        .eq("studio_id", studioId)
         .maybeSingle();
       if (error) throw error;
       if (data) {
@@ -162,6 +165,7 @@ const ProfilePage = () => {
         .from("appointments")
         .select("*")
         .eq("user_id", user.id)
+        .eq("studio_id", studioId)
         .order("appointment_date", { ascending: false });
       if (error) throw error;
       const appointmentsWithPrice: Appointment[] = (data || []).map(
@@ -206,11 +210,12 @@ const ProfilePage = () => {
       const { error } = await supabase.from("profiles").upsert(
         {
           user_id: user?.id,
+          studio_id: studioId,
           display_name: profile.display_name,
           phone: profile.phone,
           avatar_url: finalAvatarUrl,
         },
-        { onConflict: "user_id" }
+        { onConflict: "user_id,studio_id" }
       );
       if (error) throw error;
 
