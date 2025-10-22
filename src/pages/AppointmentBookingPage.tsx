@@ -56,7 +56,7 @@ const AppointmentBookingPage = () => {
     }[]
   >([]);
   const baseURL = import.meta.env.VITE_API_URL;
-
+  const studioId = import.meta.env.VITE_STUDIO_ID;
   const [openService, setOpenService] = useState<string | null>(null);
   type BlockedDateResponse =
     | {
@@ -75,12 +75,7 @@ const AppointmentBookingPage = () => {
   const [blockedDate, setBlockedDate] = useState<BlockedDateResponse | null>(
     null
   );
-  const phoneNumber = "5585991793971"; // coloque seu número com DDI (55 Brasil + DDD + número)
-  const message = "Olá! Gostaria de mais informações.";
 
-  const link = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
-    message
-  )}`;
   const toggleService = (value: string) => {
     setOpenService(openService === value ? null : value);
   };
@@ -150,7 +145,9 @@ const AppointmentBookingPage = () => {
   useEffect(() => {
     if (!formData.date) return;
 
-    fetch(`${baseURL}/user/appointments/date-bloqueada/${formData.date}`)
+    fetch(
+      `${baseURL}/user/appointments/date-bloqueada/${formData.date}?studioId=${studioId}`
+    )
       .then((res) => res.json())
       .then((data: BlockedDateResponse) => {
         setBlockedDate(data);
