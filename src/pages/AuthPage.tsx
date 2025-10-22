@@ -449,7 +449,6 @@ const AuthPage = () => {
                       }
                       placeholder="85999999999"
                       required
-                      pattern="\d{11,}" // mínimo 11 dígitos numéricos
                       title="Digite o número com DDD"
                     />
                   </div>

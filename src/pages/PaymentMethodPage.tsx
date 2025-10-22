@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
-import { useRef } from "react";
+
 import {
   Dialog,
   DialogContent,
@@ -239,15 +239,11 @@ const PaymentMethodPage = () => {
     }
   };*/
   }
-  const hasCreatedRef = useRef(false);
+
   useEffect(() => {
     if (!userRole) return; // só executa depois de carregar
     if (!appointmentData || appointmentId) return;
-    if (hasCreatedRef.current) return; // 🚫 já criou uma vez
-    hasCreatedRef.current = true; // ✅ trava a segunda execução
-    console.log("rodando apenas uma vez");
 
-    console.log(userRole);
     const runFlow = async () => {
       setLoading(true);
       try {
