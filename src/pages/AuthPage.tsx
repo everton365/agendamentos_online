@@ -215,26 +215,45 @@ const AuthPage = () => {
               password: signUpData.password,
             });
 
+            if (loginResult.error) {
+              throw new Error(
+                "Email já cadastrado mas senha incorreta. Tente fazer login."
+              );
+            }
+
             if (loginResult.data?.user) {
               const userId = loginResult.data.user.id;
               
               // Verificar se já existe perfil neste studio
-              // @ts-ignore - Type inference issue with Supabase
-              const profileQuery: any = await supabase
+              // @ts-ignore
+              const profileQuery = (await supabase
                 .from("profiles")
-                .select("id")
+                .select("id, studio_id")
                 .eq("user_id", userId)
-                .eq("studio_id", studioId);
+                .eq("studio_id", studioId)) as any;
+              
+              const existingProfiles = profileQuery.data;
+              const profileError = profileQuery.error;
 
-              if (!profileQuery.data || profileQuery.data.length === 0) {
+              if (profileError) {
+                console.error("Erro ao verificar perfil:", profileError);
+                throw new Error("Erro ao verificar perfil existente.");
+              }
+
+              if (!existingProfiles || existingProfiles.length === 0) {
                 // Criar novo perfil para este studio
-                await supabase.from("profiles").insert({
+                const insertResult: any = await supabase.from("profiles").insert({
                   user_id: userId,
                   display_name: signUpData.displayName || null,
                   phone: signUpData.phone || null,
                   studio_id: studioId,
                   role: "user",
                 });
+
+                if (insertResult.error) {
+                  console.error("Erro ao criar perfil:", insertResult.error);
+                  throw new Error("Erro ao criar perfil para este studio.");
+                }
 
                 toast({
                   title: "Perfil criado!",
@@ -252,9 +271,9 @@ const AuthPage = () => {
                 return;
               }
             }
-          } catch (loginError) {
+          } catch (loginError: any) {
             throw new Error(
-              "Email já cadastrado mas senha incorreta. Tente fazer login."
+              loginError.message || "Email já cadastrado mas senha incorreta."
             );
           }
         }
