@@ -198,7 +198,9 @@ const AppointmentBookingPage = () => {
     totalDurationMinutes?: number
   ) => {
     try {
-      const res = await fetch(`${baseURL}/user/appointments/status/${date}`);
+      const res = await fetch(
+        `${baseURL}/user/appointments/status/${date}?studioId=${studioId}`
+      );
       if (!res.ok) throw new Error("Erro ao buscar horários");
 
       const data = await res.json();
