@@ -708,7 +708,7 @@ const PaymentMethodPage = () => {
                 style={{ backgroundColor: "#D4AF37" }}
               >
                 <CheckCircle className="w-4 h-4 mr-2" />
-                Já fiz o pagamento
+                Perfil
               </Button>
               <Button
                 onClick={() => setShowPixDialog(false)}
