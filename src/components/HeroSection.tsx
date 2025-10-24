@@ -80,7 +80,7 @@ const HeroSection = () => {
           </h2>
 
           {/* Descrição */}
-          <p className="text-lg font-poppins text-muted-foreground max-w-2xl mx-auto mt-20 mb-16 leading-snug">
+          <p className="text-lg font-poppins text-muted-foreground max-w-2xl mx-auto mt-16 mb-16 leading-snug">
             Especialista em design, microblading e técnicas avançadas. Realce
             sua beleza com sobrancelhas naturais, leves e perfeitamente
             moldadas.
