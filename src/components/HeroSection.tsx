@@ -32,7 +32,7 @@ const HeroSection = () => {
       <div className="relative z-10 container mx-auto px-6 py-8 sm:py-10  w-full max-w-[900px] text-center">
         <div className=" animate-fade-in">
           {/* Título */}
-          <h1 className="font-cinzel font-extrabold text-center relative mt-0 mb-0 uppercase leading-none">
+          <h1 className="font-cinzel font-extrabold text-center relative -mt-0 mb-0 uppercase leading-none">
             {/* Camada de sombra 3D */}
             <span
               className="absolute inset-0 text-yellow-500 [text-shadow:2px_2px_0_#a7a7a7,4px_4px_0_#7a7a7a,6px_6px_8px_rgba(0,0,0,0.35)]"
@@ -57,7 +57,7 @@ const HeroSection = () => {
             </span>
           </h1>
 
-          <h2 className="font-cinzel font-extrabold text-center relative mt-0 mb-5 uppercase leading-none">
+          <h2 className="font-cinzel font-extrabold text-center relative mt-2 mb-5 uppercase leading-none">
             {/* Subtítulo - dois spans lado a lado */}
             <span
               className="relative inline-block text-transparent bg-clip-text bg-gradient-to-b from-black/30 to-yellow-400 leading-none mr-1"
@@ -80,7 +80,7 @@ const HeroSection = () => {
           </h2>
 
           {/* Descrição */}
-          <p className="text-lg font-poppins text-muted-foreground max-w-2xl mx-auto mb-10 leading-snug">
+          <p className="text-lg font-poppins text-muted-foreground max-w-2xl mx-auto mt-20 mb-16 leading-snug">
             Especialista em design, microblading e técnicas avançadas. Realce
             sua beleza com sobrancelhas naturais, leves e perfeitamente
             moldadas.
