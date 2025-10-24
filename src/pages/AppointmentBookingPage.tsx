@@ -416,7 +416,8 @@ const AppointmentBookingPage = () => {
         return false;
       }
 
-      if (dayOfWeek === 2) {
+      {
+        /* if (dayOfWeek === 2) {
         const limiteFim = 14 * 60 + 30; // 14:30
         if (end > limiteFim) {
           console.log(
@@ -424,6 +425,7 @@ const AppointmentBookingPage = () => {
           );
           return false;
         }
+      }*/
       }
 
       if (dayOfWeek === 3) {
