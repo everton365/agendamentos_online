@@ -693,7 +693,7 @@ const AppointmentBookingPage = () => {
                     </div>
                     <div className="flex justify-between">
                       <span>Terça-feira:</span>
-                      <span className="font-medium">9h às 14h</span>
+                      <span className="font-medium">9h às 18h</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Quarta-feira:</span>
