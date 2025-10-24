@@ -130,7 +130,7 @@ const Footer = () => {
                     />
                     <div>
                       <div className="font-medium">Terça</div>
-                      <div className="text-sm">9h às 18h</div>
+                      <div className="text-sm">9h às 18:30</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
