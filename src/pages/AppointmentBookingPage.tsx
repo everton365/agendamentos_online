@@ -205,7 +205,7 @@ const AppointmentBookingPage = () => {
       if (!res.ok) throw new Error("Erro ao buscar horários");
 
       const data = await res.json();
-      console.log(data);
+
       if (!data.schedule) return [];
 
       // Apenas formata cada slot, mantendo o status do banco (com ajuste de cancelled → available)

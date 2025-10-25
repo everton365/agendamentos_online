@@ -117,7 +117,6 @@ const ProfilePage = () => {
     )
       .then((res) => res.json())
       .then((data) => {
-        console.log("📅 Resposta da API bloqueada:", data);
         setBlockedDate(data);
       })
       .catch((err) => console.error(err));

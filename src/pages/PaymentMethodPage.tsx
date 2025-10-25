@@ -95,7 +95,6 @@ const PaymentMethodPage = () => {
         if (error) throw error;
 
         setUserRole(data?.role || "user");
-        console.log("Role do usuário:", data?.role);
       } catch (err) {
         console.error("Erro ao buscar role do usuário:", err);
         setUserRole(null);
@@ -110,10 +109,9 @@ const PaymentMethodPage = () => {
     setAdjustedPrice(newPrice);
   }, [appointmentData.price]);
 
-  console.log("matadata", appointmentData);
   useEffect(() => {
     const savedAppointmentId = localStorage.getItem("appointmentId");
-    console.log("tem salvo", savedAppointmentId);
+
     if (savedAppointmentId) {
       setPreferenceUrl(savedAppointmentId);
     }
@@ -254,7 +252,6 @@ const PaymentMethodPage = () => {
         } = await supabase.auth.getUser();
 
         if (userError || !user) throw new Error("Usuário não autenticado");
-        console.log("Usuário logado:", user);
 
         // Dados do agendamento
         const bodyData = {
@@ -322,8 +319,6 @@ const PaymentMethodPage = () => {
 
     setLoading(true);
     try {
-      console.log("📌 Gerando PIX para appointmentId:", appointmentId);
-      console.log("📌PIX para appointmentId:", appointmentData.studio_id);
       // Aqui você envia os dados do usuário diretamente
       const response = await fetch(`${baseURL}/user/checkout`, {
         method: "POST",
@@ -344,12 +339,9 @@ const PaymentMethodPage = () => {
         }),
       });
 
-      console.log("📌 Resposta do backend:", response.status);
-
       if (!response.ok) throw new Error("Erro ao gerar PIX");
 
       const data = await response.json();
-      console.log("📌 Dados do PIX recebidos:", data);
 
       setPixPaymentData(data);
       setShowPixDialog(true);
