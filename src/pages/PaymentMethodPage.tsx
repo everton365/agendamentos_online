@@ -37,6 +37,7 @@ interface AppointmentData {
   price: string;
   date: string;
   time: string;
+  studio_id: string;
   duration: string;
   message?: string;
 }
@@ -322,7 +323,7 @@ const PaymentMethodPage = () => {
     setLoading(true);
     try {
       console.log("📌 Gerando PIX para appointmentId:", appointmentId);
-
+      console.log("📌PIX para appointmentId:", appointmentData.studio_id);
       // Aqui você envia os dados do usuário diretamente
       const response = await fetch(`${baseURL}/user/checkout`, {
         method: "POST",
@@ -335,6 +336,7 @@ const PaymentMethodPage = () => {
               quantity: 1,
               unit_price: adjustedPrice,
               email: appointmentData.email,
+              studioId: appointmentData.studio_id,
               first_name: appointmentData.name,
               last_name: "", // ou você pode separar se tiver sobrenome
             },
