@@ -643,7 +643,7 @@ const PaymentMethodPage = () => {
                     alt="QR Code PIX"
                     className="w-64 h-64 border-2 border-primary/20 rounded-lg p-2 bg-white"
                     onError={(e) => {
-                      e.currentTarget.style.display = 'none';
+                      e.currentTarget.style.display = "none";
                       toast({
                         title: "Erro ao carregar QR Code",
                         description: "Use o código copia e cola abaixo",
@@ -656,7 +656,9 @@ const PaymentMethodPage = () => {
             ) : (
               <div className="bg-secondary/20 rounded-lg p-4 space-y-2">
                 <div className="text-center text-muted-foreground">
-                  <p className="text-sm">QR Code não disponível. Use o código copia e cola abaixo.</p>
+                  <p className="text-sm">
+                    QR Code não disponível. Use o código copia e cola abaixo.
+                  </p>
                 </div>
               </div>
             )}
@@ -694,7 +696,9 @@ const PaymentMethodPage = () => {
             ) : (
               <div className="bg-secondary/20 rounded-lg p-4 space-y-2">
                 <div className="text-center text-muted-foreground">
-                  <p className="text-sm">Código PIX não disponível no momento.</p>
+                  <p className="text-sm">
+                    Código PIX não disponível no momento.
+                  </p>
                 </div>
               </div>
             )}
@@ -715,7 +719,7 @@ const PaymentMethodPage = () => {
               </div>
             </div>
 
-            {/* Instruções de pagamento */}
+            {/* Instruções de pagamento*/}
             <div className="bg-primary/5 rounded-lg p-3">
               <h3 className="font-semibold mb-3 flex items-center gap-2">
                 <Info className="w-4 h-4 text-primary" />
