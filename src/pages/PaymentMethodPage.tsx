@@ -625,10 +625,10 @@ const PaymentMethodPage = () => {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-6 py-4">
+          <div className="space-y-3 py-2">
             {/* QR Code Section - renderiza apenas se disponível */}
             {pixPaymentData?.qr_code_base64 ? (
-              <div className="bg-secondary/20 rounded-lg p-6 space-y-3">
+              <div className="bg-secondary/20 rounded-lg p-4 space-y-2">
                 <div className="text-center">
                   <h3 className="font-semibold text-lg mb-1">
                     Opção 1: Escaneie o QR Code
@@ -654,7 +654,7 @@ const PaymentMethodPage = () => {
                 </div>
               </div>
             ) : (
-              <div className="bg-secondary/20 rounded-lg p-6 space-y-3">
+              <div className="bg-secondary/20 rounded-lg p-4 space-y-2">
                 <div className="text-center text-muted-foreground">
                   <p className="text-sm">QR Code não disponível. Use o código copia e cola abaixo.</p>
                 </div>
@@ -663,7 +663,7 @@ const PaymentMethodPage = () => {
 
             {/* Código Copia e Cola Section - renderiza apenas se disponível */}
             {pixPaymentData?.qr_code_text ? (
-              <div className="bg-secondary/20 rounded-lg p-6 space-y-3">
+              <div className="bg-secondary/20 rounded-lg p-4 space-y-2">
                 <div className="text-center">
                   <h3 className="font-semibold text-lg mb-1">
                     Opção 2: Código Copia e Cola
@@ -692,7 +692,7 @@ const PaymentMethodPage = () => {
                 </div>
               </div>
             ) : (
-              <div className="bg-secondary/20 rounded-lg p-6 space-y-3">
+              <div className="bg-secondary/20 rounded-lg p-4 space-y-2">
                 <div className="text-center text-muted-foreground">
                   <p className="text-sm">Código PIX não disponível no momento.</p>
                 </div>
@@ -700,7 +700,7 @@ const PaymentMethodPage = () => {
             )}
 
             {/* Informações do pagamento */}
-            <div className="bg-secondary/30 rounded-lg p-4 space-y-2">
+            <div className="bg-secondary/30 rounded-lg p-3 space-y-1.5">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Valor:</span>
                 <span className="font-semibold">
@@ -716,7 +716,7 @@ const PaymentMethodPage = () => {
             </div>
 
             {/* Instruções de pagamento */}
-            <div className="bg-primary/5 rounded-lg p-4">
+            <div className="bg-primary/5 rounded-lg p-3">
               <h3 className="font-semibold mb-3 flex items-center gap-2">
                 <Info className="w-4 h-4 text-primary" />
                 Como pagar:
