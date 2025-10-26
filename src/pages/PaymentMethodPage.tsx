@@ -626,37 +626,54 @@ const PaymentMethodPage = () => {
           </DialogHeader>
 
           <div className="space-y-6 py-4">
-            {/* QR Code */}
+            {/* QR Code Section */}
             {pixPaymentData?.qr_code_base64 && (
-              <div className="flex justify-center">
-                <img
-                  src={`data:image/png;base64,${pixPaymentData.qr_code_base64}`}
-                  alt="QR Code PIX"
-                  className="w-64 h-64 border-2 border-primary/20 rounded-lg p-2"
-                />
+              <div className="bg-secondary/20 rounded-lg p-6 space-y-3">
+                <div className="text-center">
+                  <h3 className="font-semibold text-lg mb-1">
+                    Opção 1: Escaneie o QR Code
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    Use a câmera do seu banco para escanear
+                  </p>
+                </div>
+                <div className="flex justify-center">
+                  <img
+                    src={`data:image/png;base64,${pixPaymentData.qr_code_base64}`}
+                    alt="QR Code PIX"
+                    className="w-64 h-64 border-2 border-primary/20 rounded-lg p-2 bg-white"
+                  />
+                </div>
               </div>
             )}
 
-            {/* Código PIX para copiar */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-muted-foreground">
-                Código PIX (Copia e Cola):
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  readOnly
-                  value={pixPaymentData?.qr_code_text || ""}
-                  className="flex-1 px-3 py-2 border rounded-md text-sm bg-secondary/50"
-                />
-                <Button
-                  onClick={copyPixCode}
-                  size="sm"
-                  style={{ backgroundColor: "#D4AF37" }}
-                  className="text-white"
-                >
-                  Copiar
-                </Button>
+            {/* Código Copia e Cola Section */}
+            <div className="bg-secondary/20 rounded-lg p-6 space-y-3">
+              <div className="text-center">
+                <h3 className="font-semibold text-lg mb-1">
+                  Opção 2: Código Copia e Cola
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Copie e cole no seu aplicativo do banco
+                </p>
+              </div>
+              <div className="space-y-2">
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    readOnly
+                    value={pixPaymentData?.qr_code_text || ""}
+                    className="flex-1 px-3 py-2 border rounded-md text-sm bg-white font-mono"
+                  />
+                  <Button
+                    onClick={copyPixCode}
+                    size="sm"
+                    style={{ backgroundColor: "#D4AF37" }}
+                    className="text-white px-6"
+                  >
+                    Copiar
+                  </Button>
+                </div>
               </div>
             </div>
 
