@@ -626,8 +626,8 @@ const PaymentMethodPage = () => {
           </DialogHeader>
 
           <div className="space-y-6 py-4">
-            {/* QR Code Section */}
-            {pixPaymentData?.qr_code_base64 && (
+            {/* QR Code Section - renderiza apenas se disponível */}
+            {pixPaymentData?.qr_code_base64 ? (
               <div className="bg-secondary/20 rounded-lg p-6 space-y-3">
                 <div className="text-center">
                   <h3 className="font-semibold text-lg mb-1">
@@ -642,40 +642,62 @@ const PaymentMethodPage = () => {
                     src={`data:image/png;base64,${pixPaymentData.qr_code_base64}`}
                     alt="QR Code PIX"
                     className="w-64 h-64 border-2 border-primary/20 rounded-lg p-2 bg-white"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                      toast({
+                        title: "Erro ao carregar QR Code",
+                        description: "Use o código copia e cola abaixo",
+                        variant: "destructive",
+                      });
+                    }}
                   />
+                </div>
+              </div>
+            ) : (
+              <div className="bg-secondary/20 rounded-lg p-6 space-y-3">
+                <div className="text-center text-muted-foreground">
+                  <p className="text-sm">QR Code não disponível. Use o código copia e cola abaixo.</p>
                 </div>
               </div>
             )}
 
-            {/* Código Copia e Cola Section */}
-            <div className="bg-secondary/20 rounded-lg p-6 space-y-3">
-              <div className="text-center">
-                <h3 className="font-semibold text-lg mb-1">
-                  Opção 2: Código Copia e Cola
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  Copie e cole no seu aplicativo do banco
-                </p>
-              </div>
-              <div className="space-y-2">
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    readOnly
-                    value={pixPaymentData?.qr_code_text || ""}
-                    className="flex-1 px-3 py-2 border rounded-md text-sm bg-white font-mono"
-                  />
-                  <Button
-                    onClick={copyPixCode}
-                    size="sm"
-                    style={{ backgroundColor: "#D4AF37" }}
-                    className="text-white px-6"
-                  >
-                    Copiar
-                  </Button>
+            {/* Código Copia e Cola Section - renderiza apenas se disponível */}
+            {pixPaymentData?.qr_code_text ? (
+              <div className="bg-secondary/20 rounded-lg p-6 space-y-3">
+                <div className="text-center">
+                  <h3 className="font-semibold text-lg mb-1">
+                    Opção 2: Código Copia e Cola
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    Copie e cole no seu aplicativo do banco
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      readOnly
+                      value={pixPaymentData.qr_code_text}
+                      className="flex-1 px-3 py-2 border rounded-md text-sm bg-white font-mono"
+                    />
+                    <Button
+                      onClick={copyPixCode}
+                      size="sm"
+                      style={{ backgroundColor: "#D4AF37" }}
+                      className="text-white px-6"
+                    >
+                      Copiar
+                    </Button>
+                  </div>
                 </div>
               </div>
-            </div>
+            ) : (
+              <div className="bg-secondary/20 rounded-lg p-6 space-y-3">
+                <div className="text-center text-muted-foreground">
+                  <p className="text-sm">Código PIX não disponível no momento.</p>
+                </div>
+              </div>
+            )}
 
             {/* Informações do pagamento */}
             <div className="bg-secondary/30 rounded-lg p-4 space-y-2">
