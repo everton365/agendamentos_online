@@ -814,7 +814,6 @@ const ProfilePage = () => {
                                     min={new Date().toISOString().split("T")[0]}
                                   />
                                 </div>
-
                                 <Label>Novo horário</Label>
                                 <div>
                                   {processedSlots.map((slot) => {
