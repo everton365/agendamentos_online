@@ -117,7 +117,6 @@ const ProfilePage = () => {
     )
       .then((res) => res.json())
       .then((data) => {
-        console.log("📅 Resposta da API bloqueada:", data);
         setBlockedDate(data);
       })
       .catch((err) => console.error(err));
@@ -391,13 +390,14 @@ const ProfilePage = () => {
     durationMinutes: number,
     slots: Slot[],
     rescheduleDate?: string,
+
     blockedHours?: string[],
     date?: string
   ): boolean => {
     const [sh, sm] = startTime.split(":").map(Number);
     const start = sh * 60 + sm;
     const end = start + durationMinutes;
-    console.log(date);
+
     const sortedSlots = slots
       .map((s) => {
         const [h, m] = s.time.split(":").map(Number);
@@ -415,15 +415,15 @@ const ProfilePage = () => {
       );
       return false;
     }
+
     if (date) {
       const [year, month, day] = date.split("-").map(Number);
       const d = new Date(year, month - 1, day);
       const dayOfWeek = d.getDay(); // 0=Dom, 1=Seg, 2=Ter, ...
 
       if (dayOfWeek === 1) {
-        // segunda-feira
         console.log(
-          `⛔ Slot ${startTime}: bloqueado (nenhum horário permitido na segunda-feira)`
+          `⛔6 Slot ${startTime}: bloqueado (nenhum horário permitido na segunda-feira)`
         );
         return false;
       }
@@ -515,6 +515,10 @@ const ProfilePage = () => {
     const selectedDate = new Date(year, month - 1, day);
     const dayOfWeek = selectedDate.getDay();
     const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+    // Garante que rescheduleDate esteja no formato YYYY-MM-DD
+    const normalizedDate = new Date(rescheduleDate || new Date())
+      .toISOString()
+      .split("T")[0];
 
     // pega as horas bloqueadas se existirem
     const blockedHours: string[] =
@@ -528,7 +532,8 @@ const ProfilePage = () => {
         durationMinutes,
         availableTimes,
         rescheduleDate,
-        blockedHours
+        blockedHours,
+        normalizedDate
       );
 
       const [h, m] = slot.time.split(":").map(Number);
@@ -859,7 +864,7 @@ const ProfilePage = () => {
                                               : slot.displayStatus ===
                                                 "CONFIRMED"
                                               ? "Ocupado"
-                                              : "Bloqueado"}
+                                              : "Ocupado"}
                                           </div>
                                         </div>
                                       </button>
