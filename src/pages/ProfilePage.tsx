@@ -117,6 +117,7 @@ const ProfilePage = () => {
     )
       .then((res) => res.json())
       .then((data) => {
+        console.log("📅 Resposta da API bloqueada:", data);
         setBlockedDate(data);
       })
       .catch((err) => console.error(err));
@@ -280,7 +281,9 @@ const ProfilePage = () => {
 
   const getTimeSlotsForDate = async (date: string) => {
     try {
-      const res = await fetch(`${baseURL}/user/appointments/status/${date}`);
+      const res = await fetch(
+        `${baseURL}/user/appointments/status/${date}?studioId=${studioId}`
+      );
       if (!res.ok) throw new Error("Erro ao buscar horários");
       const data = await res.json();
       if (!data.schedule) return [];
@@ -387,6 +390,8 @@ const ProfilePage = () => {
     startTime: string,
     durationMinutes: number,
     slots: Slot[],
+    rescheduleDate?: string,
+    blockedHours?: string[],
     date?: string
   ): boolean => {
     const [sh, sm] = startTime.split(":").map(Number);
@@ -423,7 +428,8 @@ const ProfilePage = () => {
         return false;
       }
 
-      if (dayOfWeek === 2) {
+      {
+        /*if (dayOfWeek === 2) {
         // terça-feira
         const limiteFim = 14 * 60 + 30; // 14:30
         if (end > limiteFim) {
@@ -432,11 +438,18 @@ const ProfilePage = () => {
           );
           return false;
         }
+      }*/
       }
     }
-    if (startTime === "18:30") {
-      console.log(`⛔ Slot ${startTime}: bloqueado → não é permitido`);
-      return false;
+
+    if (blockedHours?.includes("18:30")) {
+      const limit1830 = 18 * 60 + 30;
+      if (end > limit1830) {
+        console.log(
+          `⛔3 Slot ${startTime}: bloqueado → duração ultrapassa 18:30 (bloqueado na data)`
+        );
+        return false;
+      }
     }
 
     const limit = 18 * 60 + 40; // 18h30 em minutos
@@ -514,7 +527,8 @@ const ProfilePage = () => {
         slot.time,
         durationMinutes,
         availableTimes,
-        rescheduleDate
+        rescheduleDate,
+        blockedHours
       );
 
       const [h, m] = slot.time.split(":").map(Number);
