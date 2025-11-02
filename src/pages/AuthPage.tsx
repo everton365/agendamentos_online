@@ -447,7 +447,7 @@ const AuthPage = () => {
                       onChange={(e) =>
                         setSignUpData({ ...signUpData, phone: e.target.value })
                       }
-                      placeholder="85999999999"
+                      placeholder="(XX) 9XXXX-XXXX"
                       required
                       title="Digite o número com DDD"
                     />
