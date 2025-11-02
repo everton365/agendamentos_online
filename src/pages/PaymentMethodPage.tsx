@@ -758,7 +758,7 @@ const PaymentMethodPage = () => {
           </div>
         </DialogContent>
       </Dialog>
-      <WhatsAppButton />
+      {/*  <WhatsAppButton />*/}
     </div>
   );
 };
