@@ -518,14 +518,27 @@ const AppointmentBookingPage = () => {
         return false;
       }
       // Bloqueia se próximo slot estiver confirmado
-      if (nextSlot.status === "CONFIRMED" && end > nextSlot.minutes) {
+      // Bloqueia se próximo slot estiver confirmado OU se horário estiver bloqueado
+      if (
+        (nextSlot.status === "CONFIRMED" && end > nextSlot.minutes) ||
+        (blockedHours &&
+          blockedHours.some((blocked) => {
+            const [bh, bm] = blocked.split(":").map(Number);
+            const blockedMinutes = bh * 60 + bm;
+            return start < blockedMinutes && end > blockedMinutes;
+          }))
+      ) {
         console.log(
-          `⛔ Slot ${startTime}: próximo slot ${String(
-            Math.floor(nextSlot.minutes / 60)
-          ).padStart(2, "0")}:${String(nextSlot.minutes % 60).padStart(
-            2,
-            "0"
-          )} está CONFIRMED e a duração ultrapassa`
+          `⛔ Slot ${startTime}: bloqueado → ${
+            nextSlot.status === "CONFIRMED" && end > nextSlot.minutes
+              ? `próximo slot ${String(
+                  Math.floor(nextSlot.minutes / 60)
+                ).padStart(2, "0")}:${String(nextSlot.minutes % 60).padStart(
+                  2,
+                  "0"
+                )} está CONFIRMED e a duração ultrapassa`
+              : `ultrapassa horário bloqueado`
+          }`
         );
         return false;
       }
