@@ -5,15 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
-
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import {
   ArrowLeft,
   CreditCard,
@@ -67,13 +58,6 @@ const PaymentMethodPage = () => {
   const [userRole, setUserRole] = useState<string | null>(null);
   const [acceptedPolicy, setAcceptedPolicy] = useState(false);
   const [adjustedPrice, setAdjustedPrice] = useState(0);
-  const [showPixDialog, setShowPixDialog] = useState(false);
-  const [pixPaymentData, setPixPaymentData] = useState<{
-    payment_id: number;
-    qr_code_base64: string;
-    qr_code_text: string;
-    status: string;
-  } | null>(null);
   const studioId = import.meta.env.VITE_STUDIO_ID;
   // Redirect if no appointment data
   if (!appointmentData) {
@@ -319,7 +303,6 @@ const PaymentMethodPage = () => {
 
     setLoading(true);
     try {
-      // Aqui você envia os dados do usuário diretamente
       const response = await fetch(`${baseURL}/user/checkout`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -333,7 +316,7 @@ const PaymentMethodPage = () => {
               email: appointmentData.email,
               studioId: appointmentData.studio_id,
               first_name: appointmentData.name,
-              last_name: "", // ou você pode separar se tiver sobrenome
+              last_name: "",
             },
           ],
         }),
@@ -343,14 +326,17 @@ const PaymentMethodPage = () => {
 
       const data = await response.json();
 
-      setPixPaymentData(data);
-      setShowPixDialog(true);
       localStorage.removeItem("appointmentId");
       localStorage.removeItem("preferenceUrl");
 
+      // Redireciona para página de pagamento PIX
+      navigate("/pagamento-pix", {
+        state: { pixPaymentData: data },
+      });
+
       toast({
         title: "PIX gerado com sucesso!",
-        description: "Use o QR Code para efetuar o pagamento.",
+        description: "Redirecionando para o pagamento...",
       });
     } catch (error: any) {
       console.error("❌ Erro ao gerar PIX:", error);
@@ -364,15 +350,6 @@ const PaymentMethodPage = () => {
     }
   };
 
-  const copyPixCode = () => {
-    if (pixPaymentData?.qr_code_text) {
-      navigator.clipboard.writeText(pixPaymentData.qr_code_text);
-      toast({
-        title: "Copiado!",
-        description: "O código PIX foi copiado para a área de transferência.",
-      });
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gradient-hero">
@@ -606,158 +583,6 @@ const PaymentMethodPage = () => {
           </div>
         </div>
       </div>
-      {/* Modal PIX */}
-      <Dialog
-        open={showPixDialog}
-        onOpenChange={(open) => {
-          // evita fechar clicando fora
-          if (open) setShowPixDialog(true);
-        }}
-        modal={true} // importante: modo modal impede fechar fora/ESC
-      >
-        <DialogContent className="max-w-lg max-h-[90vh] mx-auto overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-cinzel text-center">
-              PIX - Pagamento Instantâneo
-            </DialogTitle>
-            <DialogDescription className="text-center">
-              Escaneie o QR Code ou copie o código para efetuar o pagamento
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-3 py-2">
-            {/* QR Code Section - renderiza apenas se disponível */}
-            {pixPaymentData?.qr_code_base64 ? (
-              <div className="bg-secondary/20 rounded-lg p-4 space-y-2">
-                <div className="text-center">
-                  <h3 className="font-semibold text-lg mb-1">
-                    Opção 1: Escaneie o QR Code
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    Use a câmera do seu banco para escanear
-                  </p>
-                </div>
-                <div className="flex justify-center">
-                  <img
-                    src={`data:image/png;base64,${pixPaymentData.qr_code_base64}`}
-                    alt="QR Code PIX"
-                    className="w-64 h-64 border-2 border-primary/20 rounded-lg p-2 bg-white"
-                    onError={(e) => {
-                      e.currentTarget.style.display = "none";
-                      toast({
-                        title: "Erro ao carregar QR Code",
-                        description: "Use o código copia e cola abaixo",
-                        variant: "destructive",
-                      });
-                    }}
-                  />
-                </div>
-              </div>
-            ) : (
-              <div className="bg-secondary/20 rounded-lg p-4 space-y-2">
-                <div className="text-center text-muted-foreground">
-                  <p className="text-sm">
-                    QR Code não disponível. Use o código copia e cola abaixo.
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {/* Código Copia e Cola Section - renderiza apenas se disponível */}
-            {pixPaymentData?.qr_code_text ? (
-              <div className="bg-secondary/20 rounded-lg p-4 space-y-2">
-                <div className="text-center">
-                  <h3 className="font-semibold text-lg mb-1">
-                    Opção 2: Código Copia e Cola
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    Copie e cole no seu aplicativo do banco
-                  </p>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      readOnly
-                      value={pixPaymentData.qr_code_text}
-                      className="flex-1 px-3 py-2 border rounded-md text-sm bg-white font-mono"
-                    />
-                    <Button
-                      onClick={copyPixCode}
-                      size="sm"
-                      style={{ backgroundColor: "#D4AF37" }}
-                      className="text-white px-6"
-                    >
-                      Copiar
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="bg-secondary/20 rounded-lg p-4 space-y-2">
-                <div className="text-center text-muted-foreground">
-                  <p className="text-sm">
-                    Código PIX não disponível no momento.
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {/* Informações do pagamento */}
-            <div className="bg-secondary/30 rounded-lg p-3 space-y-1.5">
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Valor:</span>
-                <span className="font-semibold">
-                  {formatPrice(adjustedPrice)}
-                </span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Status:</span>
-                <span className="font-semibold capitalize">
-                  {pixPaymentData?.status}
-                </span>
-              </div>
-            </div>
-
-            {/* Instruções de pagamento*/}
-            <div className="bg-primary/5 rounded-lg p-3">
-              <h3 className="font-semibold mb-3 flex items-center gap-2">
-                <Info className="w-4 h-4 text-primary" />
-                Como pagar:
-              </h3>
-              <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground">
-                <li>Abra o aplicativo do seu banco ou carteira digital</li>
-                <li>Escolha a opção "PIX" ou "Ler QR Code"</li>
-                <li>Escaneie o QR Code acima ou cole o código copiado</li>
-                <li>Confirme os dados e finalize o pagamento</li>
-                <li>O pagamento é processado instantaneamente</li>
-              </ol>
-            </div>
-
-            {/* Botões de ação */}
-            <div className="flex gap-3">
-              <Button
-                onClick={() => {
-                  setShowPixDialog(false);
-                  navigate("/perfil");
-                }}
-                className="flex-1"
-                style={{ backgroundColor: "#D4AF37" }}
-              >
-                <CheckCircle className="w-4 h-4 mr-2" />
-                Perfil
-              </Button>
-              <Button
-                onClick={() => setShowPixDialog(false)}
-                variant="outline"
-                className="flex-1"
-              >
-                Fechar
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
       {/*  <WhatsAppButton />*/}
     </div>
   );

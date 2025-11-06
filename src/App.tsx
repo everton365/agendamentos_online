@@ -8,7 +8,7 @@ import Index from "./pages/Index";
 import AuthPage from "./pages/AuthPage";
 import AppointmentBookingPage from "./pages/AppointmentBookingPage";
 import PaymentMethodPage from "./pages/PaymentMethodPage";
-
+import PixPaymentPage from "./pages/PixPaymentPage";
 import PaymentConfirmationPage from "./pages/PaymentConfirmationPage";
 import ProfilePage from "./pages/ProfilePage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
@@ -30,6 +30,7 @@ const App = () => (
             <Route path="/perfil" element={<ProfilePage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="/pagamento" element={<PaymentMethodPage />} />
+            <Route path="/pagamento-pix" element={<PixPaymentPage />} />
             <Route
               path="/agendamento-confirmado"
               element={<PaymentConfirmationPage />}
