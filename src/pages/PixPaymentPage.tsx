@@ -2,7 +2,14 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Copy, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
+import {
+  ArrowLeft,
+  Copy,
+  CheckCircle2,
+  AlertCircle,
+  Loader2,
+  Info,
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 
@@ -30,13 +37,15 @@ const PixPaymentPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
-  
+
   const appointmentId = location.state?.appointmentId;
   const appointmentData = location.state?.appointmentData as AppointmentData;
   const adjustedPrice = location.state?.adjustedPrice;
   const baseURL = location.state?.baseURL;
 
-  const [pixPaymentData, setPixPaymentData] = useState<PixPaymentData | null>(null);
+  const [pixPaymentData, setPixPaymentData] = useState<PixPaymentData | null>(
+    null
+  );
   const [qrCodeError, setQrCodeError] = useState(false);
   const [qrCodeLoading, setQrCodeLoading] = useState(true);
   const [loading, setLoading] = useState(true);
@@ -154,8 +163,7 @@ const PixPaymentPage = () => {
 
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-foreground mb-2">
-              Pagamento via{" "}
-              <span className="text-primary">PIX</span>
+              Pagamento via <span className="text-primary">PIX</span>
             </h1>
             <p className="text-muted-foreground">
               Escaneie o QR Code ou use o código copia e cola
@@ -238,11 +246,7 @@ const PixPaymentPage = () => {
                         </code>
                       </div>
                     </div>
-                    <Button
-                      onClick={copyPixCode}
-                      className="w-full"
-                      size="lg"
-                    >
+                    <Button onClick={copyPixCode} className="w-full" size="lg">
                       <Copy className="w-4 h-4 mr-2" />
                       Copiar código PIX
                     </Button>
@@ -266,16 +270,18 @@ const PixPaymentPage = () => {
             {/* Instructions */}
             <Card className="bg-primary/5 border-primary/20">
               <CardContent className="pt-4">
-                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                  <div className="space-y-2 text-sm">
-                    <p className="font-medium">Após realizar o pagamento:</p>
-                    <ul className="space-y-1 text-muted-foreground">
-                      <li>• Você receberá uma confirmação por e-mail</li>
-                      <li>• Seu agendamento será confirmado automaticamente</li>
-                      <li>• Pode levar alguns minutos para processar</li>
-                    </ul>
-                  </div>
+                <div className="bg-primary/5 rounded-lg p-3">
+                  <h3 className="font-semibold mb-3 flex items-center gap-2">
+                    <Info className="w-4 h-4 text-primary" />
+                    Como pagar:
+                  </h3>
+                  <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground">
+                    <li>Abra o aplicativo do seu banco ou carteira digital</li>
+                    <li>Escolha a opção "PIX" ou "Ler QR Code"</li>
+                    <li>Escaneie o QR Code acima ou cole o código copiado</li>
+                    <li>Confirme os dados e finalize o pagamento</li>
+                    <li>O pagamento é processado instantaneamente</li>
+                  </ol>
                 </div>
               </CardContent>
             </Card>
