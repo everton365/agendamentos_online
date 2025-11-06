@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Copy, CheckCircle2, AlertCircle } from "lucide-react";
+import { ArrowLeft, Copy, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 
@@ -13,20 +13,94 @@ interface PixPaymentData {
   status: string;
 }
 
+interface AppointmentData {
+  name: string;
+  phone: string;
+  email: string;
+  service: string;
+  price: string;
+  date: string;
+  time: string;
+  studio_id: string;
+  duration: string;
+  message?: string;
+}
+
 const PixPaymentPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const pixPaymentData = location.state?.pixPaymentData as PixPaymentData;
+  
+  const appointmentId = location.state?.appointmentId;
+  const appointmentData = location.state?.appointmentData as AppointmentData;
+  const adjustedPrice = location.state?.adjustedPrice;
+  const baseURL = location.state?.baseURL;
 
+  const [pixPaymentData, setPixPaymentData] = useState<PixPaymentData | null>(null);
   const [qrCodeError, setQrCodeError] = useState(false);
   const [qrCodeLoading, setQrCodeLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!pixPaymentData) {
+    if (!appointmentId || !appointmentData || !baseURL) {
+      toast({
+        title: "Erro",
+        description: "Dados do agendamento não encontrados",
+        variant: "destructive",
+      });
       navigate("/pagamento");
+      return;
     }
-  }, [pixPaymentData, navigate]);
+
+    const fetchPixPayment = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch(`${baseURL}/user/checkout`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            items: [
+              {
+                id: appointmentId,
+                title: "Taxa de agendamento",
+                quantity: 1,
+                unit_price: adjustedPrice,
+                email: appointmentData.email,
+                studioId: appointmentData.studio_id,
+                first_name: appointmentData.name,
+                last_name: "",
+              },
+            ],
+          }),
+        });
+
+        if (!response.ok) throw new Error("Erro ao gerar PIX");
+
+        const data = await response.json();
+        setPixPaymentData(data);
+
+        localStorage.removeItem("appointmentId");
+        localStorage.removeItem("preferenceUrl");
+
+        toast({
+          title: "PIX gerado com sucesso!",
+          description: "Use o QR Code ou código para pagar.",
+        });
+      } catch (error: any) {
+        console.error("❌ Erro ao gerar PIX:", error);
+        toast({
+          title: "Erro no pagamento",
+          description: error.message || "Tente novamente.",
+          variant: "destructive",
+        });
+        navigate("/pagamento");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPixPayment();
+  }, [appointmentId, appointmentData, adjustedPrice, baseURL, navigate, toast]);
 
   const copyPixCode = () => {
     if (pixPaymentData?.qr_code_text) {
@@ -37,6 +111,27 @@ const PixPaymentPage = () => {
       });
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-hero">
+        <Header />
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-2xl mx-auto">
+            <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
+              <Loader2 className="w-12 h-12 animate-spin text-primary" />
+              <h2 className="text-2xl font-semibold text-foreground">
+                Gerando pagamento PIX...
+              </h2>
+              <p className="text-muted-foreground text-center">
+                Aguarde enquanto processamos sua solicitação
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!pixPaymentData) {
     return null;

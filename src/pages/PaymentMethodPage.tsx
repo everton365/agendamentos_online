@@ -291,7 +291,7 @@ const PaymentMethodPage = () => {
     runFlow();
   }, [appointmentData, appointmentId, userRole]);
 
-  const handlePixPayment = async () => {
+  const handlePixPayment = () => {
     if (!appointmentId) {
       toast({
         title: "Erro",
@@ -301,53 +301,15 @@ const PaymentMethodPage = () => {
       return;
     }
 
-    setLoading(true);
-    try {
-      const response = await fetch(`${baseURL}/user/checkout`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          items: [
-            {
-              id: appointmentId,
-              title: "Taxa de agendamento",
-              quantity: 1,
-              unit_price: adjustedPrice,
-              email: appointmentData.email,
-              studioId: appointmentData.studio_id,
-              first_name: appointmentData.name,
-              last_name: "",
-            },
-          ],
-        }),
-      });
-
-      if (!response.ok) throw new Error("Erro ao gerar PIX");
-
-      const data = await response.json();
-
-      localStorage.removeItem("appointmentId");
-      localStorage.removeItem("preferenceUrl");
-
-      // Redireciona para página de pagamento PIX
-      navigate("/pagamento-pix", {
-        state: { pixPaymentData: data },
-      });
-
-      toast({
-        title: "PIX gerado com sucesso!",
-        description: "Redirecionando para o pagamento...",
-      });
-    } catch (error: any) {
-      console.error("❌ Erro ao gerar PIX:", error);
-      toast({
-        title: "Erro no pagamento",
-        description: error.message || "Tente novamente.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
+    // Redireciona imediatamente para evitar bloqueio em iPhones
+    navigate("/pagamento-pix", {
+      state: {
+        appointmentId,
+        appointmentData,
+        adjustedPrice,
+        baseURL,
+      },
+    });
   };
 
 
