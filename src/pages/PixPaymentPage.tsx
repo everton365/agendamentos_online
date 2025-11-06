@@ -184,6 +184,27 @@ const PixPaymentPage = () => {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Action Buttons */}
+            <div className="flex gap-3">
+              <Button
+                onClick={() => navigate("/perfil")}
+                size="lg"
+                className="flex-1"
+                style={{ backgroundColor: "#D4AF37" }}
+              >
+                <CheckCircle2 className="w-5 h-5 mr-2" />
+                Já Paguei
+              </Button>
+              <Button
+                onClick={() => navigate("/perfil")}
+                variant="outline"
+                size="lg"
+                className="flex-1"
+              >
+                Perfil
+              </Button>
+            </div>
           </div>
         </div>
       </div>
