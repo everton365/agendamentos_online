@@ -69,3 +69,6 @@ verify_jwt = false
 
 [functions.whatsapp-reminder]
 verify_jwt = false
+
+[functions.cleanup-cancelled-appointments]
+verify_jwt = false
