@@ -22,13 +22,14 @@ import { useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { FaWhatsapp } from "react-icons/fa";
 import WhatsAppButton from "../components/whatsappButton";
-
+import { useMergedServices } from "@/hooks/use-mergeServices";
 const AppointmentBookingPage = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const [selectedService, setSelectedService] = useState("");
   const { user } = useAuth();
   const navigate = useNavigate();
+
   const { toast } = useToast();
   const [userRole, setUserRole] = useState<string | null>(null);
   const [emailValid, setEmailValid] = useState(true);
@@ -75,7 +76,7 @@ const AppointmentBookingPage = () => {
   const [blockedDate, setBlockedDate] = useState<BlockedDateResponse | null>(
     null
   );
-
+  const { services: mergedServices, loading } = useMergedServices();
   const toggleService = (value: string) => {
     setOpenService(openService === value ? null : value);
   };
@@ -102,19 +103,28 @@ const AppointmentBookingPage = () => {
 
   useEffect(() => {
     const service = queryParams.get("service");
+    const price = queryParams.get("price");
+    const duration = queryParams.get("duration");
 
     if (service) {
-      const selected = serviceOptions.find((s) => s.value === service);
-      if (selected) {
-        setSelectedServices([
-          {
-            value: selected.value,
-            label: selected.label,
-            price: selected.price,
-            duration: selected.duration,
-          },
-        ]);
-      }
+      // Normaliza o preço vindo da URL
+      const numericPrice = price
+        ? parseFloat(
+            price
+              .replace(/[^\d,.-]/g, "") // remove tudo que não for número, vírgula, ponto ou traço
+              .replace(/\./g, "") // remove pontos de milhar
+              .replace(",", ".") // troca vírgula por ponto para parseFloat entender
+          )
+        : 0;
+
+      setSelectedServices([
+        {
+          value: service,
+          label: decodeURIComponent(service),
+          price: `R$ ${numericPrice.toFixed(2).replace(".", ",")}`,
+          duration: duration ? decodeURIComponent(duration) : "10 min",
+        },
+      ]);
     }
   }, [location.search]);
 
@@ -165,10 +175,11 @@ const AppointmentBookingPage = () => {
 
   const getTotalPrice = () => {
     return selectedServices.reduce((total, service) => {
+      const priceStr = service.price || "R$ 0";
       const priceValue = parseFloat(
-        service.price.replace("R$ ", "").replace(",", ".")
+        priceStr.replace("R$", "").replace(/\./g, "").replace(",", ".").trim()
       );
-      return total + priceValue;
+      return total + (isNaN(priceValue) ? 0 : priceValue);
     }, 0);
   };
 
@@ -789,7 +800,7 @@ const AppointmentBookingPage = () => {
                   <div className="space-y-2">
                     <Label>Serviços Desejados</Label>
                     <div className="space-y-2 max-h-64 overflow-y-auto border rounded-lg p-3">
-                      {serviceOptions.map((service) => {
+                      {mergedServices.map((service) => {
                         const isSelected = selectedServices.some(
                           (s) => s.value === service.value
                         );

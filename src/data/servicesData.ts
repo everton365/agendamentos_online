@@ -16,6 +16,7 @@ import {
 
 export const serviceOptions = [
   {
+    name: "Avaliação Prévia – Nano Fios Realistas",
     icon: EyeClosed,
     value: "Avaliação Prévia – Nano Fios Realistas",
     label: "Avaliação Prévia – Nano Fios Realistas",
@@ -26,6 +27,7 @@ export const serviceOptions = [
     image: "/lovable-uploads/image9.jpg",
   },
   {
+    name: "Nano fios realistas",
     icon: EyeClosed,
     value: "Nano fios realistas",
     label: "Nano fios realistas",
@@ -36,6 +38,7 @@ export const serviceOptions = [
     image: "/lovable-uploads/image9.jpg",
   },
   {
+    name: "Design de Sobrancelhas",
     icon: EyeClosed,
     value: "Design de Sobrancelhas",
     label: "Design de Sobrancelhas",
@@ -47,6 +50,7 @@ export const serviceOptions = [
   },
 
   {
+    name: "Design Sobrancelhas c/cor",
     icon: Brush,
     value: "Design Sobrancelhas c/cor",
     label: "Design Sobrancelhas c/cor",
@@ -57,6 +61,7 @@ export const serviceOptions = [
     image: "/lovable-uploads/image2.jpg",
   },
   {
+    name: "Brow Lamination",
     icon: Wand2,
     value: "Brow Lamination",
     label: "Brow Lamination",
@@ -67,6 +72,7 @@ export const serviceOptions = [
     image: "/lovable-uploads/image4.jpg",
   },
   {
+    name: "Brow Lamination c/cor",
     icon: Sparkles,
     value: "Brow Lamination c/cor",
     label: "Brow Lamination c/cor",
@@ -78,6 +84,7 @@ export const serviceOptions = [
   },
 
   {
+    name: "Labial Hidragloss",
     icon: Droplets,
     value: "Labial Hidragloss",
     label: "Labial Hidragloss",
@@ -88,6 +95,7 @@ export const serviceOptions = [
     image: "/lovable-uploads/image6.jpg",
   },
   {
+    name: "Regeneração Folicular",
     icon: Eye,
     value: "Regeneração Folicular",
     label: "Regeneração Folicular",
@@ -95,9 +103,10 @@ export const serviceOptions = [
     duration: "1h",
     description:
       "Terapia para o crescimento e fortalecimento das sobrancelhas. Sim, é possível recuperar os fios naturais, trazendo sobrancelhas cheias e com naturalidade. O tratamento combina ativos e tecnologia para estimular o folículo e regenerar o tecido. Através do microagulhamento, utilizamos ativos que penetram profundamente na derme, fortalecendo os fios. Sessão R$ 110,00 | Pacote 3 sessões R$ 300,00 | Pacote 5 sessões R$ 450,00.",
-    image: "/lovable-uploads/image8.jpg",
+    image: "/lovable-uploads/image.jpg",
   },
   {
+    name: "Lash Lifting",
     icon: Eye,
     value: "Lash Lifting",
     label: "Lash Lifting",
@@ -108,6 +117,7 @@ export const serviceOptions = [
     image: "/lovable-uploads/image7.jpg",
   },
   {
+    name: "Reconstrução Sobrancelhas",
     icon: EyeClosed,
     value: "Reconstrução Sobrancelhas",
     label: "Reconstrução Sobrancelhas",
@@ -118,6 +128,7 @@ export const serviceOptions = [
     image: "/lovable-uploads/image5.jpg",
   },
   {
+    name: "Depilação Coxa",
     icon: ScissorsSquare,
     value: "Depilação Coxa",
     label: "Depilação Coxa",
@@ -128,6 +139,7 @@ export const serviceOptions = [
     image: "/lovable-uploads/image11.jpg",
   },
   {
+    name: "Depilação Meia Perna",
     icon: ScissorsSquare,
     value: "Depilação Meia Perna",
     label: "Depilação Meia Perna",
@@ -138,6 +150,7 @@ export const serviceOptions = [
     image: "/lovable-uploads/image11.jpg",
   },
   {
+    name: "Depilação Perna Completa",
     icon: ScissorsSquare,
     value: "Depilação Perna Completa",
     label: "Depilação Perna Completa",
@@ -148,6 +161,7 @@ export const serviceOptions = [
     image: "/lovable-uploads/image11.jpg",
   },
   {
+    name: "Depilação axila",
     icon: ScissorsSquare,
     value: "Depilação Axila",
     label: "Depilação Axila",
@@ -158,6 +172,7 @@ export const serviceOptions = [
     image: "/lovable-uploads/image11.jpg",
   },
   {
+    name: "Depilação contorno Biquíni",
     icon: ScissorsSquare,
     value: "Depilação Contorno Biquíni",
     label: "Depilação Contorno Biquíni",
@@ -168,6 +183,7 @@ export const serviceOptions = [
     image: "/lovable-uploads/image11.jpg",
   },
   {
+    name: "Depilação Contorno Simples",
     icon: ScissorsSquare,
     value: "Depilação Contorno Simples",
     label: "Depilação Contorno Simples",
@@ -178,6 +194,7 @@ export const serviceOptions = [
     image: "/lovable-uploads/image11.jpg",
   },
   {
+    name: "Depilação Contorno Completo",
     icon: ScissorsSquare,
     value: "Depilação Contorno Completo",
     label: "Depilação Contorno Completo",
@@ -188,6 +205,7 @@ export const serviceOptions = [
     image: "/lovable-uploads/image11.jpg",
   },
   {
+    name: "Depilação Testa",
     icon: ScissorsSquare,
     value: "Depilação Testa",
     label: "Depilação Testa",
@@ -198,6 +216,7 @@ export const serviceOptions = [
     image: "/lovable-uploads/image11.jpg",
   },
   {
+    name: "Depilação Buço",
     icon: ScissorsSquare,
     value: "Depilação Buço",
     label: "Depilação Buço",
@@ -208,6 +227,7 @@ export const serviceOptions = [
     image: "/lovable-uploads/image11.jpg",
   },
   {
+    name: "Depilação Queixo",
     icon: ScissorsSquare,
     value: "Depilação Queixo",
     label: "Depilação Queixo",
@@ -218,6 +238,7 @@ export const serviceOptions = [
     image: "/lovable-uploads/image11.jpg",
   },
   {
+    name: "Depilação Costeletas",
     icon: ScissorsSquare,
     value: "Depilação Costeletas",
     label: "Depilação Costeletas",
@@ -228,6 +249,7 @@ export const serviceOptions = [
     image: "/lovable-uploads/image11.jpg",
   },
   {
+    name: "Depilação Rosto Completo",
     icon: ScissorsSquare,
     value: "Depilação Rosto Completo",
     label: "Depilação Rosto Completo",
@@ -238,6 +260,7 @@ export const serviceOptions = [
     image: "/lovable-uploads/image11.jpg",
   },
   {
+    name: "Depilação Bochechas",
     icon: ScissorsSquare,
     value: "Depilação Bochechas",
     label: "Depilação Bochechas",
