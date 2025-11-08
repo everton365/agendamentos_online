@@ -23,6 +23,8 @@ import { useLocation } from "react-router-dom";
 import { FaWhatsapp } from "react-icons/fa";
 import WhatsAppButton from "../components/whatsappButton";
 import { useMergedServices } from "@/hooks/use-mergeServices";
+import { useServices } from "@/hooks/use-services";
+
 const AppointmentBookingPage = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
@@ -76,7 +78,7 @@ const AppointmentBookingPage = () => {
   const [blockedDate, setBlockedDate] = useState<BlockedDateResponse | null>(
     null
   );
-  const { services: mergedServices, loading } = useMergedServices();
+  const { services: useService, loading } = useServices();
   const toggleService = (value: string) => {
     setOpenService(openService === value ? null : value);
   };
@@ -258,7 +260,7 @@ const AppointmentBookingPage = () => {
     }
   };
 
-  const handleServiceToggle = (service: (typeof serviceOptions)[0]) => {
+  const handleServiceToggle = (service: (typeof useService)[0]) => {
     const isSelected = selectedServices.some((s) => s.value === service.value);
 
     if (isSelected) {
@@ -271,13 +273,12 @@ const AppointmentBookingPage = () => {
         {
           value: service.value,
           label: service.label,
-          price: service.price,
+          price: String(service.price), // 👈 força string
           duration: service.duration,
         },
       ]);
     }
 
-    // Update time slots after service change
     updateTimeSlots();
   };
 
@@ -817,7 +818,7 @@ const AppointmentBookingPage = () => {
                   <div className="space-y-2">
                     <Label>Serviços Desejados</Label>
                     <div className="space-y-2 max-h-64 overflow-y-auto border rounded-lg p-3">
-                      {mergedServices.map((service) => {
+                      {useService.map((service) => {
                         const isSelected = selectedServices.some(
                           (s) => s.value === service.value
                         );

@@ -3,9 +3,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useMergedServices } from "@/hooks/use-mergeServices";
-
+import { useServices } from "@/hooks/use-services";
 const ServicesSection = () => {
-  const { services: mergedServices, loading } = useMergedServices();
+  const { services: mergedServices, loading } = useServices();
   const [showAll, setShowAll] = useState(false);
 
   if (loading) {

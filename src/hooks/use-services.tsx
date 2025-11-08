@@ -1,10 +1,16 @@
+import { de } from "date-fns/locale";
 import { useState, useEffect } from "react";
 
 interface Service {
   id: string;
+  label: string;
+  value: string;
   name: string;
-  price: number;
+  price: number | string;
+  image?: string | null;
+  duration?: string | null;
   link_service?: string | null;
+  description?: string | null;
 }
 
 export const useServices = () => {
@@ -36,8 +42,18 @@ export const useServices = () => {
         const formattedData: Service[] = data.map((item: any) => ({
           id: String(item.id),
           name: item.name,
-          price: Number(item.price ?? 0),
+          image: item.link_service || null,
+          duration: item.duration || null,
+          label: item.name,
+          value: item.name,
+          price: item.price
+            ? Number(item.price).toLocaleString("pt-BR", {
+                style: "currency",
+                currency: "BRL",
+              })
+            : "R$ 0,00",
           link_service: item.link_service || null,
+          description: item.description || null,
         }));
 
         setServices(formattedData);
