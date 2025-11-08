@@ -457,6 +457,23 @@ const AppointmentBookingPage = () => {
         );
         return false;
       }
+      // 🔒 Bloqueia todos os slots que estejam dentro de uma hora bloqueada
+      if (blockedHours && blockedHours.length > 0) {
+        const [slotHour] = startTime.split(":").map(Number);
+
+        // verifica se a hora do slot coincide com alguma hora bloqueada
+        const isBlockedHour = blockedHours.some((blocked) => {
+          const [bh] = blocked.split(":").map(Number);
+          return bh === slotHour;
+        });
+
+        if (isBlockedHour) {
+          console.log(
+            `⛔ Slot ${startTime}: bloqueado (hora ${slotHour}:00 bloqueada)`
+          );
+          return false;
+        }
+      }
     }
     /* if (startTime === "18:30") {
       console.log(`⛔ Slot ${startTime}: bloqueado → não é permitido`);
