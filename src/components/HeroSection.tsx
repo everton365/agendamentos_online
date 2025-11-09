@@ -1,12 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useStudio } from "@/contexts/StudioContext";
 import capaDesktop from "../assets/estudio3.jpg";
 import { useNavigate } from "react-router-dom";
 import { Calendar, Star } from "lucide-react";
 
 const HeroSection = () => {
   const { user } = useAuth();
+  const { studio, loading } = useStudio();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -23,7 +25,7 @@ const HeroSection = () => {
     <section className="relative w-full max-w-[1350px] mx-auto h-screen  overflow-hidden flex items-center justify-center">
       {/* Imagem de fundo */}
       <img
-        src={capaDesktop}
+        src={studio?.foto_capa || capaDesktop}
         alt="Capa Desktop"
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-40 w-auto h-[100dvh] max-w-full object-contain md:w-[120%] md:h-[120%] md:object-cover"
       />
@@ -42,7 +44,7 @@ const HeroSection = () => {
               }}
               aria-hidden="true"
             >
-              Lariza Freitas
+              {loading ? "Carregando..." : studio?.nome_studio || "Lariza Freitas"}
             </span>
 
             {/* Camada visível com gradiente */}
@@ -53,7 +55,7 @@ const HeroSection = () => {
                 backgroundSize: "100% 100%",
               }}
             >
-              Lariza Freitas
+              {loading ? "Carregando..." : studio?.nome_studio || "Lariza Freitas"}
             </span>
           </h1>
 

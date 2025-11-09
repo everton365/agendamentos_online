@@ -15,6 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Calendar, Clock, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { useStudio } from "@/contexts/StudioContext";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import { serviceOptions } from "@/data/servicesData";
@@ -30,6 +31,7 @@ const AppointmentBookingPage = () => {
   const queryParams = new URLSearchParams(location.search);
   const [selectedService, setSelectedService] = useState("");
   const { user } = useAuth();
+  const { studio } = useStudio();
   const navigate = useNavigate();
 
   const { toast } = useToast();
@@ -729,34 +731,75 @@ const AppointmentBookingPage = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span>Segunda-feira:</span>
-                      <span className="font-medium">Fechado</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Terça-feira:</span>
-                      <span className="font-medium">9h às 18:30</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Quarta-feira:</span>
-                      <span className="font-medium">9h às 17h</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span> Quinta-feira:</span>
-                      <span className="font-medium">9 às 18:30</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Sexta-feira:</span>
-                      <span className="font-medium"> 9h às 18:30</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Sábado:</span>
-                      <span className="font-medium">Fechado</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Domingo:</span>
-                      <span className="font-medium">Fechado</span>
-                    </div>
+                    {studio?.horario_funcionamento ? (
+                      <>
+                        <div className="flex justify-between">
+                          <span>Segunda-feira:</span>
+                          <span className="font-medium">
+                            {studio.horario_funcionamento.segunda.abertura &&
+                            studio.horario_funcionamento.segunda.fechamento
+                              ? `${studio.horario_funcionamento.segunda.abertura} às ${studio.horario_funcionamento.segunda.fechamento}`
+                              : "Fechado"}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Terça-feira:</span>
+                          <span className="font-medium">
+                            {studio.horario_funcionamento.terca.abertura &&
+                            studio.horario_funcionamento.terca.fechamento
+                              ? `${studio.horario_funcionamento.terca.abertura} às ${studio.horario_funcionamento.terca.fechamento}`
+                              : "Fechado"}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Quarta-feira:</span>
+                          <span className="font-medium">
+                            {studio.horario_funcionamento.quarta.abertura &&
+                            studio.horario_funcionamento.quarta.fechamento
+                              ? `${studio.horario_funcionamento.quarta.abertura} às ${studio.horario_funcionamento.quarta.fechamento}`
+                              : "Fechado"}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Quinta-feira:</span>
+                          <span className="font-medium">
+                            {studio.horario_funcionamento.quinta.abertura &&
+                            studio.horario_funcionamento.quinta.fechamento
+                              ? `${studio.horario_funcionamento.quinta.abertura} às ${studio.horario_funcionamento.quinta.fechamento}`
+                              : "Fechado"}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Sexta-feira:</span>
+                          <span className="font-medium">
+                            {studio.horario_funcionamento.sexta.abertura &&
+                            studio.horario_funcionamento.sexta.fechamento
+                              ? `${studio.horario_funcionamento.sexta.abertura} às ${studio.horario_funcionamento.sexta.fechamento}`
+                              : "Fechado"}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Sábado:</span>
+                          <span className="font-medium">
+                            {studio.horario_funcionamento.sabado.abertura &&
+                            studio.horario_funcionamento.sabado.fechamento
+                              ? `${studio.horario_funcionamento.sabado.abertura} às ${studio.horario_funcionamento.sabado.fechamento}`
+                              : "Fechado"}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Domingo:</span>
+                          <span className="font-medium">
+                            {studio.horario_funcionamento.domingo.abertura &&
+                            studio.horario_funcionamento.domingo.fechamento
+                              ? `${studio.horario_funcionamento.domingo.abertura} às ${studio.horario_funcionamento.domingo.fechamento}`
+                              : "Fechado"}
+                          </span>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="text-muted-foreground">Carregando horários...</div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
