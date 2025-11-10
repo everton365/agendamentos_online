@@ -225,15 +225,28 @@ const AppointmentBookingPage = () => {
 
       if (!data.schedule) return [];
 
-      // Apenas formata cada slot, mantendo o status do banco (com ajuste de cancelled → available)
+      // Formata cada slot, mantendo o status do banco (com ajuste de cancelled → available)
       const slotsWithStatus = data.schedule.map(
-        (slot: { time: string; status: string; duration?: string }) => ({
-          time: slot.time.slice(0, 5), // só hora e minuto
-          status:
-            slot.status.toLowerCase() === "cancelled"
-              ? "available"
-              : slot.status,
-        })
+        (slot: { time: string; status: string; duration?: string }) => {
+          let status = slot.status.toLowerCase() === "cancelled"
+            ? "available"
+            : slot.status;
+
+          // Verifica se este horário está no carrinho
+          const isInCart = appointments.some(
+            (apt) => apt.date === date && apt.time === slot.time.slice(0, 5)
+          );
+
+          // Se está no carrinho, marca como CONFIRMED
+          if (isInCart) {
+            status = "CONFIRMED";
+          }
+
+          return {
+            time: slot.time.slice(0, 5), // só hora e minuto
+            status,
+          };
+        }
       );
 
       return slotsWithStatus;
@@ -288,7 +301,7 @@ const AppointmentBookingPage = () => {
 
   useEffect(() => {
     updateTimeSlots();
-  }, [selectedServices]);
+  }, [selectedServices, appointments]);
 
   const handleAddToCart = async (e: React.FormEvent) => {
     e.preventDefault();
