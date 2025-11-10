@@ -12,10 +12,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Calendar, Clock, ArrowLeft } from "lucide-react";
+import { Calendar, Clock, ArrowLeft, ShoppingCart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { useStudio } from "@/contexts/StudioContext";
+import { useCart } from "@/contexts/CartContext";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import { serviceOptions } from "@/data/servicesData";
@@ -32,6 +33,7 @@ const AppointmentBookingPage = () => {
   const [selectedService, setSelectedService] = useState("");
   const { user } = useAuth();
   const { studio } = useStudio();
+  const { appointments, addAppointment, getTotalBookingFee } = useCart();
   const navigate = useNavigate();
 
   const { toast } = useToast();
@@ -288,7 +290,7 @@ const AppointmentBookingPage = () => {
     updateTimeSlots();
   }, [selectedServices]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleAddToCart = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (
@@ -308,7 +310,7 @@ const AppointmentBookingPage = () => {
     }
 
     try {
-      // Check availability one more time before navigating
+      // Check availability one more time
       const totalDuration = getTotalDuration();
       const slots = await getTimeSlotsForDate(formData.date, totalDuration);
       const selectedSlot = slots.find((slot) => slot.time === formData.time);
@@ -321,51 +323,77 @@ const AppointmentBookingPage = () => {
         });
         return;
       }
-      const formatPhoneForDB = (phone: string) => {
-        // Remove tudo que não for número
-        let digits = phone.replace(/\D/g, "");
 
-        // Adiciona o código do país 55 caso não comece com ele
-        if (!digits.startsWith("55")) {
-          digits = "55" + digits;
-        }
-
-        return digits;
-      };
-
-      const studioId = import.meta.env.VITE_STUDIO_ID;
-
-      // Prepare appointment data with services info
-      const appointmentData = {
-        ...formData,
-        phone: formatPhoneForDB(formData.phone),
+      // Add to cart
+      addAppointment({
         service: selectedServices.map((s) => s.label).join(", "),
+        services: selectedServices,
         price: `R$ ${getTotalPrice().toFixed(2).replace(".", ",")}`,
         duration: formatTotalDuration(getTotalDuration()),
-        services: selectedServices,
-        studio_id: studioId,
-        name:
-          formData.name ||
-          user?.user_metadata?.name ||
-          user?.email?.split("@")[0] ||
-          "Cliente",
-      };
-
-      // Navigate to payment page
-      navigate("/pagamento", {
-        state: {
-          appointmentData,
-        },
+        date: formData.date,
+        time: formData.time,
+        message: formData.message,
       });
+
+      toast({
+        title: "Agendamento adicionado!",
+        description: "Adicione mais agendamentos ou finalize o pagamento.",
+      });
+
+      // Reset form for next appointment
+      setSelectedServices([]);
+      setFormData((prev) => ({ ...prev, date: "", time: "", message: "" }));
     } catch (error) {
       toast({
-        title: "Erro ao agendar",
-        description:
-          "Ocorreu um erro ao processar seu agendamento. Tente novamente.",
+        title: "Erro ao adicionar",
+        description: "Ocorreu um erro. Tente novamente.",
         variant: "destructive",
       });
-      console.error("Erro ao processar agendamento:", error);
+      console.error("Erro ao adicionar ao carrinho:", error);
     }
+  };
+
+  const handleGoToPayment = () => {
+    if (appointments.length === 0) {
+      toast({
+        title: "Carrinho vazio",
+        description: "Adicione pelo menos um agendamento antes de pagar.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const formatPhoneForDB = (phone: string) => {
+      let digits = phone.replace(/\D/g, "");
+      if (!digits.startsWith("55")) {
+        digits = "55" + digits;
+      }
+      return digits;
+    };
+
+    const studioId = import.meta.env.VITE_STUDIO_ID;
+
+    navigate("/pagamento", {
+      state: {
+        appointments: appointments.map((apt) => ({
+          name:
+            formData.name ||
+            user?.user_metadata?.name ||
+            user?.email?.split("@")[0] ||
+            "Cliente",
+          email: formData.email,
+          phone: formatPhoneForDB(formData.phone),
+          service: apt.service,
+          services: apt.services,
+          price: apt.price,
+          duration: apt.duration,
+          date: apt.date,
+          time: apt.time,
+          message: apt.message,
+          studio_id: studioId,
+        })),
+      },
+    });
   };
 
   if (!user) {
@@ -822,7 +850,7 @@ const AppointmentBookingPage = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleAddToCart} className="space-y-6">
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="name">Nome</Label>
@@ -1056,15 +1084,28 @@ const AppointmentBookingPage = () => {
                     />
                   </div>
 
-                  <Button
-                    type="submit"
-                    size="lg"
-                    className="w-full text-white"
-                    style={{ backgroundColor: "#D4AF37" }}
-                  >
-                    <Calendar className="w-5 h-5 mr-2" />
-                    Continuar para Pagamento
-                  </Button>
+                  <div className="flex gap-3">
+                    <Button
+                      type="submit"
+                      size="lg"
+                      variant="outline"
+                      className="flex-1"
+                    >
+                      <ShoppingCart className="w-5 h-5 mr-2" />
+                      Adicionar ao Carrinho ({appointments.length})
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={handleGoToPayment}
+                      size="lg"
+                      className="flex-1 text-white"
+                      style={{ backgroundColor: "#D4AF37" }}
+                      disabled={appointments.length === 0}
+                    >
+                      <Calendar className="w-5 h-5 mr-2" />
+                      Finalizar Pagamento (R$ {getTotalBookingFee()})
+                    </Button>
+                  </div>
                 </form>
               </CardContent>
             </Card>

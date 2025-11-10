@@ -21,6 +21,8 @@ import { initMercadoPago, Wallet } from "@mercadopago/sdk-react";
 import WhatsAppButton from "../components/whatsappButton";
 const baseaCESS = import.meta.env.VITE_PAGO_ACESS;
 initMercadoPago(baseaCESS);
+import { useCart } from "@/contexts/CartContext";
+
 interface AppointmentData {
   name: string;
   phone: string;
@@ -47,25 +49,36 @@ const PaymentMethodPage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { clearCart } = useCart();
   const [pixQRCode, setPixQRCode] = useState<string | null>(null);
   const [pixData, setPixData] = useState<PixResponse | null>(null);
-  const appointmentData = location.state?.appointmentData as AppointmentData;
+  const appointments = (location.state?.appointments || []) as AppointmentData[];
   const [selectedPaymentMethod, setSelectedPaymentMethod] =
     useState<string>("");
   const [loading, setLoading] = useState(false);
   const [preferenceUrl, setPreferenceUrl] = useState(null);
-  const [appointmentId, setAppointmentId] = useState<string>(
-    () => localStorage.getItem("appointmentId") || ""
-  );
+  const [appointmentIds, setAppointmentIds] = useState<string[]>([]);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [acceptedPolicy, setAcceptedPolicy] = useState(false);
-  const [adjustedPrice, setAdjustedPrice] = useState(0);
   const studioId = import.meta.env.VITE_STUDIO_ID;
+  
   // Redirect if no appointment data
-  if (!appointmentData) {
+  if (!appointments || appointments.length === 0) {
     navigate("/agendamento");
     return null;
   }
+
+  const totalBookingFee = appointments.length * 20; // R$ 20 por agendamento
+  
+  const getTotalServicesPrice = () => {
+    return appointments.reduce((total, apt) => {
+      const priceStr = apt.price || "R$ 0";
+      const priceValue = parseFloat(
+        priceStr.replace("R$", "").replace(/\./g, "").replace(",", ".").trim()
+      );
+      return total + (isNaN(priceValue) ? 0 : priceValue);
+    }, 0);
+  };
   useEffect(() => {
     if (!user) return;
 
@@ -89,11 +102,6 @@ const PaymentMethodPage = () => {
 
     fetchUserRole();
   }, []);
-  useEffect(() => {
-    const numericPrice = Number(appointmentData.price); // converte string para number
-    const newPrice = numericPrice < 20 ? numericPrice : 20;
-    setAdjustedPrice(newPrice);
-  }, [appointmentData.price]);
 
   useEffect(() => {
     const savedAppointmentId = localStorage.getItem("appointmentId");
@@ -138,9 +146,9 @@ const PaymentMethodPage = () => {
     });
   };
 
-  const Price = getServicePrice(appointmentData.price);
-  const bookingFee = 20; // R$ 20,00 booking fee
-  const totalPrice = bookingFee; // Only charge booking fee via Stripe
+  const Price = 0; // Not used anymore
+  const bookingFee = 20; // R$ 20,00 booking fee per appointment
+  const totalPrice = totalBookingFee; // Total booking fee
   const baseURL = import.meta.env.VITE_API_PAGAMENTO;
   const paymentMethods = [
     {
@@ -226,8 +234,8 @@ const PaymentMethodPage = () => {
   }
 
   useEffect(() => {
-    if (!userRole) return; // só executa depois de carregar
-    if (!appointmentData || appointmentId) return;
+    if (!userRole) return;
+    if (!appointments || appointments.length === 0 || appointmentIds.length > 0) return;
 
     const runFlow = async () => {
       setLoading(true);
@@ -239,51 +247,46 @@ const PaymentMethodPage = () => {
 
         if (userError || !user) throw new Error("Usuário não autenticado");
 
-        // Dados do agendamento
-        const bodyData = {
-          ...appointmentData,
-          totalPrice,
-          user_id: user.id,
-        } as any;
+        const createdIds: string[] = [];
 
-        // Se for admin, já confirma o agendamento
-        if (userRole === "admin") {
-          bodyData.status = "CONFIRMED"; // envia para o backend já como confirmado
+        // Criar todos os agendamentos
+        for (const apt of appointments) {
+          const bodyData = {
+            ...apt,
+            totalPrice: bookingFee,
+            user_id: user.id,
+          } as any;
+
+          // Se for admin, já confirma o agendamento
+          if (userRole === "admin") {
+            bodyData.status = "CONFIRMED";
+          }
+
+          const response = await fetch(`${baseURL}/user/create-appointment`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(bodyData),
+          });
+
+          if (!response.ok) throw new Error("Erro ao criar agendamento");
+
+          const data = await response.json();
+          createdIds.push(data.appointmentId);
         }
 
-        const response = await fetch(`${baseURL}/user/create-appointment`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(bodyData),
-        });
-
-        if (!response.ok) throw new Error("Erro ao criar agendamento");
-
-        const data = await response.json();
-        const { appointmentId: newAppointmentId, status } = data;
-
-        setAppointmentId(newAppointmentId);
-        localStorage.setItem("appointmentId", newAppointmentId);
+        setAppointmentIds(createdIds);
 
         // Se admin, redireciona direto
-        if (userRole === "admin" || status === "CONFIRMED") {
+        if (userRole === "admin") {
+          clearCart();
           navigate("/perfil");
           return;
         }
-
-        // Para usuários normais, calcula preço ajustado para PIX
-        const numericPrice = Number(
-          String(appointmentData.price)
-            .replace(/[^\d,.-]/g, "")
-            .replace(",", ".")
-        );
-        const newPrice = numericPrice < 20 ? numericPrice : 20;
-        setAdjustedPrice(newPrice);
       } catch (error) {
         console.error("Erro no fluxo de agendamento:", error);
         toast({
           title: "Erro",
-          description: "Não foi possível criar o agendamento.",
+          description: "Não foi possível criar os agendamentos.",
         });
       } finally {
         setLoading(false);
@@ -291,24 +294,24 @@ const PaymentMethodPage = () => {
     };
 
     runFlow();
-  }, [appointmentData, appointmentId, userRole]);
+  }, [appointments, appointmentIds, userRole]);
 
   const handlePixPayment = () => {
-    if (!appointmentId) {
+    if (!appointmentIds || appointmentIds.length === 0) {
       toast({
         title: "Erro",
-        description: "ID do agendamento não encontrado",
+        description: "IDs dos agendamentos não encontrados",
         variant: "destructive",
       });
       return;
     }
 
-    // Redireciona imediatamente para evitar bloqueio em iPhones
+    // Redireciona para página PIX com múltiplos agendamentos
     navigate("/pagamento-pix", {
       state: {
-        appointmentId,
-        appointmentData,
-        adjustedPrice,
+        appointmentIds,
+        appointments,
+        adjustedPrice: totalBookingFee,
         baseURL,
       },
     });
@@ -351,74 +354,61 @@ const PaymentMethodPage = () => {
             <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-elegant">
               <CardHeader>
                 <CardTitle className="text-foreground">
-                  Resumo do Agendamento
+                  Resumo dos Agendamentos ({appointments.length})
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Cliente:</span>
-                    <span className="font-medium">{appointmentData.name}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Telefone:</span>
-                    <span className="font-medium">{appointmentData.phone}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Serviço:</span>
-                    <span className="font-medium">
-                      {getServiceName(appointmentData.service)}
-                    </span>
-                  </div>
-
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Duração:</span>
-                    <span className="font-medium">
-                      {appointmentData.duration}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Data:</span>
-                    <span className="font-medium">
-                      {formatDate(appointmentData.date)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Horário:</span>
-                    <span className="font-medium">{appointmentData.time}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Local:</span>
-                    <span className="font-medium">
-                      {studio.endereco.replace(/ {2,}/g, "\n")}
-                    </span>
-                  </div>
-                  {appointmentData.message && (
-                    <div className="pt-2 border-t">
-                      <span className="text-muted-foreground">
-                        Observações:
-                      </span>
-                      <p className="mt-1 text-sm">{appointmentData.message}</p>
+              <CardContent className="space-y-6">
+                {appointments.map((apt, index) => (
+                  <div key={index} className="space-y-3 pb-4 border-b last:border-0">
+                    <h3 className="font-semibold text-lg">Agendamento {index + 1}</h3>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Cliente:</span>
+                        <span className="font-medium">{apt.name}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Serviço:</span>
+                        <span className="font-medium">{apt.service}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Duração:</span>
+                        <span className="font-medium">{apt.duration}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Data:</span>
+                        <span className="font-medium">{formatDate(apt.date)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Horário:</span>
+                        <span className="font-medium">{apt.time}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Valor do serviço:</span>
+                        <span className="font-medium">{apt.price}</span>
+                      </div>
                     </div>
-                  )}
-                </div>
+                  </div>
+                ))}
 
                 {/* Price Breakdown */}
                 <div className="pt-4 border-t space-y-2">
                   <div className="flex justify-between">
-                    <span>Serviço:</span>
-                    <span>{appointmentData.price}</span>
+                    <span>Total dos serviços:</span>
+                    <span>{formatPrice(getTotalServicesPrice())}</span>
                   </div>
                   <div className="flex justify-between text-sm text-muted-foreground">
-                    <span>Taxa de agendamento:</span>
-                    <span>{formatPrice(bookingFee)}</span>
+                    <span>Taxa de agendamento ({appointments.length} × R$ 20):</span>
+                    <span>{formatPrice(totalBookingFee)}</span>
                   </div>
                   <div className="flex justify-between font-bold text-lg pt-2 border-t">
-                    <span>Total:</span>
+                    <span>Total a pagar agora:</span>
                     <span className="text-primary">
                       {formatPrice(totalPrice)}
                     </span>
                   </div>
+                  <p className="text-xs text-muted-foreground">
+                    Restante ({formatPrice(getTotalServicesPrice())}) a pagar no local
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -504,7 +494,7 @@ const PaymentMethodPage = () => {
                 </label>
 
                 <div className="space-y-4 mt-6">
-                  {appointmentId && (
+                  {appointmentIds.length > 0 && (
                     <Button
                       onClick={handlePixPayment}
                       disabled={loading || !acceptedPolicy}
@@ -517,7 +507,7 @@ const PaymentMethodPage = () => {
                       ) : (
                         <>
                           <Smartphone className="w-5 h-5 mr-2" />
-                          Pagar com PIX {formatPrice(adjustedPrice)}
+                          Pagar com PIX {formatPrice(totalBookingFee)}
                         </>
                       )}
                     </Button>

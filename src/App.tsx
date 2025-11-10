@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { StudioProvider } from "@/contexts/StudioContext";
+import { CartProvider } from "@/contexts/CartContext";
 import Index from "./pages/Index";
 import AuthPage from "./pages/AuthPage";
 import AppointmentBookingPage from "./pages/AppointmentBookingPage";
@@ -21,28 +22,30 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <StudioProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<AuthPage />} />
-            <Route path="/agendamento" element={<AppointmentBookingPage />} />
-            <Route path="/perfil" element={<ProfilePage />} />
-            <Route path="/reset-password" element={<ResetPasswordPage />} />
-            <Route path="/pagamento" element={<PaymentMethodPage />} />
-            <Route path="/pagamento-pix" element={<PixPaymentPage />} />
-            <Route
-              path="/agendamento-confirmado"
-              element={<PaymentConfirmationPage />}
-            />
+        <CartProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/auth" element={<AuthPage />} />
+              <Route path="/agendamento" element={<AppointmentBookingPage />} />
+              <Route path="/perfil" element={<ProfilePage />} />
+              <Route path="/reset-password" element={<ResetPasswordPage />} />
+              <Route path="/pagamento" element={<PaymentMethodPage />} />
+              <Route path="/pagamento-pix" element={<PixPaymentPage />} />
+              <Route
+                path="/agendamento-confirmado"
+                element={<PaymentConfirmationPage />}
+              />
 
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-        </TooltipProvider>
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+          </TooltipProvider>
+        </CartProvider>
       </StudioProvider>
     </AuthProvider>
   </QueryClientProvider>
