@@ -25,7 +25,7 @@ const HeroSection = () => {
     <section className="relative w-full max-w-[1350px] mx-auto h-screen  overflow-hidden flex items-center justify-center">
       {/* Imagem de fundo */}
       <img
-        src={studio?.foto_capa || capaDesktop}
+        src={studio?.foto_capa}
         alt="Capa Desktop"
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-40 w-auto h-[100dvh] max-w-full object-contain md:w-[120%] md:h-[120%] md:object-cover"
       />
@@ -44,7 +44,9 @@ const HeroSection = () => {
               }}
               aria-hidden="true"
             >
-              {loading ? "Carregando..." : studio?.nome_studio || "Lariza Freitas"}
+              {loading
+                ? "Carregando..."
+                : studio?.nome_studio || "Lariza Freitas"}
             </span>
 
             {/* Camada visível com gradiente */}
@@ -55,7 +57,9 @@ const HeroSection = () => {
                 backgroundSize: "100% 100%",
               }}
             >
-              {loading ? "Carregando..." : studio?.nome_studio || "Lariza Freitas"}
+              {loading
+                ? "Carregando..."
+                : studio?.nome_studio || "Lariza Freitas"}
             </span>
           </h1>
 

@@ -58,7 +58,7 @@ export const StudioProvider: React.FC<{ children: React.ReactNode }> = ({
       try {
         setLoading(true);
         const response = await fetch(
-          `${baseURL}/informacoes/studios/${studioId}`
+          `${baseURL}/user/informacoes/studios/${studioId}`
         );
 
         if (!response.ok) {
@@ -67,12 +67,24 @@ export const StudioProvider: React.FC<{ children: React.ReactNode }> = ({
 
         const data = await response.json();
 
-        if (data.studio) {
-          setStudio(data.studio);
-          setError(null);
-        } else {
-          throw new Error("Dados do studio não encontrados");
+        // ✅ Ajuste principal:
+        // Se o backend retorna { studio: { ... } }, pega o objeto interno
+        const studioData = data.studio || data;
+
+        // ✅ Se vier string, converte para objeto
+        if (typeof studioData.horario_funcionamento === "string") {
+          try {
+            studioData.horario_funcionamento = JSON.parse(
+              studioData.horario_funcionamento || "{}"
+            );
+          } catch (e) {
+            console.warn("Erro ao parsear horario_funcionamento:", e);
+            studioData.horario_funcionamento = {};
+          }
         }
+
+        setStudio(studioData);
+        setError(null);
       } catch (err) {
         console.error("❌ Erro ao buscar informações do studio:", err);
         setError(

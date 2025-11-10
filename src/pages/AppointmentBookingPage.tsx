@@ -33,7 +33,7 @@ const AppointmentBookingPage = () => {
   const { user } = useAuth();
   const { studio } = useStudio();
   const navigate = useNavigate();
-
+  console.log("Studio no AppointmentBookingPage:", studio);
   const { toast } = useToast();
   const [userRole, setUserRole] = useState<string | null>(null);
   const [emailValid, setEmailValid] = useState(true);
@@ -736,69 +736,77 @@ const AppointmentBookingPage = () => {
                         <div className="flex justify-between">
                           <span>Segunda-feira:</span>
                           <span className="font-medium">
-                            {studio.horario_funcionamento.segunda.abertura &&
-                            studio.horario_funcionamento.segunda.fechamento
+                            {studio.horario_funcionamento?.segunda?.abertura &&
+                            studio.horario_funcionamento?.segunda?.fechamento
                               ? `${studio.horario_funcionamento.segunda.abertura} às ${studio.horario_funcionamento.segunda.fechamento}`
                               : "Fechado"}
                           </span>
                         </div>
+
                         <div className="flex justify-between">
                           <span>Terça-feira:</span>
                           <span className="font-medium">
-                            {studio.horario_funcionamento.terca.abertura &&
-                            studio.horario_funcionamento.terca.fechamento
+                            {studio.horario_funcionamento?.terca?.abertura &&
+                            studio.horario_funcionamento?.terca?.fechamento
                               ? `${studio.horario_funcionamento.terca.abertura} às ${studio.horario_funcionamento.terca.fechamento}`
                               : "Fechado"}
                           </span>
                         </div>
+
                         <div className="flex justify-between">
                           <span>Quarta-feira:</span>
                           <span className="font-medium">
-                            {studio.horario_funcionamento.quarta.abertura &&
-                            studio.horario_funcionamento.quarta.fechamento
+                            {studio.horario_funcionamento?.quarta?.abertura &&
+                            studio.horario_funcionamento?.quarta?.fechamento
                               ? `${studio.horario_funcionamento.quarta.abertura} às ${studio.horario_funcionamento.quarta.fechamento}`
                               : "Fechado"}
                           </span>
                         </div>
+
                         <div className="flex justify-between">
                           <span>Quinta-feira:</span>
                           <span className="font-medium">
-                            {studio.horario_funcionamento.quinta.abertura &&
-                            studio.horario_funcionamento.quinta.fechamento
+                            {studio.horario_funcionamento?.quinta?.abertura &&
+                            studio.horario_funcionamento?.quinta?.fechamento
                               ? `${studio.horario_funcionamento.quinta.abertura} às ${studio.horario_funcionamento.quinta.fechamento}`
                               : "Fechado"}
                           </span>
                         </div>
+
                         <div className="flex justify-between">
                           <span>Sexta-feira:</span>
                           <span className="font-medium">
-                            {studio.horario_funcionamento.sexta.abertura &&
-                            studio.horario_funcionamento.sexta.fechamento
+                            {studio.horario_funcionamento?.sexta?.abertura &&
+                            studio.horario_funcionamento?.sexta?.fechamento
                               ? `${studio.horario_funcionamento.sexta.abertura} às ${studio.horario_funcionamento.sexta.fechamento}`
                               : "Fechado"}
                           </span>
                         </div>
+
                         <div className="flex justify-between">
                           <span>Sábado:</span>
                           <span className="font-medium">
-                            {studio.horario_funcionamento.sabado.abertura &&
-                            studio.horario_funcionamento.sabado.fechamento
+                            {studio.horario_funcionamento?.sabado?.abertura &&
+                            studio.horario_funcionamento?.sabado?.fechamento
                               ? `${studio.horario_funcionamento.sabado.abertura} às ${studio.horario_funcionamento.sabado.fechamento}`
                               : "Fechado"}
                           </span>
                         </div>
+
                         <div className="flex justify-between">
                           <span>Domingo:</span>
                           <span className="font-medium">
-                            {studio.horario_funcionamento.domingo.abertura &&
-                            studio.horario_funcionamento.domingo.fechamento
+                            {studio.horario_funcionamento?.domingo?.abertura &&
+                            studio.horario_funcionamento?.domingo?.fechamento
                               ? `${studio.horario_funcionamento.domingo.abertura} às ${studio.horario_funcionamento.domingo.fechamento}`
                               : "Fechado"}
                           </span>
                         </div>
                       </>
                     ) : (
-                      <div className="text-muted-foreground">Carregando horários...</div>
+                      <div className="text-muted-foreground">
+                        Carregando horários...
+                      </div>
                     )}
                   </div>
                 </CardContent>
