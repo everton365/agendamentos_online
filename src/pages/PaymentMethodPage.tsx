@@ -13,6 +13,7 @@ import {
   Info,
   CheckCircle,
 } from "lucide-react";
+import { useStudio } from "@/contexts/StudioContext";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import { supabase } from "@/integrations/supabase/client";
@@ -41,6 +42,7 @@ interface PixResponse {
 }
 
 const PaymentMethodPage = () => {
+  const { studio } = useStudio();
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -312,7 +314,6 @@ const PaymentMethodPage = () => {
     });
   };
 
-
   return (
     <div className="min-h-screen bg-gradient-hero">
       <Header />
@@ -389,7 +390,7 @@ const PaymentMethodPage = () => {
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Local:</span>
                     <span className="font-medium">
-                      Rua Otoni Sá,395 -Centro-Aquiraz- CE
+                      {studio.endereco.replace(/ {2,}/g, "\n")}
                     </span>
                   </div>
                   {appointmentData.message && (

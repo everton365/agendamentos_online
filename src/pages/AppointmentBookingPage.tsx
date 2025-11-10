@@ -33,7 +33,7 @@ const AppointmentBookingPage = () => {
   const { user } = useAuth();
   const { studio } = useStudio();
   const navigate = useNavigate();
-  console.log("Studio no AppointmentBookingPage:", studio);
+
   const { toast } = useToast();
   const [userRole, setUserRole] = useState<string | null>(null);
   const [emailValid, setEmailValid] = useState(true);

@@ -1,8 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { MapPin, Phone, Clock, Instagram, Facebook, Mail } from "lucide-react";
 import { SiTiktok } from "react-icons/si";
+import { useStudio } from "@/contexts/StudioContext";
 
 const Footer = () => {
+  const { studio } = useStudio();
+  if (!studio) return null;
+
   return (
     <footer className="bg-foreground text-background py-16">
       <div className="container mx-auto px-4">
@@ -14,7 +18,7 @@ const Footer = () => {
                 style={{ color: "#D4AF37" }}
                 className="text-2xl font-cinzel font-extrabold text-foreground mb-4 text-[#D4AF37] bg-clip-text text-transparent"
               >
-                Lariza Freitas
+                {studio?.nome_studio || "Lariza Freitas"}
               </h3>
               <p className="text-background/80 mb-6 leading-relaxed">
                 Especializada em design, microblading e técnicas avançadas para
@@ -23,7 +27,7 @@ const Footer = () => {
               </p>
               <div className="flex gap-4">
                 <a
-                  href="https://www.instagram.com/larizafreitas/"
+                  href={studio?.instagramLink}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -35,22 +39,32 @@ const Footer = () => {
                     <Instagram className="w-5 h-5" />
                   </Button>
                 </a>
-                <a
-                  href="https://www.tiktok.com/@seuusuario"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
+                {studio?.tiktokLink ? (
+                  <a
+                    href={studio.tiktokLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-background hover:text-[#D4AF37] hover:bg-background/10"
+                    >
+                      <SiTiktok className="w-5 h-5" />
+                    </Button>
+                  </a>
+                ) : (
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="text-background hover:text-[#D4AF37] hover:bg-background/10"
+                    disabled
+                    className="text-gray-500 cursor-not-allowed"
                   >
                     <SiTiktok className="w-5 h-5" />
                   </Button>
-                </a>
-
+                )}
                 <a
-                  href="https://www.facebook.com/lariza.freitas"
+                  href={studio?.facebookLink}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -64,7 +78,7 @@ const Footer = () => {
                 </a>
 
                 <a
-                  href="mailto:larizafreitas73@gmail.com"
+                  href={`mailto:${studio?.email}`}
                   className="inline-flex items-center justify-center w-10 h-10 rounded-full text-background hover:text-[#D4AF37] hover:bg-background/10 transition"
                 >
                   <Mail className="w-5 h-5" />
@@ -83,25 +97,29 @@ const Footer = () => {
                     style={{ color: "#D4AF37" }}
                     className="w-4 h-4 text-primary"
                   />
-                  <span>(85) 98419-2379</span>
+                  <span>{studio?.contato}</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <Mail
                     style={{ color: "#D4AF37" }}
                     className="w-4 h-4 text-primary"
                   />
-                  <span>larizafreitas73@gmail.com</span>
+                  <span>{studio?.email}</span>
                 </div>
                 <div className="flex items-start gap-3">
                   <MapPin
                     style={{ color: "#D4AF37" }}
                     className="w-4 h-4 text-primary mt-1"
                   />
-                  <div>
-                    <div>Rua Otoni Sá, 395</div>
-                    <div>Centro - Aquiraz - CE</div>
-                    <div>CEP: 61700-000</div>
-                  </div>
+                  {studio?.endereco ? (
+                    <div className="whitespace-pre-line">
+                      {studio.endereco.replace(/ {2,}/g, "\n")}
+                    </div>
+                  ) : (
+                    <div className="text-background/60 italic">
+                      Endereço não informado
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -120,7 +138,13 @@ const Footer = () => {
                     />
                     <div>
                       <div className="font-medium">Segunda</div>
-                      <div className="text-sm">Fechado</div>
+                      <div className="text-sm">
+                        {" "}
+                        {studio.horario_funcionamento?.segunda?.abertura &&
+                        studio.horario_funcionamento?.segunda?.fechamento
+                          ? `${studio.horario_funcionamento.segunda.abertura} às ${studio.horario_funcionamento.segunda.fechamento}`
+                          : "Fechado"}
+                      </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
@@ -130,7 +154,13 @@ const Footer = () => {
                     />
                     <div>
                       <div className="font-medium">Terça</div>
-                      <div className="text-sm">9h às 18:30</div>
+                      <div className="text-sm">
+                        {" "}
+                        {studio.horario_funcionamento?.terca?.abertura &&
+                        studio.horario_funcionamento?.terca?.fechamento
+                          ? `${studio.horario_funcionamento.terca.abertura} às ${studio.horario_funcionamento.terca.fechamento}`
+                          : "Fechado"}
+                      </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
@@ -140,7 +170,13 @@ const Footer = () => {
                     />
                     <div>
                       <div className="font-medium">Quarta</div>
-                      <div className="text-sm">9h às 17h</div>
+                      <div className="text-sm">
+                        {" "}
+                        {studio.horario_funcionamento?.quarta?.abertura &&
+                        studio.horario_funcionamento?.quarta?.fechamento
+                          ? `${studio.horario_funcionamento.quarta.abertura} às ${studio.horario_funcionamento.quarta.fechamento}`
+                          : "Fechado"}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -152,11 +188,32 @@ const Footer = () => {
                       className="w-4 h-4 text-primary"
                     />
                     <div>
-                      <div className="font-medium">Quinta e Sexta</div>
-                      <div className="text-sm">9h às 18h</div>
+                      <div className="font-medium">Quinta</div>
+                      <div className="text-sm">
+                        {" "}
+                        {studio.horario_funcionamento?.quinta?.abertura &&
+                        studio.horario_funcionamento?.quinta?.fechamento
+                          ? `${studio.horario_funcionamento.quinta.abertura} às ${studio.horario_funcionamento.quinta.fechamento}`
+                          : "Fechado"}
+                      </div>
                     </div>
                   </div>
-
+                  <div className="flex items-center gap-3">
+                    <Clock
+                      style={{ color: "#D4AF37" }}
+                      className="w-4 h-4 text-primary"
+                    />
+                    <div>
+                      <div className="font-medium">sexta</div>
+                      <div className="text-sm">
+                        {" "}
+                        {studio.horario_funcionamento?.sexta?.abertura &&
+                        studio.horario_funcionamento?.sexta?.fechamento
+                          ? `${studio.horario_funcionamento.sexta.abertura} às ${studio.horario_funcionamento.sexta.fechamento}`
+                          : "Fechado"}
+                      </div>
+                    </div>
+                  </div>
                   <div className="flex items-center gap-3">
                     <Clock
                       style={{ color: "#D4AF37" }}
@@ -164,7 +221,13 @@ const Footer = () => {
                     />
                     <div>
                       <div className="font-medium">Sabado</div>
-                      <div className="text-sm">Fechado</div>
+                      <div className="text-sm">
+                        {" "}
+                        {studio.horario_funcionamento?.sabado?.abertura &&
+                        studio.horario_funcionamento?.sabado?.fechamento
+                          ? `${studio.horario_funcionamento.sabado.abertura} às ${studio.horario_funcionamento.sabado.fechamento}`
+                          : "Fechado"}
+                      </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
@@ -174,7 +237,13 @@ const Footer = () => {
                     />
                     <div>
                       <div className="font-medium">Domingo</div>
-                      <div className="text-sm">Fechado</div>
+                      <div className="text-sm">
+                        {" "}
+                        {studio.horario_funcionamento?.domingo?.abertura &&
+                        studio.horario_funcionamento?.domingo?.fechamento
+                          ? `${studio.horario_funcionamento.domingo.abertura} às ${studio.horario_funcionamento.domingo.fechamento}`
+                          : "Fechado"}
+                      </div>
                     </div>
                   </div>
                 </div>
