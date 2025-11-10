@@ -13,6 +13,7 @@ import { Calendar, LogOut, User, Menu, X } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import logo from "../assets/logo.png";
 import { supabase } from "@/integrations/supabase/client";
+import { CartDrawer } from "./CartDrawer";
 const studioId = import.meta.env.VITE_STUDIO_ID;
 const Header = () => {
   const { user, signOut } = useAuth();
@@ -110,6 +111,7 @@ const Header = () => {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-4">
+            <CartDrawer />
             <Button
               variant="outline"
               onClick={handleScheduleClick}
@@ -206,14 +208,19 @@ const Header = () => {
               ))}
 
               <div className="px-3 py-2 space-y-2">
-                <Button
-                  variant="outline"
-                  onClick={handleScheduleClick}
-                  className="w-full justify-start"
-                >
-                  <Calendar className="w-4 h-4 mr-2" />
-                  Agendar
-                </Button>
+                <div className="flex gap-2">
+                  <div className="flex-1">
+                    <CartDrawer />
+                  </div>
+                  <Button
+                    variant="outline"
+                    onClick={handleScheduleClick}
+                    className="flex-1"
+                  >
+                    <Calendar className="w-4 h-4 mr-2" />
+                    Agendar
+                  </Button>
+                </div>
 
                 {user ? (
                   <div className="space-y-2">
