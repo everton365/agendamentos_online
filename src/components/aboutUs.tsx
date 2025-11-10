@@ -1,6 +1,8 @@
-import donaEstudio from "../assets/estudio1.jpg"; // troque pelo caminho da foto real
-import donaEstudio1 from "../assets/estudio2.jpg";
+import donaEstudio from "../assets/estudio1.jpg";
+import { useStudio } from "@/contexts/StudioContext";
+
 const AboutUs = () => {
+  const { studio, loading } = useStudio();
   return (
     <section
       id="about"
@@ -19,14 +21,26 @@ const AboutUs = () => {
             className="text-lg font-poppins text-muted-foreground leading-relaxed"
             data-aos="fade-right"
           >
-            Bem-vindo ao{" "}
-            <span className="font-semibold text-primary">Lariza Freitas Studio</span>{" "}
-            Especialista em sobrancelhas naturais! Aqui, minha paixão pela beleza
-            e a precisão técnica se encontram. Minha missão é realçar a sua beleza
-            única, criando um design de sobrancelhas impecável e totalmente
-            personalizado. Eu uso as técnicas mais modernas e produtos da mais
-            alta qualidade para garantir resultados espetaculares e a sua total
-            satisfação.
+            {loading ? (
+              "Carregando informações..."
+            ) : studio?.sobre ? (
+              <>
+                Bem-vindo ao{" "}
+                <span className="font-semibold text-primary">
+                  {studio.nome_studio || "Nosso Studio"}
+                </span>
+                ! {studio.sobre}
+              </>
+            ) : (
+              <>
+                Bem-vindo ao{" "}
+                <span className="font-semibold text-primary">Nosso Studio</span>
+                ! Especialista em sobrancelhas naturais! Aqui, minha paixão pela beleza
+                e a precisão técnica se encontram. Minha missão é realçar a sua beleza
+                única, criando um design de sobrancelhas impecável e totalmente
+                personalizado.
+              </>
+            )}
           </p>
 
           <div className="space-y-6">
@@ -72,8 +86,8 @@ const AboutUs = () => {
         {/* Foto da dona */}
         <div className="flex justify-center md:justify-end" data-aos="fade-left">
           <img
-            src={donaEstudio}
-            alt="Dona do Estúdio"
+            src={studio?.foto_studio || donaEstudio}
+            alt={`Studio ${studio?.nome_studio || ''}`}
             className="w-full h-full object-cover rounded-2xl shadow-elegant border-4 border-white"
             data-aos="fade-left"
           />
