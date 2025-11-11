@@ -424,10 +424,6 @@ const PaymentMethodPage = () => {
                       {formatPrice(totalPrice)}
                     </span>
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    Restante ({formatPrice(getTotalServicesPrice())}) a pagar no
-                    local
-                  </p>
                 </div>
               </CardContent>
             </Card>
