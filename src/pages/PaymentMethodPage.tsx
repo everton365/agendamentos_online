@@ -68,6 +68,11 @@ const PaymentMethodPage = () => {
     navigate("/agendamento");
     return null;
   }
+  useEffect(() => {
+    if (!appointments || appointments.length === 0) {
+      navigate("/agendar", { replace: true });
+    }
+  }, [appointments, navigate]);
 
   const totalBookingFee = appointments.length * 20; // R$ 20 por agendamento
 
