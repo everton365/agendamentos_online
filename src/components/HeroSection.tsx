@@ -1,17 +1,21 @@
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useStudio } from "@/contexts/StudioContext";
 import capaDesktop from "../assets/estudio3.jpg";
 import { useNavigate } from "react-router-dom";
 import { Calendar, Star } from "lucide-react";
-
+import { useCart } from "@/contexts/CartContext";
 const HeroSection = () => {
   const { user } = useAuth();
   const { studio, loading } = useStudio();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
+  const { clearCart } = useCart();
+  useEffect(() => {
+    // limpa o carrinho assim que a tela de sucesso carregar
+    clearCart();
+  }, []);
   const handleScheduleClick = () => {
     if (user) {
       navigate("/agendamento");

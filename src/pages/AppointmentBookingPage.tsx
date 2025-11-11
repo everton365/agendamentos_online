@@ -808,7 +808,9 @@ const AppointmentBookingPage = () => {
                     {studio?.horario_funcionamento ? (
                       <>
                         <div className="flex justify-between text-xs md:text-sm">
-                          <span className="hidden sm:inline">Segunda-feira:</span>
+                          <span className="hidden sm:inline">
+                            Segunda-feira:
+                          </span>
                           <span className="sm:hidden">Seg:</span>
                           <span className="font-medium">
                             {studio.horario_funcionamento?.segunda?.abertura &&
@@ -830,7 +832,9 @@ const AppointmentBookingPage = () => {
                         </div>
 
                         <div className="flex justify-between text-xs md:text-sm">
-                          <span className="hidden sm:inline">Quarta-feira:</span>
+                          <span className="hidden sm:inline">
+                            Quarta-feira:
+                          </span>
                           <span className="sm:hidden">Qua:</span>
                           <span className="font-medium">
                             {studio.horario_funcionamento?.quarta?.abertura &&
@@ -841,7 +845,9 @@ const AppointmentBookingPage = () => {
                         </div>
 
                         <div className="flex justify-between text-xs md:text-sm">
-                          <span className="hidden sm:inline">Quinta-feira:</span>
+                          <span className="hidden sm:inline">
+                            Quinta-feira:
+                          </span>
                           <span className="sm:hidden">Qui:</span>
                           <span className="font-medium">
                             {studio.horario_funcionamento?.quinta?.abertura &&
@@ -903,10 +909,15 @@ const AppointmentBookingPage = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-4 md:p-6">
-                <form onSubmit={handleAddToCart} className="space-y-4 md:space-y-6">
+                <form
+                  onSubmit={handleAddToCart}
+                  className="space-y-4 md:space-y-6"
+                >
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="name" className="text-sm md:text-base">Nome</Label>
+                      <Label htmlFor="name" className="text-sm md:text-base">
+                        Nome
+                      </Label>
                       <Input
                         id="name"
                         type="text"
@@ -921,7 +932,9 @@ const AppointmentBookingPage = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="email" className="text-sm md:text-base">Email</Label>
+                      <Label htmlFor="email" className="text-sm md:text-base">
+                        Email
+                      </Label>
                       <Input
                         id="email"
                         type="email"
@@ -934,7 +947,9 @@ const AppointmentBookingPage = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="phone" className="text-sm md:text-base">Telefone/WhatsApp</Label>
+                      <Label htmlFor="phone" className="text-sm md:text-base">
+                        Telefone/WhatsApp
+                      </Label>
                       <Input
                         id="phone"
                         value={formData.phone}
@@ -949,7 +964,9 @@ const AppointmentBookingPage = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-sm md:text-base">Serviços Desejados</Label>
+                    <Label className="text-sm md:text-base">
+                      Serviços Desejados
+                    </Label>
                     <div className="space-y-2 max-h-48 md:max-h-64 overflow-y-auto border rounded-lg p-2 md:p-3">
                       {useService.map((service) => {
                         const isSelected = selectedServices.some(
@@ -1032,7 +1049,9 @@ const AppointmentBookingPage = () => {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="date" className="text-sm md:text-base">Data Preferida</Label>
+                      <Label htmlFor="date" className="text-sm md:text-base">
+                        Data Preferida
+                      </Label>
                       <Input
                         id="date"
                         type="date"
@@ -1048,7 +1067,9 @@ const AppointmentBookingPage = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="time" className="text-sm md:text-base">Horários Disponíveis</Label>
+                      <Label htmlFor="time" className="text-sm md:text-base">
+                        Horários Disponíveis
+                      </Label>
                       {timeSlots.length > 0 ? (
                         <div className="grid grid-cols-3 gap-1.5 md:gap-2">
                           {processedSlots.map((slot) => {
@@ -1127,7 +1148,9 @@ const AppointmentBookingPage = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="message" className="text-sm md:text-base">Observações (Opcional)</Label>
+                    <Label htmlFor="message" className="text-sm md:text-base">
+                      Observações (Opcional)
+                    </Label>
                     <Textarea
                       id="message"
                       value={formData.message}
@@ -1140,25 +1163,26 @@ const AppointmentBookingPage = () => {
                     />
                   </div>
 
-                  <div className="flex flex-col sm:flex-row gap-2.5 md:gap-3">
+                  <div className="flex flex-col sm:flex-row gap-3 w-full">
                     <Button
                       type="submit"
                       size="lg"
                       variant="outline"
-                      className="flex-1 h-14 md:h-12 text-sm md:text-base font-semibold"
+                      className="flex-1 h-16 sm:h-14 text-base sm:text-lg font-semibold py-3 sm:py-2"
                     >
-                      <ShoppingCart className="w-4 h-4 md:w-5 md:h-5 mr-1.5 md:mr-2" />
+                      <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6 mr-2" />
                       Adicionar ({appointments.length})
                     </Button>
+
                     <Button
                       type="button"
                       onClick={handleGoToPayment}
                       size="lg"
-                      className="flex-1 text-white h-14 md:h-12 text-sm md:text-base font-semibold"
+                      className="flex-1 text-white h-16 sm:h-14 text-base sm:text-lg font-semibold py-3 sm:py-2"
                       style={{ backgroundColor: "#D4AF37" }}
                       disabled={appointments.length === 0}
                     >
-                      <Calendar className="w-4 h-4 md:w-5 md:h-5 mr-1.5 md:mr-2" />
+                      <Calendar className="w-5 h-5 sm:w-6 sm:h-6 mr-2" />
                       Finalizar (R$ {getTotalBookingFee()})
                     </Button>
                   </div>
