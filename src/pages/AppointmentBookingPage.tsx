@@ -1145,7 +1145,7 @@ const AppointmentBookingPage = () => {
                       type="submit"
                       size="lg"
                       variant="outline"
-                      className="flex-1 h-11 md:h-12 text-sm md:text-base"
+                      className="flex-1 h-14 md:h-12 text-sm md:text-base font-semibold"
                     >
                       <ShoppingCart className="w-4 h-4 md:w-5 md:h-5 mr-1.5 md:mr-2" />
                       Adicionar ({appointments.length})
@@ -1154,7 +1154,7 @@ const AppointmentBookingPage = () => {
                       type="button"
                       onClick={handleGoToPayment}
                       size="lg"
-                      className="flex-1 text-white h-11 md:h-12 text-sm md:text-base"
+                      className="flex-1 text-white h-14 md:h-12 text-sm md:text-base font-semibold"
                       style={{ backgroundColor: "#D4AF37" }}
                       disabled={appointments.length === 0}
                     >
