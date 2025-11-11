@@ -1,4 +1,4 @@
-import { ShoppingCart, X, Trash2 } from "lucide-react";
+import { ShoppingCart, Trash2, Calendar } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -8,24 +8,47 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { useCart } from "@/contexts/CartContext";
-import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { useCart } from "@/contexts/CartContext";
+import { useNavigate } from "react-router-dom";
+import { toast } from "@/components/ui/use-toast"; // 🔔 garante que o toast existe
 
 export function CartDrawer() {
-  const { appointments, removeAppointment, getTotalPrice, getTotalBookingFee } = useCart();
+  const { appointments, removeAppointment, getTotalPrice, getTotalBookingFee } =
+    useCart();
   const navigate = useNavigate();
-
-  const handleCheckout = () => {
-    if (appointments.length > 0) {
-      navigate("/pagamento");
-    }
+  const studioId = import.meta.env.VITE_STUDIO_ID;
+  // 🕒 Função auxiliar: soma minutos a um horário (ex: 10:00 + 10 = 10:10)
+  const addMinutesToTime = (time: string, minutes: number) => {
+    const [h, m] = time.split(":").map(Number);
+    const total = h * 60 + m + minutes;
+    const newH = Math.floor(total / 60) % 24;
+    const newM = total % 60;
+    return `${String(newH).padStart(2, "0")}:${String(newM).padStart(2, "0")}`;
   };
 
-  const totalServices = getTotalPrice();
+  // 🛒 Redireciona para pagamento
+  const handleGoToPayment = () => {
+    if (appointments.length === 0) {
+      toast({
+        title: "Carrinho vazio",
+        description: "Adicione pelo menos um agendamento antes de pagar.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    navigate("/pagamento", {
+      state: {
+        appointments,
+        studioId: studioId,
+      },
+    });
+  };
+
   const totalBookingFee = getTotalBookingFee();
-  const grandTotal = totalServices + totalBookingFee;
+  const grandTotal = totalBookingFee; // Somente taxa
 
   return (
     <Sheet>
@@ -33,8 +56,8 @@ export function CartDrawer() {
         <Button variant="outline" size="icon" className="relative">
           <ShoppingCart className="h-5 w-5" />
           {appointments.length > 0 && (
-            <Badge 
-              variant="destructive" 
+            <Badge
+              variant="destructive"
               className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs"
             >
               {appointments.length}
@@ -42,13 +65,16 @@ export function CartDrawer() {
           )}
         </Button>
       </SheetTrigger>
+
       <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
         <SheetHeader>
           <SheetTitle>Carrinho de Agendamentos</SheetTitle>
           <SheetDescription>
             {appointments.length === 0
               ? "Seu carrinho está vazio"
-              : `${appointments.length} agendamento${appointments.length > 1 ? "s" : ""} no carrinho`}
+              : `${appointments.length} agendamento${
+                  appointments.length > 1 ? "s" : ""
+                } no carrinho`}
           </SheetDescription>
         </SheetHeader>
 
@@ -60,47 +86,55 @@ export function CartDrawer() {
             </div>
           ) : (
             <>
-              {appointments.map((appointment) => (
-                <div
-                  key={appointment.id}
-                  className="border rounded-lg p-4 space-y-2 relative"
-                >
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute top-2 right-2 h-8 w-8"
-                    onClick={() => removeAppointment(appointment.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+              {appointments.map((appointment) => {
+                const endTime = addMinutesToTime(
+                  appointment.time,
+                  parseInt(appointment.duration || "0")
+                );
 
-                  <div className="pr-8">
-                    <h4 className="font-semibold text-sm">
-                      {appointment.services.map(s => s.label).join(", ")}
-                    </h4>
-                    <p className="text-sm text-muted-foreground">
-                      {new Date(appointment.date).toLocaleDateString("pt-BR")} às {appointment.time}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      Duração: {appointment.duration}
-                    </p>
-                    {appointment.message && (
-                      <p className="text-xs text-muted-foreground italic mt-1">
-                        "{appointment.message}"
+                return (
+                  <div
+                    key={appointment.id}
+                    className="border rounded-lg p-4 space-y-2 relative"
+                  >
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="absolute top-2 right-2 h-8 w-8"
+                      onClick={() => removeAppointment(appointment.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+
+                    <div className="pr-8">
+                      <h4 className="font-semibold text-sm">
+                        {appointment.services.map((s) => s.label).join(", ")}
+                      </h4>
+                      <p className="text-sm text-muted-foreground">
+                        {new Date(
+                          appointment.date + "T00:00:00"
+                        ).toLocaleDateString("pt-BR")}{" "}
+                        • {appointment.time} - {endTime}
                       </p>
-                    )}
-                    <p className="text-lg font-bold mt-2">{appointment.price}</p>
+                      <p className="text-sm text-muted-foreground">
+                        Duração: {appointment.duration} minutos
+                      </p>
+                      {appointment.message && (
+                        <p className="text-xs text-muted-foreground italic mt-1">
+                          "{appointment.message}"
+                        </p>
+                      )}
+                      <p className="text-lg font-bold mt-2">
+                        {appointment.price}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
 
               <Separator className="my-4" />
 
               <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Subtotal serviços:</span>
-                  <span>R$ {totalServices.toFixed(2).replace(".", ",")}</span>
-                </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">
                     Taxa de agendamento ({appointments.length}x R$ 20,00):
@@ -114,13 +148,17 @@ export function CartDrawer() {
                 </div>
               </div>
 
-              <Button
-                className="w-full mt-6"
+              {/*} <Button
+                type="button"
+                onClick={handleGoToPayment}
                 size="lg"
-                onClick={handleCheckout}
+                className="flex-1 text-white mt-4"
+                style={{ backgroundColor: "#D4AF37" }}
+                disabled={appointments.length === 0}
               >
-                Finalizar Pagamento
-              </Button>
+                <Calendar className="w-5 h-5 mr-2" />
+                Finalizar Pagamento (R$ {totalBookingFee.toFixed(2)})
+              </Button>*/}
             </>
           )}
         </div>

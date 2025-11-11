@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
+import { useCart } from "@/contexts/CartContext";
 
 interface PixPaymentData {
   payment_id: number;
@@ -37,11 +38,11 @@ const PixPaymentPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
-
-  const appointmentId = location.state?.appointmentId;
-  const appointmentData = location.state?.appointmentData as AppointmentData;
+  const { clearCart, appointments } = useCart();
+  const appointmentId = location.state?.appointmentIds;
+  const appointmentData = location.state?.appointments as AppointmentData[];
   const adjustedPrice = location.state?.adjustedPrice;
-  const baseURL = location.state?.baseURL;
+  const baseURL = import.meta.env.VITE_API_PAGAMENTO || "http://localhost:3001";
 
   const [pixPaymentData, setPixPaymentData] = useState<PixPaymentData | null>(
     null
@@ -49,18 +50,24 @@ const PixPaymentPage = () => {
   const [qrCodeError, setQrCodeError] = useState(false);
   const [qrCodeLoading, setQrCodeLoading] = useState(true);
   const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    if (!appointments || appointments.length === 0) {
+      // carrinho vazio → volta para a home
+      navigate("/", { replace: true });
+    }
+  }, [appointments, navigate]);
 
   useEffect(() => {
-    if (!appointmentId || !appointmentData || !baseURL) {
+    if (!appointmentId?.length || !appointmentData?.length || !baseURL) {
       toast({
         title: "Erro",
-        description: "Dados do agendamento não encontrados",
+        description: "Dados do(s) agendamento(s) não encontrados",
         variant: "destructive",
       });
       navigate("/pagamento");
       return;
     }
-
+    console.log("appointmentData", appointmentData);
     const fetchPixPayment = async () => {
       setLoading(true);
       try {
@@ -68,18 +75,16 @@ const PixPaymentPage = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            items: [
-              {
-                id: appointmentId,
-                title: "Taxa de agendamento",
-                quantity: 1,
-                unit_price: adjustedPrice,
-                email: appointmentData.email,
-                studioId: appointmentData.studio_id,
-                first_name: appointmentData.name,
-                last_name: "",
-              },
-            ],
+            items: appointmentData.map((apt, index) => ({
+              id: appointmentId[index],
+              title: `Agendamento - ${apt.service}`,
+              quantity: 1,
+              unit_price: adjustedPrice,
+              email: apt.email,
+              studioId: apt.studio_id,
+              first_name: apt.name,
+              last_name: "",
+            })),
           }),
         });
 
@@ -87,9 +92,6 @@ const PixPaymentPage = () => {
 
         const data = await response.json();
         setPixPaymentData(data);
-
-        localStorage.removeItem("appointmentId");
-        localStorage.removeItem("preferenceUrl");
 
         toast({
           title: "PIX gerado com sucesso!",

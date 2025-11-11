@@ -36,6 +36,7 @@ import { useToast } from "@/hooks/use-toast";
 import { format, parseISO, isFuture, isPast } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import Header from "@/components/Header";
+import { useCart } from "@/contexts/CartContext";
 
 interface Profile {
   display_name: string | null;
@@ -79,6 +80,7 @@ const ProfilePage = () => {
   });
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isEditing, setIsEditing] = useState(false);
+  const { clearCart } = useCart();
   const [selectedAppointment, setSelectedAppointment] =
     useState<Appointment | null>(null);
   const [rescheduleDate, setRescheduleDate] = useState("");
@@ -121,7 +123,10 @@ const ProfilePage = () => {
       })
       .catch((err) => console.error(err));
   }, [rescheduleDate]);
-
+  useEffect(() => {
+    // limpa o carrinho assim que a tela de sucesso carregar
+    clearCart();
+  }, []);
   const parseDuration = (duration: string | number) => {
     if (typeof duration === "number") return duration; // já é em minutos
     const hoursMatch = duration.match(/(\d+)\s*h/);

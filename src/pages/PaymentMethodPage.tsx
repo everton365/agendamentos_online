@@ -52,7 +52,8 @@ const PaymentMethodPage = () => {
   const { clearCart } = useCart();
   const [pixQRCode, setPixQRCode] = useState<string | null>(null);
   const [pixData, setPixData] = useState<PixResponse | null>(null);
-  const appointments = (location.state?.appointments || []) as AppointmentData[];
+  const appointments = (location.state?.appointments ||
+    []) as AppointmentData[];
   const [selectedPaymentMethod, setSelectedPaymentMethod] =
     useState<string>("");
   const [loading, setLoading] = useState(false);
@@ -61,7 +62,7 @@ const PaymentMethodPage = () => {
   const [userRole, setUserRole] = useState<string | null>(null);
   const [acceptedPolicy, setAcceptedPolicy] = useState(false);
   const studioId = import.meta.env.VITE_STUDIO_ID;
-  
+
   // Redirect if no appointment data
   if (!appointments || appointments.length === 0) {
     navigate("/agendamento");
@@ -69,7 +70,7 @@ const PaymentMethodPage = () => {
   }
 
   const totalBookingFee = appointments.length * 20; // R$ 20 por agendamento
-  
+
   const getTotalServicesPrice = () => {
     return appointments.reduce((total, apt) => {
       const priceStr = apt.price || "R$ 0";
@@ -235,7 +236,8 @@ const PaymentMethodPage = () => {
 
   useEffect(() => {
     if (!userRole) return;
-    if (!appointments || appointments.length === 0 || appointmentIds.length > 0) return;
+    if (!appointments || appointments.length === 0 || appointmentIds.length > 0)
+      return;
 
     const runFlow = async () => {
       setLoading(true);
@@ -311,12 +313,12 @@ const PaymentMethodPage = () => {
       state: {
         appointmentIds,
         appointments,
-        adjustedPrice: totalBookingFee,
+        adjustedPrice: totalPrice,
         baseURL,
       },
     });
   };
-
+  console.log("studioId", totalPrice);
   return (
     <div className="min-h-screen bg-gradient-hero">
       <Header />
@@ -359,8 +361,13 @@ const PaymentMethodPage = () => {
               </CardHeader>
               <CardContent className="space-y-6">
                 {appointments.map((apt, index) => (
-                  <div key={index} className="space-y-3 pb-4 border-b last:border-0">
-                    <h3 className="font-semibold text-lg">Agendamento {index + 1}</h3>
+                  <div
+                    key={index}
+                    className="space-y-3 pb-4 border-b last:border-0"
+                  >
+                    <h3 className="font-semibold text-lg">
+                      Agendamento {index + 1}
+                    </h3>
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Cliente:</span>
@@ -376,14 +383,18 @@ const PaymentMethodPage = () => {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Data:</span>
-                        <span className="font-medium">{formatDate(apt.date)}</span>
+                        <span className="font-medium">
+                          {formatDate(apt.date)}
+                        </span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Horário:</span>
                         <span className="font-medium">{apt.time}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Valor do serviço:</span>
+                        <span className="text-muted-foreground">
+                          Valor do serviço:
+                        </span>
                         <span className="font-medium">{apt.price}</span>
                       </div>
                     </div>
@@ -397,7 +408,9 @@ const PaymentMethodPage = () => {
                     <span>{formatPrice(getTotalServicesPrice())}</span>
                   </div>
                   <div className="flex justify-between text-sm text-muted-foreground">
-                    <span>Taxa de agendamento ({appointments.length} × R$ 20):</span>
+                    <span>
+                      Taxa de agendamento ({appointments.length} × R$ 20):
+                    </span>
                     <span>{formatPrice(totalBookingFee)}</span>
                   </div>
                   <div className="flex justify-between font-bold text-lg pt-2 border-t">
@@ -407,7 +420,8 @@ const PaymentMethodPage = () => {
                     </span>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Restante ({formatPrice(getTotalServicesPrice())}) a pagar no local
+                    Restante ({formatPrice(getTotalServicesPrice())}) a pagar no
+                    local
                   </p>
                 </div>
               </CardContent>

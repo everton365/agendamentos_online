@@ -86,6 +86,7 @@ const AppointmentBookingPage = () => {
   const toggleService = (value: string) => {
     setOpenService(openService === value ? null : value);
   };
+
   // Auto-fill user data and redirect if not logged in
   useEffect(() => {
     if (!user) {
@@ -225,33 +226,66 @@ const AppointmentBookingPage = () => {
 
       if (!data.schedule) return [];
 
-      // Formata cada slot, mantendo o status do banco (com ajuste de cancelled → available)
-      const slotsWithStatus = data.schedule.map(
-        (slot: { time: string; status: string; duration?: string }) => {
-          let status = slot.status.toLowerCase() === "cancelled"
-            ? "available"
-            : slot.status;
-
-          // Verifica se este horário está no carrinho
-          const isInCart = appointments.some(
-            (apt) => apt.date === date && apt.time === slot.time.slice(0, 5)
-          );
-
-          // Se está no carrinho, marca como CONFIRMED
-          if (isInCart) {
-            status = "CONFIRMED";
-          }
-
-          return {
-            time: slot.time.slice(0, 5), // só hora e minuto
-            status,
-          };
-        }
+      // 🔹 Converte os dados vindos da API
+      let slots = data.schedule.map(
+        (slot: { time: string; status: string; duration?: string }) => ({
+          time: slot.time.slice(0, 5), // HH:mm
+          status:
+            slot.status.toLowerCase() === "cancelled"
+              ? "available"
+              : slot.status,
+        })
       );
 
-      return slotsWithStatus;
-    } catch (err) {
-      console.error("Erro ao buscar horários:", err);
+      // 🔹 Adiciona os horários do carrinho local (appointments)
+      appointments
+        .filter((apt) => apt.date === date)
+        .forEach((apt) => {
+          const startTime = apt.time.slice(0, 5); // ex: "09:00"
+
+          // 🕓 Calcula o horário final com base na duração
+          let duration = 0;
+          if (typeof apt.duration === "string") {
+            const str = apt.duration.toLowerCase().replace(/\s/g, "");
+            if (str.includes("h")) duration = parseInt(str) * 60;
+            else duration = parseInt(str);
+          } else {
+            duration = apt.duration || 0;
+          }
+
+          const [h, m] = startTime.split(":").map(Number);
+          const endMinutes = h * 60 + m + duration;
+          const endH = Math.floor(endMinutes / 60)
+            .toString()
+            .padStart(2, "0");
+          const endM = (endMinutes % 60).toString().padStart(2, "0");
+          const endTime = `${endH}:${endM}`;
+
+          // 🔸 Marca o horário inicial como CONFIRMED
+          const existingSlot = slots.find((s) => s.time === startTime);
+          if (existingSlot) {
+            existingSlot.status = "CONFIRMED";
+          } else {
+            slots.push({ time: startTime, status: "CONFIRMED" });
+          }
+
+          // 🔸 Garante que o próximo horário (fim da duração) continue como available
+          const hasEndSlot = slots.some((s) => s.time === endTime);
+          if (!hasEndSlot) {
+            slots.push({ time: endTime, status: "available" });
+          }
+        });
+
+      // 🔹 Ordena os horários para manter ordem cronológica
+      slots = slots.sort((a, b) => {
+        const [ah, am] = a.time.split(":").map(Number);
+        const [bh, bm] = b.time.split(":").map(Number);
+        return ah * 60 + am - (bh * 60 + bm);
+      });
+
+      return slots;
+    } catch (error) {
+      console.error(error);
       return [];
     }
   };
@@ -420,7 +454,7 @@ const AppointmentBookingPage = () => {
     durationMinutes: number,
     slots: Slot[],
     date?: string,
-    userRole?: string, // <-- novo parâmetro
+    userRole?: string, // admin pode ignorar bloqueios
     blockedHours?: string[]
   ): boolean => {
     const [sh, sm] = startTime.split(":").map(Number);
