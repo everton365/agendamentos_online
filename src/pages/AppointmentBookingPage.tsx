@@ -721,21 +721,21 @@ const AppointmentBookingPage = () => {
     <div className="min-h-screen bg-gradient-hero">
       <Header />
 
-      <div className="mx-auto w-4/5 px-4 py-8">
+      <div className="mx-auto w-full max-w-7xl px-3 sm:px-4 md:px-6 py-4 md:py-8">
         <div className="max-w-4xl mx-auto">
           {/* Back Button */}
           <Button
             variant="ghost"
             onClick={() => navigate("/")}
-            className="mb-6"
+            className="mb-4 md:mb-6 text-sm md:text-base"
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Voltar ao início
+            <ArrowLeft className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
+            Voltar
           </Button>
 
           {/* Page Header */}
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-foreground mb-4">
+          <div className="text-center mb-6 md:mb-12">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2 md:mb-4">
               Agendar{" "}
               <span
                 style={{ color: "#D4AF37" }}
@@ -744,15 +744,14 @@ const AppointmentBookingPage = () => {
                 Horário
               </span>
             </h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Preencha o formulário abaixo para agendar seu atendimento. Após o
-              preenchimento, você será direcionado para o pagamento.
+            <p className="text-sm sm:text-base md:text-xl text-muted-foreground max-w-2xl mx-auto px-2">
+              Preencha o formulário abaixo para agendar seu atendimento.
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-12">
+          <div className="grid lg:grid-cols-2 gap-4 md:gap-8 lg:gap-12">
             {/* Services Info */}
-            <div className="space-y-6">
+            <div className="space-y-4 md:space-y-6">
               {/*  <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-soft">
                 <CardHeader>
                   <CardTitle className="text-foreground">
@@ -795,21 +794,22 @@ const AppointmentBookingPage = () => {
               </Card>*/}
 
               <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-soft">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-foreground">
+                <CardHeader className="p-4 md:p-6">
+                  <CardTitle className="flex items-center gap-2 text-foreground text-base md:text-lg">
                     <Clock
                       style={{ color: "#D4AF37" }}
-                      className="w-5 h-5 text-primary"
+                      className="w-4 h-4 md:w-5 md:h-5 text-primary"
                     />
                     Horário de Funcionamento
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 text-sm">
+                <CardContent className="p-4 md:p-6">
+                  <div className="space-y-1.5 md:space-y-2 text-xs md:text-sm">
                     {studio?.horario_funcionamento ? (
                       <>
-                        <div className="flex justify-between">
-                          <span>Segunda-feira:</span>
+                        <div className="flex justify-between text-xs md:text-sm">
+                          <span className="hidden sm:inline">Segunda-feira:</span>
+                          <span className="sm:hidden">Seg:</span>
                           <span className="font-medium">
                             {studio.horario_funcionamento?.segunda?.abertura &&
                             studio.horario_funcionamento?.segunda?.fechamento
@@ -818,8 +818,9 @@ const AppointmentBookingPage = () => {
                           </span>
                         </div>
 
-                        <div className="flex justify-between">
-                          <span>Terça-feira:</span>
+                        <div className="flex justify-between text-xs md:text-sm">
+                          <span className="hidden sm:inline">Terça-feira:</span>
+                          <span className="sm:hidden">Ter:</span>
                           <span className="font-medium">
                             {studio.horario_funcionamento?.terca?.abertura &&
                             studio.horario_funcionamento?.terca?.fechamento
@@ -828,8 +829,9 @@ const AppointmentBookingPage = () => {
                           </span>
                         </div>
 
-                        <div className="flex justify-between">
-                          <span>Quarta-feira:</span>
+                        <div className="flex justify-between text-xs md:text-sm">
+                          <span className="hidden sm:inline">Quarta-feira:</span>
+                          <span className="sm:hidden">Qua:</span>
                           <span className="font-medium">
                             {studio.horario_funcionamento?.quarta?.abertura &&
                             studio.horario_funcionamento?.quarta?.fechamento
@@ -838,8 +840,9 @@ const AppointmentBookingPage = () => {
                           </span>
                         </div>
 
-                        <div className="flex justify-between">
-                          <span>Quinta-feira:</span>
+                        <div className="flex justify-between text-xs md:text-sm">
+                          <span className="hidden sm:inline">Quinta-feira:</span>
+                          <span className="sm:hidden">Qui:</span>
                           <span className="font-medium">
                             {studio.horario_funcionamento?.quinta?.abertura &&
                             studio.horario_funcionamento?.quinta?.fechamento
@@ -848,8 +851,9 @@ const AppointmentBookingPage = () => {
                           </span>
                         </div>
 
-                        <div className="flex justify-between">
-                          <span>Sexta-feira:</span>
+                        <div className="flex justify-between text-xs md:text-sm">
+                          <span className="hidden sm:inline">Sexta-feira:</span>
+                          <span className="sm:hidden">Sex:</span>
                           <span className="font-medium">
                             {studio.horario_funcionamento?.sexta?.abertura &&
                             studio.horario_funcionamento?.sexta?.fechamento
@@ -858,8 +862,9 @@ const AppointmentBookingPage = () => {
                           </span>
                         </div>
 
-                        <div className="flex justify-between">
-                          <span>Sábado:</span>
+                        <div className="flex justify-between text-xs md:text-sm">
+                          <span className="hidden sm:inline">Sábado:</span>
+                          <span className="sm:hidden">Sáb:</span>
                           <span className="font-medium">
                             {studio.horario_funcionamento?.sabado?.abertura &&
                             studio.horario_funcionamento?.sabado?.fechamento
@@ -868,8 +873,9 @@ const AppointmentBookingPage = () => {
                           </span>
                         </div>
 
-                        <div className="flex justify-between">
-                          <span>Domingo:</span>
+                        <div className="flex justify-between text-xs md:text-sm">
+                          <span className="hidden sm:inline">Domingo:</span>
+                          <span className="sm:hidden">Dom:</span>
                           <span className="font-medium">
                             {studio.horario_funcionamento?.domingo?.abertura &&
                             studio.horario_funcionamento?.domingo?.fechamento
@@ -879,7 +885,7 @@ const AppointmentBookingPage = () => {
                         </div>
                       </>
                     ) : (
-                      <div className="text-muted-foreground">
+                      <div className="text-muted-foreground text-xs md:text-sm">
                         Carregando horários...
                       </div>
                     )}
@@ -890,17 +896,17 @@ const AppointmentBookingPage = () => {
 
             {/* Appointment Form */}
             <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-elegant">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-3 text-foreground">
-                  <Calendar className="w-6 h-6 text-primary" />
+              <CardHeader className="p-4 md:p-6">
+                <CardTitle className="flex items-center gap-2 md:gap-3 text-foreground text-base md:text-lg">
+                  <Calendar className="w-5 h-5 md:w-6 md:h-6 text-primary" />
                   Dados do Agendamento
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <form onSubmit={handleAddToCart} className="space-y-6">
-                  <div className="grid sm:grid-cols-2 gap-4">
+              <CardContent className="p-4 md:p-6">
+                <form onSubmit={handleAddToCart} className="space-y-4 md:space-y-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="name">Nome</Label>
+                      <Label htmlFor="name" className="text-sm md:text-base">Nome</Label>
                       <Input
                         id="name"
                         type="text"
@@ -909,26 +915,26 @@ const AppointmentBookingPage = () => {
                           handleInputChange("name", e.target.value)
                         }
                         placeholder="Seu nome"
-                        className="bg-muted/50"
+                        className="bg-muted/50 text-sm md:text-base"
                         required
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
+                      <Label htmlFor="email" className="text-sm md:text-base">Email</Label>
                       <Input
                         id="email"
                         type="email"
                         value={formData.email}
                         placeholder="exemplo@email.com"
-                        className="bg-muted/50"
+                        className="bg-muted/50 text-sm md:text-base"
                         readOnly
                         required
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="phone">Telefone/WhatsApp</Label>
+                      <Label htmlFor="phone" className="text-sm md:text-base">Telefone/WhatsApp</Label>
                       <Input
                         id="phone"
                         value={formData.phone}
@@ -936,14 +942,15 @@ const AppointmentBookingPage = () => {
                           handleInputChange("phone", e.target.value)
                         }
                         placeholder="(11) 99999-9999"
+                        className="text-sm md:text-base"
                         required
                       />
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <Label>Serviços Desejados</Label>
-                    <div className="space-y-2 max-h-64 overflow-y-auto border rounded-lg p-3">
+                    <Label className="text-sm md:text-base">Serviços Desejados</Label>
+                    <div className="space-y-2 max-h-48 md:max-h-64 overflow-y-auto border rounded-lg p-2 md:p-3">
                       {useService.map((service) => {
                         const isSelected = selectedServices.some(
                           (s) => s.value === service.value
@@ -951,7 +958,7 @@ const AppointmentBookingPage = () => {
                         return (
                           <div
                             key={service.value}
-                            className={`p-3 rounded-lg border cursor-pointer transition-all ${
+                            className={`p-2.5 md:p-3 rounded-lg border cursor-pointer transition-all ${
                               isSelected
                                 ? "border-primary bg-primary/10"
                                 : "border-border hover:border-primary/50"
@@ -960,19 +967,19 @@ const AppointmentBookingPage = () => {
                           >
                             <div className="flex justify-between items-center">
                               <div className="flex flex-col">
-                                <span className="font-medium text-foreground">
+                                <span className="font-medium text-foreground text-xs md:text-sm">
                                   {service.label}
                                 </span>
-                                <span className="text-xs text-muted-foreground">
+                                <span className="text-[10px] md:text-xs text-muted-foreground">
                                   {service.duration}
                                 </span>
                               </div>
-                              <div className="flex items-center gap-2">
-                                <span className="text-primary font-semibold">
+                              <div className="flex items-center gap-1.5 md:gap-2">
+                                <span className="text-primary font-semibold text-xs md:text-sm">
                                   {service.price}
                                 </span>
                                 <div
-                                  className={`w-4 h-4 rounded border ${
+                                  className={`w-3.5 h-3.5 md:w-4 md:h-4 rounded border ${
                                     isSelected
                                       ? "bg-primary border-primary"
                                       : "border-border"
@@ -980,7 +987,7 @@ const AppointmentBookingPage = () => {
                                 >
                                   {isSelected && (
                                     <div className="w-full h-full flex items-center justify-center">
-                                      <div className="w-2 h-2 bg-white rounded-sm"></div>
+                                      <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-white rounded-sm"></div>
                                     </div>
                                   )}
                                 </div>
@@ -992,27 +999,27 @@ const AppointmentBookingPage = () => {
                     </div>
 
                     {selectedServices.length > 0 && (
-                      <div className="p-3 bg-secondary/50 rounded-lg space-y-2">
-                        <h4 className="font-medium text-foreground">
+                      <div className="p-2.5 md:p-3 bg-secondary/50 rounded-lg space-y-1.5 md:space-y-2">
+                        <h4 className="font-medium text-foreground text-xs md:text-sm">
                           Serviços Selecionados:
                         </h4>
                         {selectedServices.map((service) => (
                           <div
                             key={service.value}
-                            className="flex justify-between text-sm"
+                            className="flex justify-between text-xs md:text-sm"
                           >
                             <span>{service.label}</span>
                             <span>{service.price}</span>
                           </div>
                         ))}
-                        <div className="pt-2 border-t border-border/50">
-                          <div className="flex justify-between font-semibold">
+                        <div className="pt-1.5 md:pt-2 border-t border-border/50">
+                          <div className="flex justify-between font-semibold text-xs md:text-sm">
                             <span>Total:</span>
                             <span>
                               R$ {getTotalPrice().toFixed(2).replace(".", ",")}
                             </span>
                           </div>
-                          <div className="flex justify-between text-sm text-muted-foreground">
+                          <div className="flex justify-between text-xs text-muted-foreground">
                             <span>Duração total:</span>
                             <span>
                               {formatTotalDuration(getTotalDuration())}
@@ -1023,9 +1030,9 @@ const AppointmentBookingPage = () => {
                     )}
                   </div>
 
-                  <div className="grid sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="date">Data Preferida</Label>
+                      <Label htmlFor="date" className="text-sm md:text-base">Data Preferida</Label>
                       <Input
                         id="date"
                         type="date"
@@ -1036,13 +1043,14 @@ const AppointmentBookingPage = () => {
                         min={new Date().toISOString().split("T")[0]}
                         autoComplete="off"
                         name="appointment_date_x"
+                        className="text-sm md:text-base"
                         required
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="time">Horários Disponíveis</Label>
+                      <Label htmlFor="time" className="text-sm md:text-base">Horários Disponíveis</Label>
                       {timeSlots.length > 0 ? (
-                        <div className="grid grid-cols-3 gap-2">
+                        <div className="grid grid-cols-3 gap-1.5 md:gap-2">
                           {processedSlots.map((slot) => {
                             const isSelected = formData.time === slot.time;
                             const isAdmin = userRole === "admin"; // ✅ checa se é admin
@@ -1062,7 +1070,7 @@ const AppointmentBookingPage = () => {
                                 }
                                 disabled={!isSelectable}
                                 className={`
-        p-3 rounded-lg text-sm font-medium transition-all border-2
+        p-2 md:p-3 rounded-lg text-xs md:text-sm font-medium transition-all border-2
         ${
           isSelected && isSelectable
             ? "border-primary bg-primary text-primary-foreground"
@@ -1078,12 +1086,12 @@ const AppointmentBookingPage = () => {
                               >
                                 <div className="text-center">
                                   <div>{slot.time}</div>
-                                  <div className="text-xs mt-1">
+                                  <div className="text-[10px] md:text-xs mt-0.5 md:mt-1">
                                     {isAdmin
-                                      ? "Disponível (admin)"
+                                      ? "Admin"
                                       : slot.status === "available" &&
                                         slot.slotSelectable
-                                      ? "Disponível"
+                                      ? "Livre"
                                       : slot.status === "PENDING"
                                       ? "Pendente"
                                       : slot.status === "CONFIRMED"
@@ -1096,14 +1104,14 @@ const AppointmentBookingPage = () => {
                           })}
                         </div>
                       ) : (
-                        <div className="text-center p-4 text-muted-foreground">
+                        <div className="text-center p-3 md:p-4 text-muted-foreground text-xs md:text-sm">
                           Selecione pelo menos um serviço e uma data para ver os
                           horários disponíveis
                         </div>
                       )}
 
                       {timeSlots.length > 0 && (
-                        <div className="flex gap-4 text-xs mt-4">
+                        <div className="flex gap-3 md:gap-4 text-[10px] md:text-xs mt-3 md:mt-4">
                           <div className="flex items-center gap-1">
                             <div className="w-3 h-3 rounded bg-[hsl(var(--status-available))]"></div>
                             <span>Disponível</span>
@@ -1119,7 +1127,7 @@ const AppointmentBookingPage = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="message">Observações (Opcional)</Label>
+                    <Label htmlFor="message" className="text-sm md:text-base">Observações (Opcional)</Label>
                     <Textarea
                       id="message"
                       value={formData.message}
@@ -1128,29 +1136,30 @@ const AppointmentBookingPage = () => {
                       }
                       placeholder="Alguma informação adicional ou dúvida?"
                       rows={3}
+                      className="text-sm md:text-base"
                     />
                   </div>
 
-                  <div className="flex gap-3">
+                  <div className="flex flex-col sm:flex-row gap-2.5 md:gap-3">
                     <Button
                       type="submit"
                       size="lg"
                       variant="outline"
-                      className="flex-1"
+                      className="flex-1 h-11 md:h-12 text-sm md:text-base"
                     >
-                      <ShoppingCart className="w-5 h-5 mr-2" />
-                      Adicionar ao Carrinho ({appointments.length})
+                      <ShoppingCart className="w-4 h-4 md:w-5 md:h-5 mr-1.5 md:mr-2" />
+                      Adicionar ({appointments.length})
                     </Button>
                     <Button
                       type="button"
                       onClick={handleGoToPayment}
                       size="lg"
-                      className="flex-1 text-white"
+                      className="flex-1 text-white h-11 md:h-12 text-sm md:text-base"
                       style={{ backgroundColor: "#D4AF37" }}
                       disabled={appointments.length === 0}
                     >
-                      <Calendar className="w-5 h-5 mr-2" />
-                      Finalizar Pagamento (R$ {getTotalBookingFee()})
+                      <Calendar className="w-4 h-4 md:w-5 md:h-5 mr-1.5 md:mr-2" />
+                      Finalizar (R$ {getTotalBookingFee()})
                     </Button>
                   </div>
                 </form>
