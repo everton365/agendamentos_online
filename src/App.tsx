@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { StudioProvider } from "@/contexts/StudioContext";
 import { CartProvider } from "@/contexts/CartContext";
+import { ServicesProvider } from "@/contexts/ServicesContext";
 import Index from "./pages/Index";
 import AuthPage from "./pages/AuthPage";
 import AppointmentBookingPage from "./pages/AppointmentBookingPage";
@@ -20,13 +21,14 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <StudioProvider>
-        <CartProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
+      <AuthProvider>
+        <StudioProvider>
+          <ServicesProvider>
+            <CartProvider>
+              <TooltipProvider>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<AuthPage />} />
@@ -43,11 +45,12 @@ const App = () => (
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </BrowserRouter>
-          </TooltipProvider>
-        </CartProvider>
-      </StudioProvider>
-    </AuthProvider>
+              </BrowserRouter>
+            </TooltipProvider>
+          </CartProvider>
+          </ServicesProvider>
+        </StudioProvider>
+      </AuthProvider>
   </QueryClientProvider>
 );
 

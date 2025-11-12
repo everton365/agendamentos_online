@@ -2,10 +2,10 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useMergedServices } from "@/hooks/use-mergeServices";
-import { useServices } from "@/hooks/use-services";
+import { useServicesContext } from "@/contexts/ServicesContext";
+
 const ServicesSection = () => {
-  const { services: mergedServices, loading } = useServices();
+  const { services: mergedServices, loading } = useServicesContext();
   const [showAll, setShowAll] = useState(false);
 
   if (loading) {
