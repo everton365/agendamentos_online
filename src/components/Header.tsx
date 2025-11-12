@@ -81,15 +81,15 @@ const Header = () => {
     setMobileMenuOpen(false);
   };
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-foreground text-background border-b border-border">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-foreground text-background border-b border-border overflow-x-hidden">
+      <div className="w-full max-w-7xl mx-auto px-2 sm:px-4">
+        <div className="flex items-center justify-between h-16 gap-2">
           {/* Logo */}
-          <Link to="/" className="flex items-center">
+          <Link to="/" className="flex items-center flex-shrink-0">
             <img
               src={logo}
               alt="Lariza Freitas"
-              className="h-32 md:h-40 w-auto"
+              className="h-24 sm:h-32 md:h-40 w-auto max-w-[120px] sm:max-w-none"
             />
           </Link>
 
