@@ -24,7 +24,8 @@ import { useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { FaWhatsapp } from "react-icons/fa";
 import WhatsAppButton from "../components/whatsappButton";
-import { useServicesContext } from "@/contexts/ServicesContext";
+import { useMergedServices } from "@/hooks/use-mergeServices";
+import { useServices } from "@/hooks/use-services";
 
 const AppointmentBookingPage = () => {
   const location = useLocation();
@@ -81,7 +82,7 @@ const AppointmentBookingPage = () => {
   const [blockedDate, setBlockedDate] = useState<BlockedDateResponse | null>(
     null
   );
-  const { services: useService, loading } = useServicesContext();
+  const { services: useService, loading } = useServices();
   const toggleService = (value: string) => {
     setOpenService(openService === value ? null : value);
   };
