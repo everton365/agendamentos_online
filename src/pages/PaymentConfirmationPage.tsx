@@ -26,7 +26,7 @@ const PaymentConfirmationPage = () => {
 
   if (paymentStatus === "loading") {
     return (
-      <div className="min-h-screen bg-gradient-hero flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-hero pt-16 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-xl text-foreground">Verificando pagamento...</p>
@@ -37,7 +37,7 @@ const PaymentConfirmationPage = () => {
 
   if (paymentStatus === "error") {
     return (
-      <div className="min-h-screen bg-gradient-hero">
+      <div className="min-h-screen bg-gradient-hero pt-16">
         <Header />
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-2xl mx-auto text-center">
@@ -68,7 +68,7 @@ const PaymentConfirmationPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-hero">
+    <div className="min-h-screen bg-gradient-hero pt-16">
       <Header />
 
       <div className="container mx-auto px-4 py-8">

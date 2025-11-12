@@ -85,14 +85,12 @@ const Header = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex  items-center space-x-2">
-            <div className="flex items-center space-x-2">
-              <img
-                src={logo}
-                alt="Lariza Freitas"
-                className="h-40 w-auto" // altura 80px
-              />
-            </div>
+          <Link to="/" className="flex items-center">
+            <img
+              src={logo}
+              alt="Lariza Freitas"
+              className="h-32 md:h-40 w-auto"
+            />
           </Link>
 
           {/* Desktop Navigation */}

@@ -718,7 +718,7 @@ const AppointmentBookingPage = () => {
   }, [timeSlots, selectedServices, formData.date, blockedDate, userRole]);
 
   return (
-    <div className="min-h-screen bg-gradient-hero">
+    <div className="min-h-screen bg-gradient-hero pt-16">
       <Header />
 
       <div className="mx-auto w-full max-w-7xl px-3 sm:px-4 md:px-6 py-4 md:py-8">
