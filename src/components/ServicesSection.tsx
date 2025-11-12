@@ -19,7 +19,7 @@ const ServicesSection = () => {
       </section>
     );
   }
-  console.log("🚀 Serviços mesclados:", mergedServices);
+
   // 🔹 Exibe apenas 4 serviços inicialmente
   const visibleServices = showAll ? mergedServices : mergedServices.slice(0, 4);
 

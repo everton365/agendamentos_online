@@ -72,6 +72,5 @@ export const useServices = () => {
     fetchServices();
   }, [studioId, baseURL]);
 
-  console.log("✅ Serviços carregados:", services);
   return { services, loading, error };
 };

@@ -67,7 +67,7 @@ const PixPaymentPage = () => {
       navigate("/pagamento");
       return;
     }
-    console.log("appointmentData", appointmentData);
+
     const fetchPixPayment = async () => {
       setLoading(true);
       try {
