@@ -688,7 +688,6 @@ const AppointmentBookingPage = () => {
         userRole, // <-- libera regras para admin
         blockedHours
       );
-
       const [h, m] = slot.time.split(":").map(Number);
       const slotDate = new Date(year, month - 1, day, h, m);
 
