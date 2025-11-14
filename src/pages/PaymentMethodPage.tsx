@@ -153,7 +153,7 @@ const PaymentMethodPage = () => {
   };
 
   const Price = 0; // Not used anymore
-  const bookingFee = 20; // R$ 20,00 booking fee per appointment
+  let bookingFee = 20; // R$ 20,00 booking fee per appointment
   const totalPrice = totalBookingFee; // Total booking fee
   const baseURL = import.meta.env.VITE_API_PAGAMENTO;
   const paymentMethods = [
@@ -268,8 +268,11 @@ const PaymentMethodPage = () => {
           if (userRole === "admin") {
             bodyData.status = "CONFIRMED";
           }
-
-          const response = await fetch(`${baseURL}/user/create-appointment`, {
+          const endpoint =
+            bookingFee === 0
+              ? `${baseURL}/user/create-appointment/semtaxa`
+              : `${baseURL}/user/create-appointment`;
+          const response = await fetch(endpoint, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(bodyData),
@@ -287,6 +290,10 @@ const PaymentMethodPage = () => {
         if (userRole === "admin") {
           clearCart();
           navigate("/perfil");
+          return;
+        }
+        if (bookingFee === 0) {
+          navigate("/perfil"); // 🔥 aqui você navega
           return;
         }
       } catch (error) {
@@ -323,7 +330,7 @@ const PaymentMethodPage = () => {
       },
     });
   };
-  console.log("studioId", totalPrice);
+
   return (
     <div className="min-h-screen bg-gradient-hero pt-16">
       <Header />
