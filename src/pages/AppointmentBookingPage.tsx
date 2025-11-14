@@ -97,12 +97,6 @@ const AppointmentBookingPage = () => {
             price: "R$ 0,00",
             duration: "1h min",
           },
-          {
-            value: "consultoria-admin",
-            label: "Retorno Hidragloss",
-            price: "R$ 0,00",
-            duration: "1h min",
-          },
         ]
       : []),
   ];
