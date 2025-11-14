@@ -87,6 +87,26 @@ const AppointmentBookingPage = () => {
     setOpenService(openService === value ? null : value);
   };
 
+  const servicesToShow = [
+    ...useService,
+    ...(userRole === "admin"
+      ? [
+          {
+            value: "retorno-admin",
+            label: "Retorno nano fios realistas",
+            price: "R$ 0,00",
+            duration: "1h min",
+          },
+          {
+            value: "consultoria-admin",
+            label: "Retorno Hidragloss",
+            price: "R$ 0,00",
+            duration: "1h min",
+          },
+        ]
+      : []),
+  ];
+
   // Auto-fill user data and redirect if not logged in
   useEffect(() => {
     if (!user) {
@@ -311,7 +331,7 @@ const AppointmentBookingPage = () => {
     }
   };
 
-  const handleServiceToggle = (service: (typeof useService)[0]) => {
+  const handleServiceToggle = (service: any) => {
     const isSelected = selectedServices.some((s) => s.value === service.value);
 
     if (isSelected) {
@@ -967,7 +987,7 @@ const AppointmentBookingPage = () => {
                       Serviços Desejados
                     </Label>
                     <div className="space-y-2 max-h-48 md:max-h-64 overflow-y-auto border rounded-lg p-2 md:p-3">
-                      {useService.map((service) => {
+                      {servicesToShow.map((service) => {
                         const isSelected = selectedServices.some(
                           (s) => s.value === service.value
                         );

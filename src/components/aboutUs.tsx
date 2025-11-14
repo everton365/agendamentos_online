@@ -98,7 +98,7 @@ const AboutUs = () => {
           data-aos="fade-left"
         >
           <img
-            src={studio?.foto_studio || donaEstudio}
+            src={studio?.foto_studio}
             alt={`Studio ${studio?.nome_studio || ""}`}
             className="w-full h-full object-cover rounded-2xl shadow-elegant border-4 border-white"
             data-aos="fade-left"
