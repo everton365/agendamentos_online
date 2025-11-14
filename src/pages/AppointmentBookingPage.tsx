@@ -498,13 +498,14 @@ const AppointmentBookingPage = () => {
       const d = new Date(year, month - 1, day);
       const dayOfWeek = d.getDay(); // 0=Dom, 1=Seg, 2=Ter, ...
 
-      if (dayOfWeek === 1) {
+      {
+        /* if (dayOfWeek === 1) {
         console.log(
           `⛔6 Slot ${startTime}: bloqueado (nenhum horário permitido na segunda-feira)`
         );
         return false;
+      }*/
       }
-
       {
         /* if (dayOfWeek === 2) {
         const limiteFim = 14 * 60 + 30; // 14:30
@@ -671,7 +672,6 @@ const AppointmentBookingPage = () => {
     const [year, month, day] = formData.date.split("-").map(Number);
     const selectedDate = new Date(year, month - 1, day);
     const dayOfWeek = selectedDate.getDay(); // 0 = domingo, 6 = sábado
-    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
 
     const blockedHours =
       blockedDate && blockedDate.bloqueada && "data" in blockedDate
@@ -702,7 +702,7 @@ const AppointmentBookingPage = () => {
       const finalSelectable =
         userRole === "admin"
           ? true
-          : slotSelectable && !isBeforeLimit && !isWeekend && !isBlockedHour;
+          : slotSelectable && !isBeforeLimit && !isBlockedHour;
 
       if (isBlocked1830 && userRole !== "admin") {
         console.log(
