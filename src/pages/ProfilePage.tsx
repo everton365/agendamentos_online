@@ -426,6 +426,13 @@ const ProfilePage = () => {
       const d = new Date(year, month - 1, day);
       const dayOfWeek = d.getDay(); // 0=Dom, 1=Seg, 2=Ter, ...
 
+      if (dayOfWeek === 1) {
+        console.log(
+          `⛔6 Slot ${startTime}: bloqueado (nenhum horário permitido na segunda-feira)`
+        );
+        return false;
+      }
+
       {
         /*if (dayOfWeek === 2) {
         // terça-feira
@@ -542,13 +549,14 @@ const ProfilePage = () => {
       const isBlockedHour = blockedHours.includes(slot.time);
 
       const displayStatus =
-        !slotSelectable || isBeforeLimit || isBlockedHour
+        !slotSelectable || isBeforeLimit || isWeekend || isBlockedHour
           ? "blocked"
           : slot.status;
 
       return {
         ...slot,
-        slotSelectable: slotSelectable && !isBeforeLimit && !isBlockedHour,
+        slotSelectable:
+          slotSelectable && !isBeforeLimit && !isWeekend && !isBlockedHour,
         displayStatus,
       };
     });

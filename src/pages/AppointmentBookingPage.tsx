@@ -12,10 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { CalendarIcon, Clock, ArrowLeft, ShoppingCart } from "lucide-react";
-import { Calendar } from "@/components/ui/calendar";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale/pt-BR";
+import { Calendar, Clock, ArrowLeft, ShoppingCart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { useStudio } from "@/contexts/StudioContext";
@@ -920,7 +917,7 @@ const AppointmentBookingPage = () => {
             <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-elegant">
               <CardHeader className="p-4 md:p-6">
                 <CardTitle className="flex items-center gap-2 md:gap-3 text-foreground text-base md:text-lg">
-                  <CalendarIcon className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+                  <Calendar className="w-5 h-5 md:w-6 md:h-6 text-primary" />
                   Dados do Agendamento
                 </CardTitle>
               </CardHeader>
@@ -1063,39 +1060,25 @@ const AppointmentBookingPage = () => {
                     )}
                   </div>
 
-                  <div className="space-y-3 md:space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                     <div className="space-y-2">
-                      <Label className="text-sm md:text-base flex items-center gap-2">
-                        <CalendarIcon className="w-4 h-4 md:w-5 md:h-5 text-primary" />
-                        Escolha a Data do Agendamento
+                      <Label htmlFor="date" className="text-sm md:text-base">
+                        Data Preferida
                       </Label>
-                      <div className="flex justify-center">
-                        <Calendar
-                          mode="single"
-                          selected={formData.date ? new Date(formData.date + 'T00:00:00') : undefined}
-                          onSelect={(date) => {
-                            if (date) {
-                              const year = date.getFullYear();
-                              const month = String(date.getMonth() + 1).padStart(2, '0');
-                              const day = String(date.getDate()).padStart(2, '0');
-                              handleInputChange("date", `${year}-${month}-${day}`);
-                            }
-                          }}
-                          disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
-                          className="pointer-events-auto rounded-lg border bg-background shadow-sm"
-                        />
-                      </div>
-                      {formData.date && (
-                        <div className="text-center text-sm md:text-base text-primary font-medium mt-2">
-                          Data selecionada: {format(new Date(formData.date + 'T00:00:00'), "dd 'de' MMMM 'de' yyyy", {
-                            locale: ptBR,
-                          })}
-                        </div>
-                      )}
+                      <Input
+                        id="date"
+                        type="date"
+                        value={formData.date}
+                        onChange={(e) =>
+                          handleInputChange("date", e.target.value)
+                        }
+                        min={new Date().toISOString().split("T")[0]}
+                        autoComplete="off"
+                        name="appointment_date_x"
+                        className="text-sm md:text-base"
+                        required
+                      />
                     </div>
-                  </div>
-                  
-                  <div className="space-y-2">
                     <div className="space-y-2">
                       <Label htmlFor="time" className="text-sm md:text-base">
                         Horários Disponíveis
