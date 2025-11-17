@@ -12,7 +12,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Calendar, Clock, ArrowLeft, ShoppingCart } from "lucide-react";
+import { CalendarIcon, Clock, ArrowLeft, ShoppingCart } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale/pt-BR";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { useStudio } from "@/contexts/StudioContext";
@@ -917,7 +921,7 @@ const AppointmentBookingPage = () => {
             <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-elegant">
               <CardHeader className="p-4 md:p-6">
                 <CardTitle className="flex items-center gap-2 md:gap-3 text-foreground text-base md:text-lg">
-                  <Calendar className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+                  <CalendarIcon className="w-5 h-5 md:w-6 md:h-6 text-primary" />
                   Dados do Agendamento
                 </CardTitle>
               </CardHeader>
@@ -1065,19 +1069,42 @@ const AppointmentBookingPage = () => {
                       <Label htmlFor="date" className="text-sm md:text-base">
                         Data Preferida
                       </Label>
-                      <Input
-                        id="date"
-                        type="date"
-                        value={formData.date}
-                        onChange={(e) =>
-                          handleInputChange("date", e.target.value)
-                        }
-                        min={new Date().toISOString().split("T")[0]}
-                        autoComplete="off"
-                        name="appointment_date_x"
-                        className="text-sm md:text-base"
-                        required
-                      />
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className={`w-full justify-start text-left font-normal text-sm md:text-base h-10 ${
+                              !formData.date && "text-muted-foreground"
+                            }`}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {formData.date ? (
+                              format(new Date(formData.date + 'T00:00:00'), "dd 'de' MMMM 'de' yyyy", {
+                                locale: ptBR,
+                              })
+                            ) : (
+                              <span>Selecione uma data</span>
+                            )}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={formData.date ? new Date(formData.date + 'T00:00:00') : undefined}
+                            onSelect={(date) => {
+                              if (date) {
+                                const year = date.getFullYear();
+                                const month = String(date.getMonth() + 1).padStart(2, '0');
+                                const day = String(date.getDate()).padStart(2, '0');
+                                handleInputChange("date", `${year}-${month}-${day}`);
+                              }
+                            }}
+                            disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                            initialFocus
+                            className="pointer-events-auto"
+                          />
+                        </PopoverContent>
+                      </Popover>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="time" className="text-sm md:text-base">
