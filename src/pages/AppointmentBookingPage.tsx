@@ -14,7 +14,6 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { CalendarIcon, Clock, ArrowLeft, ShoppingCart } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale/pt-BR";
 import { useToast } from "@/hooks/use-toast";
@@ -1064,48 +1063,39 @@ const AppointmentBookingPage = () => {
                     )}
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
+                  <div className="space-y-3 md:space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="date" className="text-sm md:text-base">
-                        Data Preferida
+                      <Label className="text-sm md:text-base flex items-center gap-2">
+                        <CalendarIcon className="w-4 h-4 md:w-5 md:h-5 text-primary" />
+                        Escolha a Data do Agendamento
                       </Label>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            className={`w-full justify-start text-left font-normal text-sm md:text-base h-10 ${
-                              !formData.date && "text-muted-foreground"
-                            }`}
-                          >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {formData.date ? (
-                              format(new Date(formData.date + 'T00:00:00'), "dd 'de' MMMM 'de' yyyy", {
-                                locale: ptBR,
-                              })
-                            ) : (
-                              <span>Selecione uma data</span>
-                            )}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={formData.date ? new Date(formData.date + 'T00:00:00') : undefined}
-                            onSelect={(date) => {
-                              if (date) {
-                                const year = date.getFullYear();
-                                const month = String(date.getMonth() + 1).padStart(2, '0');
-                                const day = String(date.getDate()).padStart(2, '0');
-                                handleInputChange("date", `${year}-${month}-${day}`);
-                              }
-                            }}
-                            disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
-                            initialFocus
-                            className="pointer-events-auto"
-                          />
-                        </PopoverContent>
-                      </Popover>
+                      <div className="flex justify-center">
+                        <Calendar
+                          mode="single"
+                          selected={formData.date ? new Date(formData.date + 'T00:00:00') : undefined}
+                          onSelect={(date) => {
+                            if (date) {
+                              const year = date.getFullYear();
+                              const month = String(date.getMonth() + 1).padStart(2, '0');
+                              const day = String(date.getDate()).padStart(2, '0');
+                              handleInputChange("date", `${year}-${month}-${day}`);
+                            }
+                          }}
+                          disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                          className="pointer-events-auto rounded-lg border bg-background shadow-sm"
+                        />
+                      </div>
+                      {formData.date && (
+                        <div className="text-center text-sm md:text-base text-primary font-medium mt-2">
+                          Data selecionada: {format(new Date(formData.date + 'T00:00:00'), "dd 'de' MMMM 'de' yyyy", {
+                            locale: ptBR,
+                          })}
+                        </div>
+                      )}
                     </div>
+                  </div>
+                  
+                  <div className="space-y-2">
                     <div className="space-y-2">
                       <Label htmlFor="time" className="text-sm md:text-base">
                         Horários Disponíveis
