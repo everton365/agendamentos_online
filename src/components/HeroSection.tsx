@@ -50,7 +50,7 @@ const HeroSection = () => {
             >
               {loading
                 ? "Carregando..."
-                : studio?.nome_studio || "Lariza Freitas"}
+                : studio?.nome_studio || "Juliana Monteiro"}
             </span>
 
             {/* Camada visível com gradiente */}
