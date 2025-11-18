@@ -62,6 +62,7 @@ const PaymentMethodPage = () => {
   const [userRole, setUserRole] = useState<string | null>(null);
   const [acceptedPolicy, setAcceptedPolicy] = useState(false);
   const studioId = import.meta.env.VITE_STUDIO_ID;
+  const [paymentDataLoading, setPaymentDataLoading] = useState(true);
 
   // Redirect if no appointment data
   if (!appointments || appointments.length === 0) {
@@ -509,24 +510,22 @@ const PaymentMethodPage = () => {
                 </label>
 
                 <div className="space-y-4 mt-6">
-                  {appointmentIds.length > 0 && (
-                    <Button
-                      onClick={handlePixPayment}
-                      disabled={loading || !acceptedPolicy}
-                      size="lg"
-                      className="w-full text-white flex justify-center items-center py-8"
-                      style={{ backgroundColor: "#D4AF37" }}
-                    >
-                      {loading ? (
-                        "Processando..."
-                      ) : (
-                        <>
-                          <Smartphone className="w-5 h-5 mr-2" />
-                          Pagar com PIX {formatPrice(totalBookingFee)}
-                        </>
-                      )}
-                    </Button>
-                  )}
+                  <Button
+                    onClick={handlePixPayment}
+                    disabled={loading || !acceptedPolicy}
+                    size="lg"
+                    className="w-full text-white flex justify-center items-center py-8"
+                    style={{ backgroundColor: "#D4AF37" }}
+                  >
+                    {loading ? (
+                      "Processando..."
+                    ) : (
+                      <>
+                        <Smartphone className="w-5 h-5 mr-2" />
+                        Pagar com PIX {formatPrice(totalBookingFee)}
+                      </>
+                    )}
+                  </Button>
                 </div>
                 {/*
                 <Button

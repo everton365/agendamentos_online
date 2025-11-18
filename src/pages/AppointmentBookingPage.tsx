@@ -19,12 +19,9 @@ import { useStudio } from "@/contexts/StudioContext";
 import { useCart } from "@/contexts/CartContext";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
-import { serviceOptions } from "@/data/servicesData";
+
 import { useMemo } from "react";
 import { useLocation } from "react-router-dom";
-import { FaWhatsapp } from "react-icons/fa";
-import WhatsAppButton from "../components/whatsappButton";
-import { useMergedServices } from "@/hooks/use-mergeServices";
 import { useServices } from "@/hooks/use-services";
 
 const AppointmentBookingPage = () => {
