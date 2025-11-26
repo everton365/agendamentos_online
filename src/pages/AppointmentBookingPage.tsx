@@ -294,6 +294,35 @@ const AppointmentBookingPage = () => {
         return ah * 60 + am - (bh * 60 + bm);
       });
 
+      const extraSlots: { time: string; status: string }[] = [];
+
+      slots.forEach((slot) => {
+        const [h, m] = slot.time.split(":").map(Number);
+
+        if (m === 0 && slot.status === "available") {
+          const newMinutes = h * 60 + 30;
+          const newH = Math.floor(newMinutes / 60)
+            .toString()
+            .padStart(2, "0");
+          const newM = (newMinutes % 60).toString().padStart(2, "0");
+          const newTime = `${newH}:${newM}`;
+
+          if (!slots.some((s) => s.time === newTime)) {
+            extraSlots.push({ time: newTime, status: "available" });
+          }
+        }
+      });
+
+      // Adiciona os novos horários
+      slots.push(...extraSlots);
+
+      // Ordena novamente
+      slots.sort((a, b) => {
+        const [ah, am] = a.time.split(":").map(Number);
+        const [bh, bm] = b.time.split(":").map(Number);
+        return ah * 60 + am - (bh * 60 + bm);
+      });
+
       return slots;
     } catch (error) {
       console.error(error);
@@ -509,26 +538,7 @@ const AppointmentBookingPage = () => {
       const d = new Date(year, month - 1, day);
       const dayOfWeek = d.getDay(); // 0=Dom, 1=Seg, 2=Ter, ...
 
-      {
-        /* if (dayOfWeek === 1) {
-        console.log(
-          `⛔6 Slot ${startTime}: bloqueado (nenhum horário permitido na segunda-feira)`
-        );
-        return false;
-      }*/
-      }
-      {
-        /* if (dayOfWeek === 2) {
-        const limiteFim = 14 * 60 + 30; // 14:30
-        if (end > limiteFim) {
-          console.log(
-            `⛔5 Slot ${startTime}: bloqueado (não pode ultrapassar 14:30 na terça-feira)`
-          );
-          return false;
-        }
-      }*/
-      }
-
+      // Regras específicas por dia da semana
       if (dayOfWeek === 3) {
         const limiteFim = 17 * 60; // 17:00
         if (end > limiteFim) {
@@ -539,45 +549,22 @@ const AppointmentBookingPage = () => {
         }
       }
     }
-    if (blockedHours?.includes("18:30")) {
-      const limit1830 = 18 * 60 + 30;
-      if (end > limit1830) {
+    if (blockedHours && blockedHours.length > 0) {
+      const [slotH] = startTime.split(":").map(Number);
+
+      const isBlockedHour = blockedHours.some((blocked) => {
+        const [bh] = blocked.split(":").map(Number);
+        return bh === slotH; // bloqueia toda a hora
+      });
+
+      if (isBlockedHour) {
         console.log(
-          `⛔3 Slot ${startTime}: bloqueado → duração ultrapassa 18:30 (bloqueado na data)`
+          `⛔ Slot ${startTime}: bloqueado (hora ${slotH}:00 bloqueada)`
         );
         return false;
       }
-      // 🔒 Bloqueia todos os slots que estejam dentro de uma hora bloqueada
-      if (blockedHours && blockedHours.length > 0) {
-        const [slotHour] = startTime.split(":").map(Number);
-
-        // verifica se a hora do slot coincide com alguma hora bloqueada
-        const isBlockedHour = blockedHours.some((blocked) => {
-          const [bh] = blocked.split(":").map(Number);
-          return bh === slotHour;
-        });
-
-        if (isBlockedHour) {
-          console.log(
-            `⛔ Slot ${startTime}: bloqueado (hora ${slotHour}:00 bloqueada)`
-          );
-          return false;
-        }
-      }
-    }
-    /* if (startTime === "18:30") {
-      console.log(`⛔ Slot ${startTime}: bloqueado → não é permitido`);
-      return false;
     }
 
-     const limit = 18 * 60 + 30; // 18h30 em minutos
-    if (end > limit) {
-      console.log(
-        `⛔ Slot ${startTime}: duração ${durationMinutes}min ultrapassa 18:30`
-      );
-      return false;
-    }
-*/
     const slotStatus = sortedSlots[startIndex].status;
 
     if (slotStatus !== "available") {
@@ -619,7 +606,7 @@ const AppointmentBookingPage = () => {
       }
 
       if (
-        nextSlot.minutes % 60 !== 0 && // não é hora cheia
+        slotStatus !== "available" && // não está disponível
         !(
           Math.floor(nextSlot.minutes / 60) === 18 &&
           nextSlot.minutes % 60 === 30
@@ -631,10 +618,11 @@ const AppointmentBookingPage = () => {
           ).padStart(2, "0")}:${String(nextSlot.minutes % 60).padStart(
             2,
             "0"
-          )} não é hora cheia ou 18:30`
+          )} não está disponível e não é 18:30`
         );
         return false;
       }
+
       // Bloqueia se próximo slot estiver confirmado
       // Bloqueia se próximo slot estiver confirmado OU se horário estiver bloqueado
       if (
@@ -762,47 +750,6 @@ const AppointmentBookingPage = () => {
           <div className="grid lg:grid-cols-2 gap-4 md:gap-8 lg:gap-12">
             {/* Services Info */}
             <div className="space-y-4 md:space-y-6">
-              {/*  <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-soft">
-                <CardHeader>
-                  <CardTitle className="text-foreground">
-                    Nossos Serviços
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4 max-h-96 overflow-y-auto pr-2">
-                  {serviceOptions.map((service) => (
-                    <div
-                      key={service.value}
-                      className="p-3 rounded-lg bg-secondary/50 cursor-pointer"
-                      onClick={() => toggleService(service.value)}
-                    >
-                      <div className="flex justify-between items-center">
-                        <div className="flex flex-col">
-                          <span className="font-medium text-foreground">
-                            {service.label}
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            {service.duration}
-                          </span>
-                        </div>
-                        <span
-                          style={{ color: "#D4AF37" }}
-                          className="text-primary font-semibold"
-                        >
-                          {service.price}
-                        </span>
-                      </div>
-
-                      {/* Descrição aparece quando o serviço está aberto
-                      {openService === service.value && (
-                        <p className="mt-2 text-sm text-muted-foreground">
-                          {service.description}
-                        </p>
-                      )}
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>*/}
-
               <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-soft">
                 <CardHeader className="p-4 md:p-6">
                   <CardTitle className="flex items-center gap-2 text-foreground text-base md:text-lg">
