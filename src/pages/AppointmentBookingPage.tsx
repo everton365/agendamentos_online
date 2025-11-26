@@ -619,7 +619,7 @@ const AppointmentBookingPage = () => {
       }
 
       if (
-        slotStatus !== "available" && // não está disponível
+        nextSlot.minutes % 60 !== 0 && // não é hora cheia
         !(
           Math.floor(nextSlot.minutes / 60) === 18 &&
           nextSlot.minutes % 60 === 30
@@ -631,11 +631,10 @@ const AppointmentBookingPage = () => {
           ).padStart(2, "0")}:${String(nextSlot.minutes % 60).padStart(
             2,
             "0"
-          )} não está disponível e não é 18:30`
+          )} não é hora cheia ou 18:30`
         );
         return false;
       }
-
       // Bloqueia se próximo slot estiver confirmado
       // Bloqueia se próximo slot estiver confirmado OU se horário estiver bloqueado
       if (
