@@ -252,9 +252,9 @@ const AppointmentBookingPage = () => {
       appointments
         .filter((apt) => apt.date === date)
         .forEach((apt) => {
-          const startTime = apt.time.slice(0, 5); // ex: "09:00"
+          const startTime = apt.time.slice(0, 5); // ex: "10:40"
 
-          // 🕓 Calcula o horário final com base na duração
+          // 🕓 Calcula duração
           let duration = 0;
           if (typeof apt.duration === "string") {
             const str = apt.duration.toLowerCase().replace(/\s/g, "");
@@ -264,25 +264,35 @@ const AppointmentBookingPage = () => {
             duration = apt.duration || 0;
           }
 
+          // Transforma início em minutos
           const [h, m] = startTime.split(":").map(Number);
-          const endMinutes = h * 60 + m + duration;
+          const startMinutes = h * 60 + m;
+          const endMinutes = startMinutes + duration;
+
+          // Transforma fim
           const endH = Math.floor(endMinutes / 60)
             .toString()
             .padStart(2, "0");
           const endM = (endMinutes % 60).toString().padStart(2, "0");
           const endTime = `${endH}:${endM}`;
 
-          // 🔸 Marca o horário inicial como CONFIRMED
-          const existingSlot = slots.find((s) => s.time === startTime);
-          if (existingSlot) {
-            existingSlot.status = "CONFIRMED";
-          } else {
+          // 🚫 Bloqueia todos os slots que caem dentro do intervalo da duração
+          slots.forEach((slot) => {
+            const [sh, sm] = slot.time.split(":").map(Number);
+            const slotMinutes = sh * 60 + sm;
+
+            if (slotMinutes >= startMinutes && slotMinutes < endMinutes) {
+              slot.status = "CONFIRMED";
+            }
+          });
+
+          // 🔸 Garante que o slot inicial exista
+          if (!slots.some((s) => s.time === startTime)) {
             slots.push({ time: startTime, status: "CONFIRMED" });
           }
 
-          // 🔸 Garante que o próximo horário (fim da duração) continue como available
-          const hasEndSlot = slots.some((s) => s.time === endTime);
-          if (!hasEndSlot) {
+          // 🔸 Garante que o slot final exista como available
+          if (!slots.some((s) => s.time === endTime)) {
             slots.push({ time: endTime, status: "available" });
           }
         });
