@@ -71,7 +71,7 @@ const PaymentMethodPage = () => {
   }
   useEffect(() => {
     if (!appointments || appointments.length === 0) {
-      navigate("/agendar", { replace: true });
+      navigate("/agendamento", { replace: true });
     }
   }, [appointments, navigate]);
 
@@ -296,6 +296,7 @@ const PaymentMethodPage = () => {
           title: "Erro",
           description: "Não foi possível criar os agendamentos.",
         });
+        navigate("/agendamento", { replace: true });
       } finally {
         setLoading(false);
       }
