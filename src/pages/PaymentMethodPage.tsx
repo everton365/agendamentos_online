@@ -296,6 +296,7 @@ const PaymentMethodPage = () => {
           title: "Erro",
           description: "Não foi possível criar os agendamentos.",
         });
+        clearCart();
         navigate("/agendamento", { replace: true });
       } finally {
         setLoading(false);

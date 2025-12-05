@@ -633,6 +633,21 @@ const AppointmentBookingPage = () => {
         return false;
       }
 
+      // 🚫 Verifica se a duração ultrapassa um slot CONFIRMED
+      if (nextSlot && nextSlot.status === "CONFIRMED") {
+        const nextMinutes = nextSlot.minutes;
+
+        // Se o serviço ultrapassa o próximo slot confirmado → bloqueia
+        if (start < nextMinutes && end > nextMinutes) {
+          console.log(
+            `⛔ Slot ${startTime}: bloqueado (duração ultrapassa slot confirmado às ${String(
+              Math.floor(nextMinutes / 60)
+            ).padStart(2, "0")}:${String(nextMinutes % 60).padStart(2, "0")})`
+          );
+          return false;
+        }
+      }
+
       // Bloqueia se próximo slot estiver confirmado
       // Bloqueia se próximo slot estiver confirmado OU se horário estiver bloqueado
       if (
