@@ -632,7 +632,6 @@ const AppointmentBookingPage = () => {
         );
         return false;
       }
-
       // 🚫 Verifica se a duração ultrapassa um slot CONFIRMED
       if (nextSlot && nextSlot.status === "CONFIRMED") {
         const nextMinutes = nextSlot.minutes;
