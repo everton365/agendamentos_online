@@ -305,6 +305,17 @@ const AppointmentBookingPage = () => {
       });
 
       const extraSlots: { time: string; status: string }[] = [];
+      const isInsideConfirmedRange = (minutes: number) => {
+        return slots.some((s) => {
+          if (s.status !== "CONFIRMED") return false;
+
+          const [h, m] = s.time.split(":").map(Number);
+          const start = h * 60 + m;
+
+          // considera slot de 30min como ocupado
+          return minutes >= start && minutes < start + 30;
+        });
+      };
 
       slots.forEach((slot) => {
         const [h, m] = slot.time.split(":").map(Number);
@@ -317,7 +328,10 @@ const AppointmentBookingPage = () => {
           const newM = (newMinutes % 60).toString().padStart(2, "0");
           const newTime = `${newH}:${newM}`;
 
-          if (!slots.some((s) => s.time === newTime)) {
+          if (
+            !slots.some((s) => s.time === newTime) &&
+            !isInsideConfirmedRange(newMinutes)
+          ) {
             extraSlots.push({ time: newTime, status: "available" });
           }
         }

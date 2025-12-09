@@ -294,7 +294,8 @@ const PaymentMethodPage = () => {
         console.error("Erro no fluxo de agendamento:", error);
         toast({
           title: "Erro",
-          description: "Não foi possível criar os agendamentos.",
+          description:
+            "Não foi possível criar os agendamentos. Tente escolher outro horário.",
         });
         clearCart();
         navigate("/agendamento", { replace: true });
