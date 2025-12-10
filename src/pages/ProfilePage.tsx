@@ -426,11 +426,14 @@ const ProfilePage = () => {
       const d = new Date(year, month - 1, day);
       const dayOfWeek = d.getDay(); // 0=Dom, 1=Seg, 2=Ter, ...
 
-      if (dayOfWeek === 1) {
-        console.log(
-          `⛔6 Slot ${startTime}: bloqueado (nenhum horário permitido na segunda-feira)`
-        );
-        return false;
+      if (dayOfWeek === 3) {
+        const limiteFim = 17 * 60; // 17:00
+        if (end > limiteFim) {
+          console.log(
+            `⛔4 Slot ${startTime}: bloqueado (não pode ultrapassar 17:00 na quarta-feira)`
+          );
+          return false;
+        }
       }
 
       {
@@ -447,11 +450,17 @@ const ProfilePage = () => {
       }
     }
 
-    if (blockedHours?.includes("18:30")) {
-      const limit1830 = 18 * 60 + 30;
-      if (end > limit1830) {
+    if (blockedHours && blockedHours.length > 0) {
+      const [slotH] = startTime.split(":").map(Number);
+
+      const isBlockedHour = blockedHours.some((blocked) => {
+        const [bh] = blocked.split(":").map(Number);
+        return bh === slotH; // bloqueia toda a hora
+      });
+
+      if (isBlockedHour) {
         console.log(
-          `⛔3 Slot ${startTime}: bloqueado → duração ultrapassa 18:30 (bloqueado na data)`
+          `⛔ Slot ${startTime}: bloqueado (hora ${slotH}:00 bloqueada)`
         );
         return false;
       }
@@ -485,15 +494,77 @@ const ProfilePage = () => {
         );
         return false;
       }
+      for (let i = 0; i < sortedSlots.length; i++) {
+        const slot = sortedSlots[i];
+        const nextSlot = sortedSlots[i + 1];
+        const slotStart = slot.minutes;
+        const slotEnd = nextSlot ? nextSlot.minutes : slotStart + 10;
 
-      if (nextSlot.minutes % 60 !== 0) {
+        if (slot.status === "CONFIRMED" && slotStart < end && slotEnd > start) {
+          console.log(
+            `⛔ Slot ${startTime}: conflito com ${String(
+              Math.floor(slot.minutes / 60)
+            ).padStart(2, "0")}:${String(slot.minutes % 60).padStart(
+              2,
+              "0"
+            )} (CONFIRMED durante o intervalo do serviço)`
+          );
+          return false;
+        }
+      }
+
+      if (
+        slotStatus !== "available" && // não está disponível
+        !(
+          Math.floor(nextSlot.minutes / 60) === 18 &&
+          nextSlot.minutes % 60 === 30
+        ) // e também não é 18:30
+      ) {
         console.log(
-          `⛔ Slot ${startTime}: status = ${slotStatus} → duração = ${durationMinutes}min → próximo slot ${String(
+          `⛔1 Slot ${startTime}: status = ${slotStatus} → duração = ${durationMinutes}min → próximo slot ${String(
             Math.floor(nextSlot.minutes / 60)
           ).padStart(2, "0")}:${String(nextSlot.minutes % 60).padStart(
             2,
             "0"
-          )} não é hora cheia`
+          )} não está disponível e não é 18:30`
+        );
+        return false;
+      }
+      // 🚫 Verifica se a duração ultrapassa um slot CONFIRMED
+      if (nextSlot && nextSlot.status === "CONFIRMED") {
+        const nextMinutes = nextSlot.minutes;
+
+        // Se o serviço ultrapassa o próximo slot confirmado → bloqueia
+        if (start < nextMinutes && end > nextMinutes) {
+          console.log(
+            `⛔ Slot ${startTime}: bloqueado (duração ultrapassa slot confirmado às ${String(
+              Math.floor(nextMinutes / 60)
+            ).padStart(2, "0")}:${String(nextMinutes % 60).padStart(2, "0")})`
+          );
+          return false;
+        }
+      }
+
+      if (
+        (nextSlot.status === "CONFIRMED" && end > nextSlot.minutes) ||
+        (blockedHours &&
+          blockedHours.some((blocked) => {
+            const [bh, bm] = blocked.split(":").map(Number);
+            const blockedMinutes = bh * 60 + bm;
+            return start < blockedMinutes && end > blockedMinutes;
+          }))
+      ) {
+        console.log(
+          `⛔ Slot ${startTime}: bloqueado → ${
+            nextSlot.status === "CONFIRMED" && end > nextSlot.minutes
+              ? `próximo slot ${String(
+                  Math.floor(nextSlot.minutes / 60)
+                ).padStart(2, "0")}:${String(nextSlot.minutes % 60).padStart(
+                  2,
+                  "0"
+                )} está CONFIRMED e a duração ultrapassa`
+              : `ultrapassa horário bloqueado`
+          }`
         );
         return false;
       }
