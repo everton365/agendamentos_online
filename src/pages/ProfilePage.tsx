@@ -395,10 +395,10 @@ const ProfilePage = () => {
     durationMinutes: number,
     slots: Slot[],
     rescheduleDate?: string,
-
     blockedHours?: string[],
     date?: string
   ): boolean => {
+    // --- Lógica de conversão de tempo ---
     const [sh, sm] = startTime.split(":").map(Number);
     const start = sh * 60 + sm;
     const end = start + durationMinutes;
@@ -415,58 +415,38 @@ const ProfilePage = () => {
 
     const startIndex = sortedSlots.findIndex((s) => s.minutes === start);
     if (startIndex === -1) {
+      console.log(`⛔ Slot ${startTime}: não encontrado`);
+      return false;
+    }
+
+    const slotStatus = sortedSlots[startIndex].status;
+    if (slotStatus !== "available") {
       console.log(
-        `⛔ Slot ${startTime}: não encontrado → duração = ${durationMinutes}min`
+        `⛔ Slot ${startTime}: status inicial não disponível (${slotStatus})`
       );
       return false;
     }
 
+    // --- Verificações de limites de horário (diários/semanais) ---
     if (date) {
       const [year, month, day] = date.split("-").map(Number);
       const d = new Date(year, month - 1, day);
-      const dayOfWeek = d.getDay(); // 0=Dom, 1=Seg, 2=Ter, ...
+      const dayOfWeek = d.getDay();
 
+      // Quarta-feira (limite 17:00)
       if (dayOfWeek === 3) {
-        const limiteFim = 17 * 60; // 17:00
+        const limiteFim = 17 * 60;
         if (end > limiteFim) {
           console.log(
-            `⛔4 Slot ${startTime}: bloqueado (não pode ultrapassar 17:00 na quarta-feira)`
+            `⛔ Slot ${startTime}: bloqueado (não pode ultrapassar 17:00 na quarta-feira)`
           );
           return false;
         }
       }
-
-      {
-        /*if (dayOfWeek === 2) {
-        // terça-feira
-        const limiteFim = 14 * 60 + 30; // 14:30
-        if (end > limiteFim) {
-          console.log(
-            `⛔ Slot ${startTime}: bloqueado (não pode ultrapassar 14:30 na terça-feira)`
-          );
-          return false;
-        }
-      }*/
-      }
     }
 
-    if (blockedHours && blockedHours.length > 0) {
-      const [slotH] = startTime.split(":").map(Number);
-
-      const isBlockedHour = blockedHours.some((blocked) => {
-        const [bh] = blocked.split(":").map(Number);
-        return bh === slotH; // bloqueia toda a hora
-      });
-
-      if (isBlockedHour) {
-        console.log(
-          `⛔ Slot ${startTime}: bloqueado (hora ${slotH}:00 bloqueada)`
-        );
-        return false;
-      }
-    }
-
-    const limit = 18 * 60 + 40; // 18h30 em minutos
+    // Limite geral (18:30)
+    const limit = 18 * 60 + 30; // Corrigido para 18:30 (era 18:40 no original)
     if (end > limit) {
       console.log(
         `⛔ Slot ${startTime}: duração ${durationMinutes}min ultrapassa 18:30`
@@ -474,110 +454,65 @@ const ProfilePage = () => {
       return false;
     }
 
-    const slotStatus = sortedSlots[startIndex].status;
+    // --- Verificação de Horários Bloqueados (pelo array blockedHours) ---
+    if (blockedHours && blockedHours.length > 0) {
+      const isBlockedByHourArray = blockedHours.some((blocked) => {
+        const [bh, bm] = blocked.split(":").map(Number);
+        const blockedStart = bh * 60 + bm;
+        // Assume que o bloqueio dura 60 min ou o intervalo que você usa para blockedHours
+        const blockedEnd = blockedStart + 60;
 
-    if (slotStatus !== "available") {
-      console.log(
-        `⛔ Slot ${startTime}: status = ${slotStatus} → duração = ${durationMinutes}min`
-      );
-      return false;
+        // Checa se o novo agendamento se sobrepõe ao horário bloqueado
+        return start < blockedEnd && end > blockedStart;
+      });
+
+      if (isBlockedByHourArray) {
+        console.log(
+          `⛔ Slot ${startTime}: bloqueado (conflito com blockedHours)`
+        );
+        return false;
+      }
     }
 
-    const startHour = Math.floor(start / 60);
-    const endHour = Math.floor(end / 60);
+    // ----------------------------------------------------------------------
+    // 🔴 REGRA CORRIGIDA E UNIVERSAL: Verifica conflito com QUALQUER slot CONFIRMED
+    // ----------------------------------------------------------------------
 
-    if (durationMinutes > 60 || (endHour > startHour && durationMinutes > 10)) {
-      const nextSlot = sortedSlots[startIndex + 1];
-      if (!nextSlot) {
+    // Define a duração padrão de um slot existente (parece ser 10 minutos no seu sistema,
+    // julgando pela estrutura de dados e console.logs anteriores)
+    const SLOT_BASE_DURATION = 5;
+
+    for (let i = 0; i < sortedSlots.length; i++) {
+      const slot = sortedSlots[i];
+
+      if (slot.status !== "CONFIRMED") continue;
+
+      const confirmedStart = slot.minutes;
+
+      // Determina o fim do slot confirmado com base no próximo slot ou na duração padrão
+      const nextSlot = sortedSlots[i + 1];
+      const confirmedEnd = nextSlot
+        ? nextSlot.minutes
+        : confirmedStart + SLOT_BASE_DURATION;
+
+      // Se houver qualquer sobreposição entre o novo agendamento (start/end)
+      // e o slot confirmado existente (confirmedStart/confirmedEnd)
+      if (confirmedStart < end && confirmedEnd > start) {
         console.log(
-          `⛔ Slot ${startTime}: status = ${slotStatus} → duração = ${durationMinutes}min → não existe próximo slot`
+          `⛔ Slot ${startTime}: duração ${durationMinutes}min ultrapassa slot CONFIRMED às ${String(
+            Math.floor(confirmedStart / 60)
+          ).padStart(2, "0")}:${String(confirmedStart % 60).padStart(2, "0")}`
         );
-        return false;
+        return false; // Conflito encontrado, não pode agendar
       }
-      for (let i = 0; i < sortedSlots.length; i++) {
-        const slot = sortedSlots[i];
-        const nextSlot = sortedSlots[i + 1];
-        const slotStart = slot.minutes;
-        const slotEnd = nextSlot ? nextSlot.minutes : slotStart + 10;
-
-        if (slot.status === "CONFIRMED" && slotStart < end && slotEnd > start) {
-          console.log(
-            `⛔ Slot ${startTime}: conflito com ${String(
-              Math.floor(slot.minutes / 60)
-            ).padStart(2, "0")}:${String(slot.minutes % 60).padStart(
-              2,
-              "0"
-            )} (CONFIRMED durante o intervalo do serviço)`
-          );
-          return false;
-        }
-      }
-
-      if (
-        slotStatus !== "available" && // não está disponível
-        !(
-          Math.floor(nextSlot.minutes / 60) === 18 &&
-          nextSlot.minutes % 60 === 30
-        ) // e também não é 18:30
-      ) {
-        console.log(
-          `⛔1 Slot ${startTime}: status = ${slotStatus} → duração = ${durationMinutes}min → próximo slot ${String(
-            Math.floor(nextSlot.minutes / 60)
-          ).padStart(2, "0")}:${String(nextSlot.minutes % 60).padStart(
-            2,
-            "0"
-          )} não está disponível e não é 18:30`
-        );
-        return false;
-      }
-      // 🚫 Verifica se a duração ultrapassa um slot CONFIRMED
-      if (nextSlot && nextSlot.status === "CONFIRMED") {
-        const nextMinutes = nextSlot.minutes;
-
-        // Se o serviço ultrapassa o próximo slot confirmado → bloqueia
-        if (start < nextMinutes && end > nextMinutes) {
-          console.log(
-            `⛔ Slot ${startTime}: bloqueado (duração ultrapassa slot confirmado às ${String(
-              Math.floor(nextMinutes / 60)
-            ).padStart(2, "0")}:${String(nextMinutes % 60).padStart(2, "0")})`
-          );
-          return false;
-        }
-      }
-
-      if (
-        (nextSlot.status === "CONFIRMED" && end > nextSlot.minutes) ||
-        (blockedHours &&
-          blockedHours.some((blocked) => {
-            const [bh, bm] = blocked.split(":").map(Number);
-            const blockedMinutes = bh * 60 + bm;
-            return start < blockedMinutes && end > blockedMinutes;
-          }))
-      ) {
-        console.log(
-          `⛔ Slot ${startTime}: bloqueado → ${
-            nextSlot.status === "CONFIRMED" && end > nextSlot.minutes
-              ? `próximo slot ${String(
-                  Math.floor(nextSlot.minutes / 60)
-                ).padStart(2, "0")}:${String(nextSlot.minutes % 60).padStart(
-                  2,
-                  "0"
-                )} está CONFIRMED e a duração ultrapassa`
-              : `ultrapassa horário bloqueado`
-          }`
-        );
-        return false;
-      }
-
-      console.log(
-        `✅ Slot ${startTime}: status = ${slotStatus} → duração = ${durationMinutes}min → próximo slot em hora cheia OK`
-      );
-    } else {
-      console.log(
-        `✅ Slot ${startTime}: status = ${slotStatus} → duração = ${durationMinutes}min (termina na mesma hora) liberado`
-      );
     }
 
+    // ----------------------------------------------------------------------
+    // ✅ Se chegou até aqui, está tudo certo.
+    // ----------------------------------------------------------------------
+    console.log(
+      `✅ Slot ${startTime}: disponível e sem conflitos → duração = ${durationMinutes}min`
+    );
     return true;
   };
 

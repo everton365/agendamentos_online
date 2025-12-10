@@ -690,10 +690,32 @@ const AppointmentBookingPage = () => {
       console.log(
         `✅ Slot ${startTime}: status = ${slotStatus} → duração = ${durationMinutes}min → próximo slot em hora cheia OK`
       );
-    } else {
-      console.log(
-        `✅ Slot ${startTime}: status = ${slotStatus} → duração = ${durationMinutes}min (termina na mesma hora) liberado`
-      );
+    }
+    const SLOT_BASE_DURATION = 5;
+
+    for (let i = 0; i < sortedSlots.length; i++) {
+      const slot = sortedSlots[i];
+
+      if (slot.status !== "CONFIRMED") continue;
+
+      const confirmedStart = slot.minutes;
+
+      // Determina o fim do slot confirmado com base no próximo slot ou na duração padrão
+      const nextSlot = sortedSlots[i + 1];
+      const confirmedEnd = nextSlot
+        ? nextSlot.minutes
+        : confirmedStart + SLOT_BASE_DURATION;
+
+      // Se houver qualquer sobreposição entre o novo agendamento (start/end)
+      // e o slot confirmado existente (confirmedStart/confirmedEnd)
+      if (confirmedStart < end && confirmedEnd > start) {
+        console.log(
+          `⛔ Slot ${startTime}: duração ${durationMinutes}min ultrapassa slot CONFIRMED às ${String(
+            Math.floor(confirmedStart / 60)
+          ).padStart(2, "0")}:${String(confirmedStart % 60).padStart(2, "0")}`
+        );
+        return false; // Conflito encontrado, não pode agendar
+      }
     }
 
     return true;
