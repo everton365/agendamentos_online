@@ -126,6 +126,7 @@ const ProfilePage = () => {
   useEffect(() => {
     // limpa o carrinho assim que a tela de sucesso carregar
     clearCart();
+    localStorage.removeItem("appointmentIds");
   }, []);
   const parseDuration = (duration: string | number) => {
     if (typeof duration === "number") return duration; // já é em minutos

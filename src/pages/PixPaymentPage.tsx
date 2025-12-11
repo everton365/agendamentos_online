@@ -50,12 +50,6 @@ const PixPaymentPage = () => {
   const [qrCodeError, setQrCodeError] = useState(false);
   const [qrCodeLoading, setQrCodeLoading] = useState(true);
   const [loading, setLoading] = useState(true);
-  useEffect(() => {
-    if (!appointments || appointments.length === 0) {
-      // carrinho vazio → volta para a home
-      navigate("/", { replace: true });
-    }
-  }, [appointments, navigate]);
 
   useEffect(() => {
     if (!appointmentId?.length || !appointmentData?.length || !baseURL) {

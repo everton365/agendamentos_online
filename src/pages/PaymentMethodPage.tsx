@@ -74,6 +74,12 @@ const PaymentMethodPage = () => {
       navigate("/agendamento", { replace: true });
     }
   }, [appointments, navigate]);
+  useEffect(() => {
+    const saved = localStorage.getItem("appointmentIds");
+    if (saved) {
+      setAppointmentIds(JSON.parse(saved));
+    }
+  }, []);
 
   const totalBookingFee = appointments.length * 20; // R$ 20 por agendamento
 
@@ -283,6 +289,7 @@ const PaymentMethodPage = () => {
         }
 
         setAppointmentIds(createdIds);
+        localStorage.setItem("appointmentIds", JSON.stringify(createdIds));
 
         // Se admin, redireciona direto
         if (userRole === "admin") {

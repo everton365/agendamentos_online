@@ -117,6 +117,8 @@ const AppointmentBookingPage = () => {
   useEffect(() => {
     // Remove do localStorage depois de pegar
     localStorage.removeItem("appointmentId");
+
+    localStorage.removeItem("appointmentIds");
   }, []);
 
   useEffect(() => {
