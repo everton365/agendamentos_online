@@ -37,7 +37,7 @@ import { format, parseISO, isFuture, isPast } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import Header from "@/components/Header";
 import { useCart } from "@/contexts/CartContext";
-
+import { useNavigate } from "react-router-dom";
 interface Profile {
   display_name: string | null;
   phone: string | null;
@@ -68,6 +68,7 @@ type Slot = {
 
 const ProfilePage = () => {
   const { user, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -111,6 +112,22 @@ const ProfilePage = () => {
   );
   const baseURL = import.meta.env.VITE_API_URL;
   const studioId = import.meta.env.VITE_STUDIO_ID;
+
+  useEffect(() => {
+    // Adiciona um novo estado ao histórico
+    window.history.pushState(null, "", window.location.href);
+
+    const handlePopState = () => {
+      navigate("/", { replace: true }); // força voltar para home
+    };
+
+    window.addEventListener("popstate", handlePopState);
+
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [navigate]);
+
   useEffect(() => {
     if (!rescheduleDate) return;
 
@@ -127,6 +144,7 @@ const ProfilePage = () => {
     // limpa o carrinho assim que a tela de sucesso carregar
     clearCart();
     localStorage.removeItem("appointmentIds");
+    localStorage.removeItem("pixPaymentData");
   }, []);
   const parseDuration = (duration: string | number) => {
     if (typeof duration === "number") return duration; // já é em minutos

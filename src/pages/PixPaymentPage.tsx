@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useLayoutEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -43,6 +43,8 @@ const PixPaymentPage = () => {
   const appointmentData = location.state?.appointments as AppointmentData[];
   const adjustedPrice = location.state?.adjustedPrice;
   const baseURL = import.meta.env.VITE_API_PAGAMENTO || "http://localhost:3001";
+  // tenta carregar um PIX salvo
+  const savedPix = JSON.parse(localStorage.getItem("pixPaymentData") || "null");
 
   const [pixPaymentData, setPixPaymentData] = useState<PixPaymentData | null>(
     null
@@ -50,19 +52,6 @@ const PixPaymentPage = () => {
   const [qrCodeError, setQrCodeError] = useState(false);
   const [qrCodeLoading, setQrCodeLoading] = useState(true);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // pega do localStorage
-    const storedAppointmentIds = JSON.parse(
-      localStorage.getItem("appointmentIds") || "[]"
-    );
-
-    // se localStorage está vazio → vai para agendamento
-    if (!storedAppointmentIds || storedAppointmentIds.length === 0) {
-      navigate("/agendamento", { replace: true });
-      return;
-    }
-  }, [appointmentId, navigate]);
 
   useEffect(() => {
     if (!appointmentId?.length || !appointmentData?.length || !baseURL) {
@@ -74,7 +63,11 @@ const PixPaymentPage = () => {
       navigate("/pagamento");
       return;
     }
-
+    if (savedPix) {
+      setPixPaymentData(savedPix);
+      setLoading(false);
+      return;
+    }
     const fetchPixPayment = async () => {
       setLoading(true);
       try {
@@ -99,6 +92,7 @@ const PixPaymentPage = () => {
 
         const data = await response.json();
         setPixPaymentData(data);
+        localStorage.setItem("pixPaymentData", JSON.stringify(data));
 
         toast({
           title: "PIX gerado com sucesso!",
