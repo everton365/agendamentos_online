@@ -52,6 +52,19 @@ const PixPaymentPage = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // pega do localStorage
+    const storedAppointmentIds = JSON.parse(
+      localStorage.getItem("appointmentIds") || "[]"
+    );
+
+    // se localStorage está vazio → vai para agendamento
+    if (!storedAppointmentIds || storedAppointmentIds.length === 0) {
+      navigate("/agendamento", { replace: true });
+      return;
+    }
+  }, [appointmentId, navigate]);
+
+  useEffect(() => {
     if (!appointmentId?.length || !appointmentData?.length || !baseURL) {
       toast({
         title: "Erro",
