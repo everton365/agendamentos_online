@@ -426,16 +426,20 @@ const AppointmentBookingPage = () => {
     try {
       // Check availability one more time
       const totalDuration = getTotalDuration();
-      const slots = await getTimeSlotsForDate(formData.date, totalDuration);
-      const selectedSlot = slots.find((slot) => slot.time === formData.time);
-      if (!selectedSlot || selectedSlot.status !== "available") {
-        toast({
-          title: "Horário indisponível",
-          description:
-            "Este horário não está mais disponível. Por favor, escolha outro.",
-          variant: "destructive",
-        });
-        return;
+
+      if (!userRole || userRole !== "admin") {
+        const slots = await getTimeSlotsForDate(formData.date, totalDuration);
+        const selectedSlot = slots.find((slot) => slot.time === formData.time);
+
+        if (!selectedSlot || selectedSlot.status !== "available") {
+          toast({
+            title: "Horário indisponível",
+            description:
+              "Este horário não está mais disponível. Por favor, escolha outro.",
+            variant: "destructive",
+          });
+          return;
+        }
       }
 
       // Add to cart
@@ -1129,14 +1133,14 @@ const AppointmentBookingPage = () => {
                                   <div>{slot.time}</div>
                                   <div className="text-[10px] md:text-xs mt-0.5 md:mt-1">
                                     {isAdmin
-                                      ? "Admin"
+                                      ? slot.status === "available"
+                                        ? "Livre (Admin)"
+                                        : "Ocupado (Admin)"
                                       : slot.status === "available" &&
                                         slot.slotSelectable
                                       ? "Livre"
                                       : slot.status === "PENDING"
                                       ? "Pendente"
-                                      : slot.status === "CONFIRMED"
-                                      ? "Ocupado"
                                       : "Ocupado"}
                                   </div>
                                 </div>

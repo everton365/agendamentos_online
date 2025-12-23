@@ -18,9 +18,7 @@ import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import { supabase } from "@/integrations/supabase/client";
 import { initMercadoPago, Wallet } from "@mercadopago/sdk-react";
-import WhatsAppButton from "../components/whatsappButton";
-const baseaCESS = import.meta.env.VITE_PAGO_ACESS;
-initMercadoPago(baseaCESS);
+
 import { useCart } from "@/contexts/CartContext";
 
 interface AppointmentData {
@@ -123,27 +121,6 @@ const PaymentMethodPage = () => {
       setPreferenceUrl(savedAppointmentId);
     }
   }, []);
-  const getServicePrice = (service: string): number => {
-    const prices: Record<string, number> = {
-      design: 8000, // R$ 80,00 in cents
-      microblading: 45000, // R$ 450,00 in cents
-      henna: 6000, // R$ 60,00 in cents
-      laminacao: 12000, // R$ 120,00 in cents
-      consulta: 5000, // R$ 50,00 in cents
-    };
-    return prices[service] || 0;
-  };
-
-  const getServiceName = (service: string): string => {
-    const names: Record<string, string> = {
-      design: "Design de Sobrancelhas",
-      microblading: "Microblading",
-      henna: "Henna para Sobrancelhas",
-      laminacao: "Laminação de Sobrancelhas",
-      consulta: "Consulta/Avaliação",
-    };
-    return names[service] || service;
-  };
 
   const formatPrice = (price: number): string => {
     return `R$ ${price.toFixed(2).replace(".", ",")}`;
@@ -159,7 +136,6 @@ const PaymentMethodPage = () => {
     });
   };
 
-  const Price = 0; // Not used anymore
   const bookingFee = 20; // R$ 20,00 booking fee per appointment
   const totalPrice = totalBookingFee; // Total booking fee
   const baseURL = import.meta.env.VITE_API_PAGAMENTO;
@@ -172,79 +148,6 @@ const PaymentMethodPage = () => {
       popular: false,
     },
   ];
-
-  {
-    /*const handlePayment = async () => {
-    if (!selectedPaymentMethod) return;
-
-    setLoading(true);
-
-    try {
-      // Pega o usuário logado no Supabase
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser();
-      if (userError || !user) throw new Error("Usuário não autenticado");
-
-      console.log("Usuário logado:", user);
-
-      if (selectedPaymentMethod === "pix") {
-        // Inclui user_id nos dados do agendamento
-        const bodyData = { ...appointmentData, totalPrice, user_id: user.id };
-
-        console.log("Dados enviados para create-pix:", bodyData);
-
-        const response = await fetch(`${baseURL}/user/create-pix`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(bodyData), // <-- enviar direto
-        });
-        console.log("Status da resposta:", response.status);
-        const data: PixResponse = await response.json();
-        console.log(data);
-
-        if (data.error) throw new Error(data.error);
-
-        setPixQRCode(data.qrCodeBase64);
-        setPixData(data);
-        toast({
-          title: "PIX gerado com sucesso!",
-          description: "Use o QR Code para efetuar o pagamento.",
-        });
-      } else {
-        // Stripe: chama backend para criar checkout session
-        const { supabase } = await import("@/integrations/supabase/client");
-
-        console.log("Chamando supabase function create-payment...");
-        const { data, error } = await supabase.functions.invoke(
-          "create-payment",
-          {
-            body: { appointmentData },
-          }
-        );
-
-        console.log("Supabase response data:", data);
-        console.log("Supabase response error:", error);
-
-        if (error) throw error;
-        if (data?.url) {
-          console.log("Abrindo Stripe checkout URL:", data.url);
-          window.open(data.url, "_blank");
-        }
-      }
-    } catch (error: any) {
-      console.error("Erro no handlePayment:", error);
-      toast({
-        title: "Erro no pagamento",
-        description: error.message || "Tente novamente.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };*/
-  }
 
   useEffect(() => {
     if (!userRole) return;
@@ -474,39 +377,6 @@ const PaymentMethodPage = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {/*
-                <RadioGroup
-                  value={selectedPaymentMethod}
-                  onValueChange={setSelectedPaymentMethod}
-                  className="space-y-4"
-                >
-                  {paymentMethods.map((method) => (
-                    <div key={method.id} className="relative">
-                      <Label
-                        htmlFor={method.id}
-                        className="flex items-center space-x-4 p-4 border-2 rounded-lg cursor-pointer hover:border-primary/50 transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary/5"
-                      >
-                        <RadioGroupItem value={method.id} id={method.id} />
-                        <method.icon className="w-6 h-6 text-primary" />
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium">{method.name}</span>
-                            {method.popular && (
-                              <span className="px-2 py-1 text-xs bg-primary text-white rounded-full">
-                                Popular
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-sm text-muted-foreground">
-                            {method.description}
-                          </p>
-                        </div>
-                      </Label>
-                    </div>
-                  ))}
-                </RadioGroup>
-*/}
-
                 <label className="flex items-center space-x-2 mt-4">
                   <input
                     type="checkbox"
@@ -537,24 +407,6 @@ const PaymentMethodPage = () => {
                     )}
                   </Button>
                 </div>
-                {/*
-                <Button
-                  onClick={handlePayment}
-                  disabled={!selectedPaymentMethod || loading}
-                  variant="primary"
-                  size="lg"
-                  className="w-full mt-6 flex justify-center items-center"
-                >
-                  {loading ? (
-                    "Processando..."
-                  ) : (
-                    <>
-                      <CheckCircle className="w-5 h-5 mr-2" />
-                      Confirmar e Pagar {formatPrice(totalPrice)}
-                    </>
-                  )}
-                </Button>
-                */}
               </CardContent>
             </Card>
           </div>
