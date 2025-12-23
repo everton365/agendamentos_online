@@ -1216,7 +1216,6 @@ const AppointmentBookingPage = () => {
           </div>
         </div>
       </div>
-      {/* <WhatsAppButton />*/}
     </div>
   );
 };
