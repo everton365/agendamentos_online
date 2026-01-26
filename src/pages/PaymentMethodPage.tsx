@@ -85,7 +85,7 @@ const PaymentMethodPage = () => {
     return appointments.reduce((total, apt) => {
       const priceStr = apt.price || "R$ 0";
       const priceValue = parseFloat(
-        priceStr.replace("R$", "").replace(/\./g, "").replace(",", ".").trim()
+        priceStr.replace("R$", "").replace(/\./g, "").replace(",", ".").trim(),
       );
       return total + (isNaN(priceValue) ? 0 : priceValue);
     }, 0);
@@ -354,6 +354,20 @@ const PaymentMethodPage = () => {
                   <li>
                     • Taxa de agendamento de R$ 20,00 para confirmar o horário
                     (será descontada do valor do serviço)
+                  </li>
+                  <li>
+                    •{" "}
+                    <strong className="font-black">
+                      A TAXA NÃO É DEVOLVIDA
+                    </strong>
+                    , desmarcando dentro do prazo de até 3 horas antes do seu
+                    atendimento você poderá realizar um novo agendamento sem
+                    precisar pagar a taxa novamente.
+                    <strong className="font-black">
+                      {" "}
+                      DESMARQUES APÓS O PRAZO SERÁ NECESSÁRIO O PAGAMENTO DE UMA
+                      NOVA TAXA PARA REAGENDAMENTO.
+                    </strong>
                   </li>
                   <li>
                     • O agendamento ficará reservado por 20 minutos. Após esse
