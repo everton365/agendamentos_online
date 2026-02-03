@@ -28,6 +28,7 @@ export type Database = {
           name: string
           note: string | null
           phone: string
+          pix_id: string | null
           preference_id: string | null
           price: string | null
           service: string
@@ -36,7 +37,6 @@ export type Database = {
           studio_id: string | null
           updated_at: string
           user_id: string | null
-          whatsapp_sent: boolean | null
         }
         Insert: {
           appointment_date: string
@@ -51,6 +51,7 @@ export type Database = {
           name: string
           note?: string | null
           phone: string
+          pix_id?: string | null
           preference_id?: string | null
           price?: string | null
           service: string
@@ -59,7 +60,6 @@ export type Database = {
           studio_id?: string | null
           updated_at?: string
           user_id?: string | null
-          whatsapp_sent?: boolean | null
         }
         Update: {
           appointment_date?: string
@@ -74,6 +74,7 @@ export type Database = {
           name?: string
           note?: string | null
           phone?: string
+          pix_id?: string | null
           preference_id?: string | null
           price?: string | null
           service?: string
@@ -82,52 +83,39 @@ export type Database = {
           studio_id?: string | null
           updated_at?: string
           user_id?: string | null
-          whatsapp_sent?: boolean | null
         }
         Relationships: []
       }
       assinaturas: {
         Row: {
-          acess_token: string | null
-          address_studio: string | null
           created_at: string
           date_final: string | null
           date_inicio: string | null
           id: number
-          link_studio: string | null
           name: string | null
           new_id: string | null
-          number: string | null
           plano: string | null
           senhas: string | null
           status: string | null
         }
         Insert: {
-          acess_token?: string | null
-          address_studio?: string | null
           created_at?: string
           date_final?: string | null
           date_inicio?: string | null
           id?: number
-          link_studio?: string | null
           name?: string | null
           new_id?: string | null
-          number?: string | null
           plano?: string | null
           senhas?: string | null
           status?: string | null
         }
         Update: {
-          acess_token?: string | null
-          address_studio?: string | null
           created_at?: string
           date_final?: string | null
           date_inicio?: string | null
           id?: number
-          link_studio?: string | null
           name?: string | null
           new_id?: string | null
-          number?: string | null
           plano?: string | null
           senhas?: string | null
           status?: string | null
@@ -197,96 +185,239 @@ export type Database = {
         }
         Relationships: []
       }
-      services: {
-        Row: {
-          created_at: string
-          description: string | null
-          duration: string | null
-          id: number
-          link_service: string | null
-          name: string | null
-          price: string | null
-          studio_id: string | null
-          taxa: string | null
-        }
-        Insert: {
-          created_at?: string
-          description?: string | null
-          duration?: string | null
-          id?: number
-          link_service?: string | null
-          name?: string | null
-          price?: string | null
-          studio_id?: string | null
-          taxa?: string | null
-        }
-        Update: {
-          created_at?: string
-          description?: string | null
-          duration?: string | null
-          id?: number
-          link_service?: string | null
-          name?: string | null
-          price?: string | null
-          studio_id?: string | null
-          taxa?: string | null
-        }
-        Relationships: []
-      }
-      studios: {
-        Row: {
-          created_at: string
-          email_studio: string | null
-          endereco: string | null
-          facebook_studio: string | null
-          foto_capa: string | null
-          foto_studio: string | null
-          horario_funcionamento: Json | null
-          instagran_studio: string | null
-          nome_studio: string | null
-          phone_number: string | null
-          sobre: string | null
-          studio_id: string | null
-          tiktok_studio: string | null
-        }
-        Insert: {
-          created_at?: string
-          email_studio?: string | null
-          endereco?: string | null
-          facebook_studio?: string | null
-          foto_capa?: string | null
-          foto_studio?: string | null
-          horario_funcionamento?: Json | null
-          instagran_studio?: string | null
-          nome_studio?: string | null
-          phone_number?: string | null
-          sobre?: string | null
-          studio_id?: string | null
-          tiktok_studio?: string | null
-        }
-        Update: {
-          created_at?: string
-          email_studio?: string | null
-          endereco?: string | null
-          facebook_studio?: string | null
-          foto_capa?: string | null
-          foto_studio?: string | null
-          horario_funcionamento?: Json | null
-          instagran_studio?: string | null
-          nome_studio?: string | null
-          phone_number?: string | null
-          sobre?: string | null
-          studio_id?: string | null
-          tiktok_studio?: string | null
-        }
-        Relationships: []
-      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      call_cancel_pending: { Args: never; Returns: undefined }
+      call_cancel_pending: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      gbt_bit_compress: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbt_bool_compress: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbt_bool_fetch: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbt_bpchar_compress: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbt_bytea_compress: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbt_cash_compress: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbt_cash_fetch: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbt_date_compress: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbt_date_fetch: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbt_decompress: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbt_enum_compress: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbt_enum_fetch: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbt_float4_compress: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbt_float4_fetch: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbt_float8_compress: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbt_float8_fetch: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbt_inet_compress: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbt_int2_compress: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbt_int2_fetch: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbt_int4_compress: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbt_int4_fetch: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbt_int8_compress: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbt_int8_fetch: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbt_intv_compress: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbt_intv_decompress: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbt_intv_fetch: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbt_macad_compress: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbt_macad_fetch: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbt_macad8_compress: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbt_macad8_fetch: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbt_numeric_compress: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbt_oid_compress: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbt_oid_fetch: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbt_text_compress: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbt_time_compress: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbt_time_fetch: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbt_timetz_compress: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbt_ts_compress: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbt_ts_fetch: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbt_tstz_compress: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbt_uuid_compress: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbt_uuid_fetch: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbt_var_decompress: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbt_var_fetch: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbtreekey_var_in: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbtreekey_var_out: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbtreekey16_in: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbtreekey16_out: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbtreekey2_in: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbtreekey2_out: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbtreekey32_in: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbtreekey32_out: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbtreekey4_in: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbtreekey4_out: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbtreekey8_in: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gbtreekey8_out: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
     }
     Enums: {
       [_ in never]: never
