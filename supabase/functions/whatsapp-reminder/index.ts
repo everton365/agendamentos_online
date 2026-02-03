@@ -102,10 +102,11 @@ async function sendWhatsAppMessage(phone: string, message: string): Promise<{ st
     };
   } catch (error) {
     console.error('Error sending WhatsApp message:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return {
       status: 500,
       success: false,
-      error: error.message
+      error: errorMessage
     };
   }
 }
@@ -208,10 +209,11 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Error in whatsapp-reminder function:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error.message,
+        error: errorMessage,
         results: []
       }),
       { 

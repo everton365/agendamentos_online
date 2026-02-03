@@ -388,9 +388,12 @@ const ProfilePage = () => {
   const futureAppointments = appointments.filter((apt) =>
     isFuture(parseISO(`${apt.appointment_date}T${apt.appointment_time}`))
   );
-  const pastAppointments = appointments.filter((apt) =>
-    isPast(parseISO(`${apt.appointment_date}T${apt.appointment_time}`))
-  );
+  const currentYear = new Date().getFullYear();
+  const pastAppointments = appointments.filter((apt) => {
+    const appointmentDate = parseISO(`${apt.appointment_date}T${apt.appointment_time}`);
+    const appointmentYear = appointmentDate.getFullYear();
+    return isPast(appointmentDate) && appointmentYear === currentYear;
+  });
 
   const getStatusBadge = (status: string) => {
     const statusMap = {
