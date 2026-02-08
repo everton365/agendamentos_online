@@ -108,7 +108,7 @@ const ProfilePage = () => {
       };
 
   const [blockedDate, setBlockedDate] = useState<BlockedDateResponse | null>(
-    null
+    null,
   );
   const baseURL = import.meta.env.VITE_API_URL;
   const studioId = import.meta.env.VITE_STUDIO_ID;
@@ -132,7 +132,7 @@ const ProfilePage = () => {
     if (!rescheduleDate) return;
 
     fetch(
-      `${baseURL}/user/appointments/date-bloqueada/${rescheduleDate}?studioId=${studioId}`
+      `${baseURL}/user/appointments/date-bloqueada/${rescheduleDate}?studioId=${studioId}`,
     )
       .then((res) => res.json())
       .then((data) => {
@@ -195,7 +195,7 @@ const ProfilePage = () => {
         (a: any) => ({
           ...a,
           price: a.price ?? "R$ 0,00",
-        })
+        }),
       );
       setAppointments(appointmentsWithPrice);
     } catch (error) {
@@ -238,7 +238,7 @@ const ProfilePage = () => {
           phone: profile.phone,
           avatar_url: finalAvatarUrl,
         },
-        { onConflict: "user_id,studio_id" }
+        { onConflict: "user_id,studio_id" },
       );
       if (error) throw error;
 
@@ -272,7 +272,7 @@ const ProfilePage = () => {
 
   const canReschedule = (appointmentDate: string, appointmentTime: string) => {
     const appointmentDateTime = parseISO(
-      `${appointmentDate}T${appointmentTime}`
+      `${appointmentDate}T${appointmentTime}`,
     );
     const diffHours =
       (appointmentDateTime.getTime() - new Date().getTime()) / (1000 * 60 * 60);
@@ -305,7 +305,7 @@ const ProfilePage = () => {
   const getTimeSlotsForDate = async (date: string) => {
     try {
       const res = await fetch(
-        `${baseURL}/user/appointments/status/${date}?studioId=${studioId}`
+        `${baseURL}/user/appointments/status/${date}?studioId=${studioId}`,
       );
       if (!res.ok) throw new Error("Erro ao buscar horários");
       const data = await res.json();
@@ -343,7 +343,7 @@ const ProfilePage = () => {
     if (
       !canReschedule(
         selectedAppointment.appointment_date,
-        selectedAppointment.appointment_time
+        selectedAppointment.appointment_time,
       )
     ) {
       toast({
@@ -386,11 +386,16 @@ const ProfilePage = () => {
   };
 
   const futureAppointments = appointments.filter((apt) =>
-    isFuture(parseISO(`${apt.appointment_date}T${apt.appointment_time}`))
+    isFuture(parseISO(`${apt.appointment_date}T${apt.appointment_time}`)),
   );
-  const pastAppointments = appointments.filter((apt) =>
-    isPast(parseISO(`${apt.appointment_date}T${apt.appointment_time}`))
-  );
+  const currentYear = new Date().getFullYear();
+  const pastAppointments = appointments.filter((apt) => {
+    const appointmentDate = parseISO(
+      `${apt.appointment_date}T${apt.appointment_time}`,
+    );
+    const appointmentYear = appointmentDate.getFullYear();
+    return isPast(appointmentDate) && appointmentYear === currentYear;
+  });
 
   const getStatusBadge = (status: string) => {
     const statusMap = {
@@ -415,7 +420,7 @@ const ProfilePage = () => {
     slots: Slot[],
     rescheduleDate?: string,
     blockedHours?: string[],
-    date?: string
+    date?: string,
   ): boolean => {
     // --- Lógica de conversão de tempo ---
     const [sh, sm] = startTime.split(":").map(Number);
@@ -441,7 +446,7 @@ const ProfilePage = () => {
     const slotStatus = sortedSlots[startIndex].status;
     if (slotStatus !== "available") {
       console.log(
-        `⛔ Slot ${startTime}: status inicial não disponível (${slotStatus})`
+        `⛔ Slot ${startTime}: status inicial não disponível (${slotStatus})`,
       );
       return false;
     }
@@ -457,7 +462,7 @@ const ProfilePage = () => {
         const limiteFim = 17 * 60;
         if (end > limiteFim) {
           console.log(
-            `⛔ Slot ${startTime}: bloqueado (não pode ultrapassar 17:00 na quarta-feira)`
+            `⛔ Slot ${startTime}: bloqueado (não pode ultrapassar 17:00 na quarta-feira)`,
           );
           return false;
         }
@@ -468,7 +473,7 @@ const ProfilePage = () => {
     const limit = 18 * 60 + 30; // Corrigido para 18:30 (era 18:40 no original)
     if (end > limit) {
       console.log(
-        `⛔ Slot ${startTime}: duração ${durationMinutes}min ultrapassa 18:30`
+        `⛔ Slot ${startTime}: duração ${durationMinutes}min ultrapassa 18:30`,
       );
       return false;
     }
@@ -487,7 +492,7 @@ const ProfilePage = () => {
 
       if (isBlockedByHourArray) {
         console.log(
-          `⛔ Slot ${startTime}: bloqueado (conflito com blockedHours)`
+          `⛔ Slot ${startTime}: bloqueado (conflito com blockedHours)`,
         );
         return false;
       }
@@ -519,8 +524,8 @@ const ProfilePage = () => {
       if (confirmedStart < end && confirmedEnd > start) {
         console.log(
           `⛔ Slot ${startTime}: duração ${durationMinutes}min ultrapassa slot CONFIRMED às ${String(
-            Math.floor(confirmedStart / 60)
-          ).padStart(2, "0")}:${String(confirmedStart % 60).padStart(2, "0")}`
+            Math.floor(confirmedStart / 60),
+          ).padStart(2, "0")}:${String(confirmedStart % 60).padStart(2, "0")}`,
         );
         return false; // Conflito encontrado, não pode agendar
       }
@@ -530,7 +535,7 @@ const ProfilePage = () => {
     // ✅ Se chegou até aqui, está tudo certo.
     // ----------------------------------------------------------------------
     console.log(
-      `✅ Slot ${startTime}: disponível e sem conflitos → duração = ${durationMinutes}min`
+      `✅ Slot ${startTime}: disponível e sem conflitos → duração = ${durationMinutes}min`,
     );
     return true;
   };
@@ -563,7 +568,7 @@ const ProfilePage = () => {
         availableTimes,
         rescheduleDate,
         blockedHours,
-        normalizedDate
+        normalizedDate,
       );
 
       const [h, m] = slot.time.split(":").map(Number);
@@ -726,8 +731,8 @@ const ProfilePage = () => {
                 {loading
                   ? "Salvando..."
                   : isEditing
-                  ? "Salvar Alterações"
-                  : "Editar Perfil"}
+                    ? "Salvar Alterações"
+                    : "Editar Perfil"}
               </Button>
             </CardContent>
           </Card>
@@ -789,7 +794,7 @@ const ProfilePage = () => {
                                     {format(
                                       parseISO(appointment.appointment_date),
                                       "dd 'de' MMMM 'de' yyyy",
-                                      { locale: ptBR }
+                                      { locale: ptBR },
                                     )}
                                   </div>
                                   <div className="flex items-center gap-1">
@@ -820,7 +825,7 @@ const ProfilePage = () => {
                                 {format(
                                   parseISO(appointment.appointment_date),
                                   "dd 'de' MMMM 'de' yyyy",
-                                  { locale: ptBR }
+                                  { locale: ptBR },
                                 )}
                               </div>
                               <div className="flex items-center gap-1">
@@ -875,12 +880,12 @@ const ProfilePage = () => {
             isSelected && isAvailable && slot.slotSelectable
               ? "border-primary bg-primary text-primary-foreground"
               : isAvailable && slot.slotSelectable
-              ? "border-[hsl(var(--status-available))] bg-[hsl(var(--status-available)/0.1)] text-[hsl(var(--status-available))] hover:bg-[hsl(var(--status-available)/0.2)]"
-              : slot.displayStatus === "PENDING"
-              ? "border-[hsl(var(--status-pending))] bg-[hsl(var(--status-pending)/0.1)] text-[hsl(var(--status-pending))] cursor-not-allowed"
-              : slot.displayStatus === "CONFIRMED"
-              ? "border-[hsl(var(--status-confirmed))] bg-[hsl(var(--status-confirmed)/0.1)] text-[hsl(var(--status-confirmed))] cursor-not-allowed"
-              : "border-[hsl(var(--status-blocked))] bg-[hsl(var(--status-blocked)/0.1)] text-[hsl(var(--status-blocked))] cursor-not-allowed"
+                ? "border-[hsl(var(--status-available))] bg-[hsl(var(--status-available)/0.1)] text-[hsl(var(--status-available))] hover:bg-[hsl(var(--status-available)/0.2)]"
+                : slot.displayStatus === "PENDING"
+                  ? "border-[hsl(var(--status-pending))] bg-[hsl(var(--status-pending)/0.1)] text-[hsl(var(--status-pending))] cursor-not-allowed"
+                  : slot.displayStatus === "CONFIRMED"
+                    ? "border-[hsl(var(--status-confirmed))] bg-[hsl(var(--status-confirmed)/0.1)] text-[hsl(var(--status-confirmed))] cursor-not-allowed"
+                    : "border-[hsl(var(--status-blocked))] bg-[hsl(var(--status-blocked)/0.1)] text-[hsl(var(--status-blocked))] cursor-not-allowed"
           }
         `}
                                       >
@@ -890,11 +895,11 @@ const ProfilePage = () => {
                                             {isAvailable && slot.slotSelectable
                                               ? "Disponível"
                                               : slot.displayStatus === "PENDING"
-                                              ? "Pendente"
-                                              : slot.displayStatus ===
-                                                "CONFIRMED"
-                                              ? "Ocupado"
-                                              : "Ocupado"}
+                                                ? "Pendente"
+                                                : slot.displayStatus ===
+                                                    "CONFIRMED"
+                                                  ? "Ocupado"
+                                                  : "Ocupado"}
                                           </div>
                                         </div>
                                       </button>
@@ -933,7 +938,7 @@ const ProfilePage = () => {
                                         <AlertDialogAction
                                           onClick={() =>
                                             handleCancelAppointment(
-                                              appointment.id
+                                              appointment.id,
                                             )
                                           }
                                         >
@@ -989,7 +994,7 @@ const ProfilePage = () => {
                                 {format(
                                   parseISO(appointment.appointment_date),
                                   "dd 'de' MMMM 'de' yyyy",
-                                  { locale: ptBR }
+                                  { locale: ptBR },
                                 )}
                               </div>
                               <div className="flex items-center gap-1">

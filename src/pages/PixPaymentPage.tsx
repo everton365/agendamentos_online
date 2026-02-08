@@ -47,7 +47,7 @@ const PixPaymentPage = () => {
   const savedPix = JSON.parse(localStorage.getItem("pixPaymentData") || "null");
 
   const [pixPaymentData, setPixPaymentData] = useState<PixPaymentData | null>(
-    null
+    null,
   );
   const [qrCodeError, setQrCodeError] = useState(false);
   const [qrCodeLoading, setQrCodeLoading] = useState(true);
@@ -174,7 +174,7 @@ const PixPaymentPage = () => {
           </div>
 
           <div className="space-y-4">
-            {/* QR Code Section */}
+            {/* QR Code Section 
             <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-elegant">
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -224,7 +224,7 @@ const PixPaymentPage = () => {
                   )}
                 </div>
               </CardContent>
-            </Card>
+            </Card>*/}
 
             {/* Copy and Paste Section */}
             <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-elegant">
@@ -238,7 +238,7 @@ const PixPaymentPage = () => {
               </CardHeader>
               <CardContent className="space-y-3">
                 <p className="text-sm text-muted-foreground">
-                  Ou copie o código abaixo e cole no seu app de pagamento
+                  Copie o código abaixo e cole no seu app de pagamento
                 </p>
                 {pixPaymentData?.qr_code_text ? (
                   <>
@@ -280,8 +280,8 @@ const PixPaymentPage = () => {
                   </h3>
                   <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground">
                     <li>Abra o aplicativo do seu banco ou carteira digital</li>
-                    <li>Escolha a opção "PIX" ou "Ler QR Code"</li>
-                    <li>Escaneie o QR Code acima ou cole o código copiado</li>
+                    <li>Escolha a opção "PIX" </li>
+                    <li>Cole o código copiado</li>
                     <li>Confirme os dados e finalize o pagamento</li>
                     <li>O pagamento é processado instantaneamente</li>
                   </ol>
