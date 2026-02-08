@@ -70,44 +70,60 @@ const PixPaymentPage = () => {
     }
     const fetchPixPayment = async () => {
       setLoading(true);
+
+      const maxRetries = 2;
+
       try {
-        const response = await fetch(`${baseURL}/user/checkout`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            items: appointmentData.map((apt, index) => ({
-              id: appointmentId[index],
-              title: `Agendamento - ${apt.service}`,
-              quantity: 1,
-              unit_price: adjustedPrice,
-              email: apt.email,
-              studioId: apt.studio_id,
-              first_name: apt.name,
-              last_name: "",
-            })),
-          }),
-        });
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+          try {
+            const response = await fetch(`${baseURL}/user/checkout`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                items: appointmentData.map((apt, index) => ({
+                  id: appointmentId[index],
+                  title: `Agendamento - ${apt.service}`,
+                  quantity: 1,
+                  unit_price: adjustedPrice,
+                  email: apt.email,
+                  studioId: apt.studio_id,
+                  first_name: apt.name,
+                  last_name: "",
+                })),
+              }),
+            });
 
-        if (!response.ok) throw new Error("Erro ao gerar PIX");
+            if (!response.ok) throw new Error("Erro ao gerar PIX");
 
-        const data = await response.json();
-        setPixPaymentData(data);
-        localStorage.setItem("pixPaymentData", JSON.stringify(data));
+            const data = await response.json();
 
-        toast({
-          title: "PIX gerado com sucesso!",
-          description: "Use o QR Code ou código para pagar.",
-        });
-      } catch (error: any) {
-        console.error("❌ Erro ao gerar PIX:", error);
-        toast({
-          title: "Erro no pagamento",
-          description: error.message || "Tente novamente.",
-          variant: "destructive",
-        });
-        navigate("/pagamento");
+            setPixPaymentData(data);
+            localStorage.setItem("pixPaymentData", JSON.stringify(data));
+
+            toast({
+              title: "PIX gerado com sucesso!",
+              description: "Use o QR Code ou código para pagar.",
+            });
+
+            return; // sucesso → sai do loop
+          } catch (error: any) {
+            console.error(`❌ Tentativa ${attempt} falhou`, error);
+
+            if (attempt === maxRetries) {
+              toast({
+                title: "Erro no pagamento",
+                description: error.message || "Tente novamente.",
+                variant: "destructive",
+              });
+
+              navigate("/pagamento");
+            } else {
+              await new Promise((r) => setTimeout(r, 2000));
+            }
+          }
+        }
       } finally {
-        setLoading(false);
+        setLoading(false); // 🔥 sempre executa
       }
     };
 
