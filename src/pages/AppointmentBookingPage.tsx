@@ -77,7 +77,7 @@ const AppointmentBookingPage = () => {
       };
 
   const [blockedDate, setBlockedDate] = useState<BlockedDateResponse | null>(
-    null
+    null,
   );
   const { services: useService, loading } = useServices();
   const toggleService = (value: string) => {
@@ -134,7 +134,7 @@ const AppointmentBookingPage = () => {
             price
               .replace(/[^\d,.-]/g, "") // remove tudo que não for número, vírgula, ponto ou traço
               .replace(/\./g, "") // remove pontos de milhar
-              .replace(",", ".") // troca vírgula por ponto para parseFloat entender
+              .replace(",", "."), // troca vírgula por ponto para parseFloat entender
           )
         : 0;
 
@@ -178,7 +178,7 @@ const AppointmentBookingPage = () => {
     if (!formData.date) return;
 
     fetch(
-      `${baseURL}/user/appointments/date-bloqueada/${formData.date}?studioId=${studioId}`
+      `${baseURL}/user/appointments/date-bloqueada/${formData.date}?studioId=${studioId}`,
     )
       .then((res) => res.json())
       .then((data: BlockedDateResponse) => {
@@ -198,7 +198,7 @@ const AppointmentBookingPage = () => {
     return selectedServices.reduce((total, service) => {
       const priceStr = service.price || "R$ 0";
       const priceValue = parseFloat(
-        priceStr.replace("R$", "").replace(/\./g, "").replace(",", ".").trim()
+        priceStr.replace("R$", "").replace(/\./g, "").replace(",", ".").trim(),
       );
       return total + (isNaN(priceValue) ? 0 : priceValue);
     }, 0);
@@ -228,11 +228,11 @@ const AppointmentBookingPage = () => {
 
   const getTimeSlotsForDate = async (
     date: string,
-    totalDurationMinutes?: number
+    totalDurationMinutes?: number,
   ) => {
     try {
       const res = await fetch(
-        `${baseURL}/user/appointments/status/${date}?studioId=${studioId}`
+        `${baseURL}/user/appointments/status/${date}?studioId=${studioId}`,
       );
       if (!res.ok) throw new Error("Erro ao buscar horários");
 
@@ -248,7 +248,7 @@ const AppointmentBookingPage = () => {
             slot.status.toLowerCase() === "cancelled"
               ? "available"
               : slot.status,
-        })
+        }),
       );
 
       // 🔹 Adiciona os horários do carrinho local (appointments)
@@ -261,8 +261,13 @@ const AppointmentBookingPage = () => {
           let duration = 0;
           if (typeof apt.duration === "string") {
             const str = apt.duration.toLowerCase().replace(/\s/g, "");
-            if (str.includes("h")) duration = parseInt(str) * 60;
-            else duration = parseInt(str);
+
+            if (str.includes("h")) {
+              const [hours, minutes] = str.split("h");
+              duration = parseInt(hours) * 60 + (parseInt(minutes) || 0);
+            } else {
+              duration = parseInt(str);
+            }
           } else {
             duration = apt.duration || 0;
           }
@@ -383,7 +388,7 @@ const AppointmentBookingPage = () => {
 
     if (isSelected) {
       setSelectedServices((prev) =>
-        prev.filter((s) => s.value !== service.value)
+        prev.filter((s) => s.value !== service.value),
       );
     } else {
       setSelectedServices((prev) => [
@@ -526,7 +531,7 @@ const AppointmentBookingPage = () => {
     slots: Slot[],
     date?: string,
     userRole?: string, // admin pode ignorar bloqueios
-    blockedHours?: string[]
+    blockedHours?: string[],
   ): boolean => {
     const [sh, sm] = startTime.split(":").map(Number);
     const start = sh * 60 + sm;
@@ -553,13 +558,13 @@ const AppointmentBookingPage = () => {
 
       if (slotStatus === "CONFIRMED") {
         console.log(
-          `⛔7 Slot ${startTime}: bloqueado (CONFIRMED mesmo para admin)`
+          `⛔7 Slot ${startTime}: bloqueado (CONFIRMED mesmo para admin)`,
         );
         return false;
       }
 
       console.log(
-        `✅ Slot ${startTime}: liberado (admin ignora bloqueios comuns)`
+        `✅ Slot ${startTime}: liberado (admin ignora bloqueios comuns)`,
       );
       return true;
     }
@@ -574,7 +579,7 @@ const AppointmentBookingPage = () => {
         const limiteFim = 17 * 60; // 17:00
         if (end > limiteFim) {
           console.log(
-            `⛔4 Slot ${startTime}: bloqueado (não pode ultrapassar 17:00 na quarta-feira)`
+            `⛔4 Slot ${startTime}: bloqueado (não pode ultrapassar 17:00 na quarta-feira)`,
           );
           return false;
         }
@@ -590,7 +595,7 @@ const AppointmentBookingPage = () => {
 
       if (isBlockedHour) {
         console.log(
-          `⛔ Slot ${startTime}: bloqueado (hora ${slotH}:00 bloqueada)`
+          `⛔ Slot ${startTime}: bloqueado (hora ${slotH}:00 bloqueada)`,
         );
         return false;
       }
@@ -600,7 +605,7 @@ const AppointmentBookingPage = () => {
 
     if (slotStatus !== "available") {
       console.log(
-        `⛔2 Slot ${startTime}: status = aqui ${slotStatus} → duração = ${durationMinutes}min`
+        `⛔2 Slot ${startTime}: status = aqui ${slotStatus} → duração = ${durationMinutes}min`,
       );
       return false;
     }
@@ -612,7 +617,7 @@ const AppointmentBookingPage = () => {
       const nextSlot = sortedSlots[startIndex + 1];
       if (!nextSlot) {
         console.log(
-          `✅ Slot ${startTime}: status = ${slotStatus} → duração = ${durationMinutes}min → não existe próximo slot`
+          `✅ Slot ${startTime}: status = ${slotStatus} → duração = ${durationMinutes}min → não existe próximo slot`,
         );
         return true;
       }
@@ -626,11 +631,11 @@ const AppointmentBookingPage = () => {
         if (slot.status === "CONFIRMED" && slotStart < end && slotEnd > start) {
           console.log(
             `⛔ Slot ${startTime}: conflito com ${String(
-              Math.floor(slot.minutes / 60)
+              Math.floor(slot.minutes / 60),
             ).padStart(2, "0")}:${String(slot.minutes % 60).padStart(
               2,
-              "0"
-            )} (CONFIRMED durante o intervalo do serviço)`
+              "0",
+            )} (CONFIRMED durante o intervalo do serviço)`,
           );
           return false;
         }
@@ -645,11 +650,11 @@ const AppointmentBookingPage = () => {
       ) {
         console.log(
           `⛔1 Slot ${startTime}: status = ${slotStatus} → duração = ${durationMinutes}min → próximo slot ${String(
-            Math.floor(nextSlot.minutes / 60)
+            Math.floor(nextSlot.minutes / 60),
           ).padStart(2, "0")}:${String(nextSlot.minutes % 60).padStart(
             2,
-            "0"
-          )} não está disponível e não é 18:30`
+            "0",
+          )} não está disponível e não é 18:30`,
         );
         return false;
       }
@@ -661,8 +666,8 @@ const AppointmentBookingPage = () => {
         if (start < nextMinutes && end > nextMinutes) {
           console.log(
             `⛔ Slot ${startTime}: bloqueado (duração ultrapassa slot confirmado às ${String(
-              Math.floor(nextMinutes / 60)
-            ).padStart(2, "0")}:${String(nextMinutes % 60).padStart(2, "0")})`
+              Math.floor(nextMinutes / 60),
+            ).padStart(2, "0")}:${String(nextMinutes % 60).padStart(2, "0")})`,
           );
           return false;
         }
@@ -683,19 +688,19 @@ const AppointmentBookingPage = () => {
           `⛔ Slot ${startTime}: bloqueado → ${
             nextSlot.status === "CONFIRMED" && end > nextSlot.minutes
               ? `próximo slot ${String(
-                  Math.floor(nextSlot.minutes / 60)
+                  Math.floor(nextSlot.minutes / 60),
                 ).padStart(2, "0")}:${String(nextSlot.minutes % 60).padStart(
                   2,
-                  "0"
+                  "0",
                 )} está CONFIRMED e a duração ultrapassa`
               : `ultrapassa horário bloqueado`
-          }`
+          }`,
         );
         return false;
       }
 
       console.log(
-        `✅ Slot ${startTime}: status = ${slotStatus} → duração = ${durationMinutes}min → próximo slot em hora cheia OK`
+        `✅ Slot ${startTime}: status = ${slotStatus} → duração = ${durationMinutes}min → próximo slot em hora cheia OK`,
       );
     }
     const SLOT_BASE_DURATION = 5;
@@ -718,8 +723,8 @@ const AppointmentBookingPage = () => {
       if (confirmedStart < end && confirmedEnd > start) {
         console.log(
           `⛔ Slot ${startTime}: duração ${durationMinutes}min ultrapassa slot CONFIRMED às ${String(
-            Math.floor(confirmedStart / 60)
-          ).padStart(2, "0")}:${String(confirmedStart % 60).padStart(2, "0")}`
+            Math.floor(confirmedStart / 60),
+          ).padStart(2, "0")}:${String(confirmedStart % 60).padStart(2, "0")}`,
         );
         return false; // Conflito encontrado, não pode agendar
       }
@@ -752,7 +757,7 @@ const AppointmentBookingPage = () => {
         timeSlots,
         formData.date,
         userRole, // <-- libera regras para admin
-        blockedHours
+        blockedHours,
       );
       const [h, m] = slot.time.split(":").map(Number);
       const slotDate = new Date(year, month - 1, day, h, m);
@@ -771,7 +776,7 @@ const AppointmentBookingPage = () => {
 
       if (isBlocked1830 && userRole !== "admin") {
         console.log(
-          `⛔ Slot ${slot.time}: bloqueado → 18:30 está nas horas bloqueadas`
+          `⛔ Slot ${slot.time}: bloqueado → 18:30 está nas horas bloqueadas`,
         );
       }
 
@@ -994,7 +999,7 @@ const AppointmentBookingPage = () => {
                     <div className="space-y-2 max-h-48 md:max-h-64 overflow-y-auto border rounded-lg p-2 md:p-3">
                       {servicesToShow.map((service) => {
                         const isSelected = selectedServices.some(
-                          (s) => s.value === service.value
+                          (s) => s.value === service.value,
                         );
                         return (
                           <div
@@ -1120,12 +1125,12 @@ const AppointmentBookingPage = () => {
           isSelected && isSelectable
             ? "border-primary bg-primary text-primary-foreground"
             : isSelectable
-            ? "border-[hsl(var(--status-available))] bg-[hsl(var(--status-available)/0.1)] text-[hsl(var(--status-available))] hover:bg-[hsl(var(--status-available)/0.2)]"
-            : slot.status === "PENDING"
-            ? "border-[hsl(var(--status-pending))] bg-[hsl(var(--status-pending)/0.1)] text-[hsl(var(--status-pending))] cursor-not-allowed"
-            : slot.status === "CONFIRMED"
-            ? "border-[hsl(var(--status-confirmed))] bg-[hsl(var(--status-confirmed)/0.1)] text-[hsl(var(--status-confirmed))] cursor-not-allowed"
-            : "border-[hsl(var(--status-blocked))] bg-[hsl(var(--status-blocked)/0.1)] text-[hsl(var(--status-blocked))] cursor-not-allowed"
+              ? "border-[hsl(var(--status-available))] bg-[hsl(var(--status-available)/0.1)] text-[hsl(var(--status-available))] hover:bg-[hsl(var(--status-available)/0.2)]"
+              : slot.status === "PENDING"
+                ? "border-[hsl(var(--status-pending))] bg-[hsl(var(--status-pending)/0.1)] text-[hsl(var(--status-pending))] cursor-not-allowed"
+                : slot.status === "CONFIRMED"
+                  ? "border-[hsl(var(--status-confirmed))] bg-[hsl(var(--status-confirmed)/0.1)] text-[hsl(var(--status-confirmed))] cursor-not-allowed"
+                  : "border-[hsl(var(--status-blocked))] bg-[hsl(var(--status-blocked)/0.1)] text-[hsl(var(--status-blocked))] cursor-not-allowed"
         }
       `}
                               >
@@ -1137,11 +1142,11 @@ const AppointmentBookingPage = () => {
                                         ? "Livre (Admin)"
                                         : "Ocupado (Admin)"
                                       : slot.status === "available" &&
-                                        slot.slotSelectable
-                                      ? "Livre"
-                                      : slot.status === "PENDING"
-                                      ? "Pendente"
-                                      : "Ocupado"}
+                                          slot.slotSelectable
+                                        ? "Livre"
+                                        : slot.status === "PENDING"
+                                          ? "Pendente"
+                                          : "Ocupado"}
                                   </div>
                                 </div>
                               </button>
