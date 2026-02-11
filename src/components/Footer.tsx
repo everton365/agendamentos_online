@@ -269,6 +269,12 @@ const Footer = () => {
                   >
                     Termos de Uso
                   </a>
+                  <a
+                    href="https://sistema-agendamento-online.vercel.app/"
+                    className="hover:text-[#D4AF37] transition-colors"
+                  >
+                    Tenha seu próprio site
+                  </a>
                 </div>
               </div>
             </div>
