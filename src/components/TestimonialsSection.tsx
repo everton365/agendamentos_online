@@ -1,14 +1,19 @@
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Star } from "lucide-react";
 import { useReviews } from "@/hooks/use-reviews";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 
 const TestimonialsSection = () => {
   const { reviews, loading, error } = useReviews();
+  const [showAll, setShowAll] = useState(false);
 
   if (error) {
     return null;
   }
+
+  const visibleReviews = showAll ? reviews : reviews.slice(0, 5);
 
   const averageRating = reviews.length > 0
     ? (reviews.reduce((sum, r) => sum + r.estrelas, 0) / reviews.length).toFixed(1)
@@ -51,38 +56,52 @@ const TestimonialsSection = () => {
             Nenhuma avaliação disponível no momento.
           </p>
         ) : (
-          <div
-            className="grid md:grid-cols-2 lg:grid-cols-4 gap-10"
-            data-aos="fade-top"
-          >
-            {reviews.map((review) => (
-              <Card
-                key={review.id}
-                className="group hover:shadow-elegant transition-all duration-300 hover:-translate-y-2 border-0 bg-white shadow-soft"
-              >
-                <CardContent className="p-10">
-                  <div className="flex items-center mb-4">
-                    {[...Array(review.estrelas)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className="w-5 h-5 text-elegant-gold fill-current"
-                      />
-                    ))}
-                  </div>
-
-                  <p className="text-muted-foreground font-poppins mb-6 leading-relaxed max-h-32 overflow-y-auto italic">
-                    "{review.depoimento}"
-                  </p>
-
-                  <div className="border-t border-border pt-6">
-                    <div className="font-semibold font-poppins text-foreground mb-2">
-                      {review.nome}
+          <>
+            <div
+              className="grid md:grid-cols-2 lg:grid-cols-4 gap-10"
+              data-aos="fade-top"
+            >
+              {visibleReviews.map((review) => (
+                <Card
+                  key={review.id}
+                  className="group hover:shadow-elegant transition-all duration-300 hover:-translate-y-2 border-0 bg-white shadow-soft"
+                >
+                  <CardContent className="p-10">
+                    <div className="flex items-center mb-4">
+                      {[...Array(review.estrelas)].map((_, i) => (
+                        <Star
+                          key={i}
+                          className="w-5 h-5 text-elegant-gold fill-current"
+                        />
+                      ))}
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+
+                    <p className="text-muted-foreground font-poppins mb-6 leading-relaxed max-h-32 overflow-y-auto italic">
+                      "{review.depoimento}"
+                    </p>
+
+                    <div className="border-t border-border pt-6">
+                      <div className="font-semibold font-poppins text-foreground mb-2">
+                        {review.nome}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {!showAll && reviews.length > 5 && (
+              <div className="text-center mt-10">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowAll(true)}
+                  className="font-poppins"
+                >
+                  Ver todas ({reviews.length})
+                </Button>
+              </div>
+            )}
+          </>
         )}
 
         {reviews.length > 0 && (
