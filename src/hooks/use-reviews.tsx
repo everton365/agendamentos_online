@@ -31,8 +31,12 @@ export const useReviews = () => {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        const data: Review[] = await response.json();
-        setReviews(data);
+        const data = await response.json();
+        const parsed: Review[] = data.map((r: any) => ({
+          ...r,
+          estrelas: Number(r.estrelas) || 0,
+        }));
+        setReviews(parsed);
         setError(null);
       } catch (err) {
         console.error("❌ Erro ao buscar avaliações:", err);
