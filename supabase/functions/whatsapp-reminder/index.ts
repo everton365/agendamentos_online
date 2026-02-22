@@ -105,7 +105,7 @@ async function sendWhatsAppMessage(phone: string, message: string): Promise<{ st
     return {
       status: 500,
       success: false,
-      error: error.message
+      error: error instanceof Error ? error.message : 'Unknown error'
     };
   }
 }
@@ -211,7 +211,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error.message,
+        error: error instanceof Error ? error.message : 'Unknown error',
         results: []
       }),
       { 
