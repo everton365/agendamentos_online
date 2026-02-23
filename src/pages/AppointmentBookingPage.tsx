@@ -15,21 +15,21 @@ import { Textarea } from "@/components/ui/textarea";
 import { Calendar, Clock, ArrowLeft, ShoppingCart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { useStudio } from "@/contexts/StudioContext";
 import { useCart } from "@/contexts/CartContext";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 
-import { useMemo, useState as useStateMemo } from "react";
+import { useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { useServices } from "@/hooks/use-services";
-import { useStudioInfo } from "@/hooks/use-studio-info";
 
 const AppointmentBookingPage = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const [selectedService, setSelectedService] = useState("");
   const { user } = useAuth();
-  const { studio } = useStudioInfo();
+  const { studio } = useStudio();
   const { appointments, addAppointment, getTotalBookingFee } = useCart();
   const navigate = useNavigate();
 

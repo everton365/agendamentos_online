@@ -13,6 +13,7 @@ import {
   Info,
   CheckCircle,
 } from "lucide-react";
+import { useStudio } from "@/contexts/StudioContext";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import { supabase } from "@/integrations/supabase/client";
@@ -41,6 +42,7 @@ interface PixResponse {
 }
 
 const PaymentMethodPage = () => {
+  const { studio } = useStudio();
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
