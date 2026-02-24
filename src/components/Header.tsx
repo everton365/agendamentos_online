@@ -89,7 +89,7 @@ const Header = () => {
       <div className="w-full max-w-7xl mx-auto px-2 sm:px-4">
         <div className="flex items-center justify-between h-16 gap-2">
           {/* Logo */}
-          <Link to={slug} className="flex items-center flex-shrink-0">
+          <Link to={`/${slug}`} className="flex items-center flex-shrink-0">
             <img
               src={studio?.logoStudio}
               alt="Lariza Freitas"

@@ -101,6 +101,7 @@ export type Database = {
           plano: string | null
           senhas: string | null
           status: string | null
+          studio_slog: string | null
         }
         Insert: {
           acess_token?: string | null
@@ -116,6 +117,7 @@ export type Database = {
           plano?: string | null
           senhas?: string | null
           status?: string | null
+          studio_slog?: string | null
         }
         Update: {
           acess_token?: string | null
@@ -131,6 +133,7 @@ export type Database = {
           plano?: string | null
           senhas?: string | null
           status?: string | null
+          studio_slog?: string | null
         }
         Relationships: []
       }
@@ -297,6 +300,7 @@ export type Database = {
           foto_studio: string | null
           horario_funcionamento: Json | null
           instagran_studio: string | null
+          logo_studio: string | null
           nome_studio: string | null
           phone_number: string | null
           sobre: string | null
@@ -312,6 +316,7 @@ export type Database = {
           foto_studio?: string | null
           horario_funcionamento?: Json | null
           instagran_studio?: string | null
+          logo_studio?: string | null
           nome_studio?: string | null
           phone_number?: string | null
           sobre?: string | null
@@ -327,6 +332,7 @@ export type Database = {
           foto_studio?: string | null
           horario_funcionamento?: Json | null
           instagran_studio?: string | null
+          logo_studio?: string | null
           nome_studio?: string | null
           phone_number?: string | null
           sobre?: string | null
