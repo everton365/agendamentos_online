@@ -11,18 +11,21 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Calendar, LogOut, User, Menu, X } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useStudio } from "@/contexts/StudioContext";
 import logo from "../assets/logo.png";
 import { supabase } from "@/integrations/supabase/client";
 import { CartDrawer } from "./CartDrawer";
 import { useStudioPage } from "@/hooks/use-studio-page";
 
 const Header = () => {
-  const { slug } = useParams<{ slug: string }>();
+  const { slug: paramSlug } = useParams<{ slug: string }>();
+  const { slug: contextSlug } = useStudio();
+  const slug = paramSlug || contextSlug;
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
-  const { studio } = useStudioPage(slug);
+  const { studio } = useStudioPage(slug || undefined);
 
   const [profile, setProfile] = useState<{
     display_name?: string;

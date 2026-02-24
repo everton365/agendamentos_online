@@ -31,7 +31,9 @@ interface Studio {
 
 interface StudioContextType {
   studio: Studio | null;
-  studioId: string | null; // 👈 ADICIONE
+  studioId: string | null;
+  slug: string | null;
+  setSlug: (slug: string) => void;
   loading: boolean;
   error: string | null;
 }
@@ -44,8 +46,13 @@ export const StudioProvider: React.FC<{ children: React.ReactNode }> = ({
   const [studio, setStudio] = useState<Studio | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
+  const [slug, setSlugState] = useState<string | null>(() => localStorage.getItem("studio_slug"));
   const [studioId, setStudioId] = useState<string | null>(null);
+
+  const setSlug = (newSlug: string) => {
+    setSlugState(newSlug);
+    localStorage.setItem("studio_slug", newSlug);
+  };
   const baseURL = import.meta.env.VITE_API_URL;
 
   console.log("id aqui", studioId);
@@ -106,7 +113,7 @@ export const StudioProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [studioId, baseURL]);
 
   return (
-    <StudioContext.Provider value={{ studio, studioId, loading, error }}>
+    <StudioContext.Provider value={{ studio, studioId, slug, setSlug, loading, error }}>
       {children}
     </StudioContext.Provider>
   );

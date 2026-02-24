@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { useStudioPage } from "@/hooks/use-studio-page";
+import { useStudio } from "@/contexts/StudioContext";
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import ServicesSection from "@/components/ServicesSection";
@@ -16,8 +17,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 const StudioPage = () => {
   const { slug } = useParams<{ slug: string }>();
   const location = useLocation();
+  const { setSlug } = useStudio();
   const { studio, services, results, reviews, loading, error, notFound } =
     useStudioPage(slug);
+
+  useEffect(() => {
+    if (slug) setSlug(slug);
+  }, [slug]);
 
   useEffect(() => {
     AOS.init({ duration: 1000, once: true });
