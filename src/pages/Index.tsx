@@ -26,6 +26,15 @@ const StudioPage = () => {
   }, [slug]);
 
   useEffect(() => {
+    if (studio?.nome_studio) {
+      document.title = studio.nome_studio;
+    }
+    return () => {
+      document.title = "Lariza Freitas - Especialista em sobrancelhas naturais";
+    };
+  }, [studio?.nome_studio]);
+
+  useEffect(() => {
     AOS.init({ duration: 1000, once: true });
   }, []);
 
