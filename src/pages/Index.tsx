@@ -29,10 +29,22 @@ const StudioPage = () => {
     if (studio?.nome_studio) {
       document.title = studio.nome_studio;
     }
+
+    // Favicon dinâmico
+    if (studio?.logoStudio) {
+      let link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
+      if (!link) {
+        link = document.createElement("link");
+        link.rel = "icon";
+        document.head.appendChild(link);
+      }
+      link.href = studio.logoStudio;
+    }
+
     return () => {
       document.title = "Lariza Freitas - Especialista em sobrancelhas naturais";
     };
-  }, [studio?.nome_studio]);
+  }, [studio?.nome_studio, studio?.logoStudio]);
 
   useEffect(() => {
     AOS.init({ duration: 1000, once: true });
