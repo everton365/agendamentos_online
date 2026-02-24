@@ -31,6 +31,7 @@ interface Studio {
 
 interface StudioContextType {
   studio: Studio | null;
+  studioId: string | null; // 👈 ADICIONE
   loading: boolean;
   error: string | null;
 }
@@ -44,11 +45,14 @@ export const StudioProvider: React.FC<{ children: React.ReactNode }> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const studioId = import.meta.env.VITE_STUDIO_ID;
+  const [studioId, setStudioId] = useState<string | null>(null);
   const baseURL = import.meta.env.VITE_API_URL;
 
+  console.log("id aqui", studioId);
   useEffect(() => {
     const fetchStudioInfo = async () => {
+      const id = localStorage.getItem("studio_id");
+      setStudioId(id);
       if (!studioId) {
         setError("Studio ID não configurado");
         setLoading(false);
@@ -58,7 +62,7 @@ export const StudioProvider: React.FC<{ children: React.ReactNode }> = ({
       try {
         setLoading(true);
         const response = await fetch(
-          `${baseURL}/user/informacoes/studios/${studioId}`
+          `${baseURL}/user/informacoes/studios/${studioId}`,
         );
 
         if (!response.ok) {
@@ -75,7 +79,7 @@ export const StudioProvider: React.FC<{ children: React.ReactNode }> = ({
         if (typeof studioData.horario_funcionamento === "string") {
           try {
             studioData.horario_funcionamento = JSON.parse(
-              studioData.horario_funcionamento || "{}"
+              studioData.horario_funcionamento || "{}",
             );
           } catch (e) {
             console.warn("Erro ao parsear horario_funcionamento:", e);
@@ -90,7 +94,7 @@ export const StudioProvider: React.FC<{ children: React.ReactNode }> = ({
         setError(
           err instanceof Error
             ? err.message
-            : "Erro ao buscar informações do studio"
+            : "Erro ao buscar informações do studio",
         );
         setStudio(null);
       } finally {
@@ -102,7 +106,7 @@ export const StudioProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [studioId, baseURL]);
 
   return (
-    <StudioContext.Provider value={{ studio, loading, error }}>
+    <StudioContext.Provider value={{ studio, studioId, loading, error }}>
       {children}
     </StudioContext.Provider>
   );

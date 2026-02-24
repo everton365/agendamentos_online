@@ -59,7 +59,7 @@ const PaymentMethodPage = () => {
   const [appointmentIds, setAppointmentIds] = useState<string[]>([]);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [acceptedPolicy, setAcceptedPolicy] = useState(false);
-  const studioId = import.meta.env.VITE_STUDIO_ID;
+  const [studioId, setStudioId] = useState<string | null>(null);
   const [paymentDataLoading, setPaymentDataLoading] = useState(true);
 
   // Redirect if no appointment data
@@ -77,6 +77,12 @@ const PaymentMethodPage = () => {
     if (saved) {
       setAppointmentIds(JSON.parse(saved));
     }
+  }, []);
+
+  // 🔥 1️⃣ pega studio_id do localStorage
+  useEffect(() => {
+    const id = localStorage.getItem("studio_id");
+    setStudioId(id);
   }, []);
 
   const totalBookingFee = appointments.length * 20; // R$ 20 por agendamento

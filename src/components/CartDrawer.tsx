@@ -13,12 +13,13 @@ import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/contexts/CartContext";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/components/ui/use-toast"; // 🔔 garante que o toast existe
+import { useState, useEffect } from "react";
 
 export function CartDrawer() {
   const { appointments, removeAppointment, getTotalPrice, getTotalBookingFee } =
     useCart();
   const navigate = useNavigate();
-  const studioId = import.meta.env.VITE_STUDIO_ID;
+  const [studioId, setStudioId] = useState<string | null>(null);
   // 🕒 Função auxiliar: soma minutos a um horário (ex: 10:00 + 10 = 10:10)
   const addMinutesToTime = (time: string, minutes: number) => {
     const [h, m] = time.split(":").map(Number);
@@ -46,6 +47,11 @@ export function CartDrawer() {
       },
     });
   };
+  // 🔥 1️⃣ pega studio_id do localStorage
+  useEffect(() => {
+    const id = localStorage.getItem("studio_id");
+    setStudioId(id);
+  }, []);
 
   const totalBookingFee = getTotalBookingFee();
   const grandTotal = totalBookingFee; // Somente taxa
@@ -89,7 +95,7 @@ export function CartDrawer() {
               {appointments.map((appointment) => {
                 const endTime = addMinutesToTime(
                   appointment.time,
-                  parseInt(appointment.duration || "0")
+                  parseInt(appointment.duration || "0"),
                 );
 
                 return (
@@ -112,7 +118,7 @@ export function CartDrawer() {
                       </h4>
                       <p className="text-sm text-muted-foreground">
                         {new Date(
-                          appointment.date + "T00:00:00"
+                          appointment.date + "T00:00:00",
                         ).toLocaleDateString("pt-BR")}{" "}
                         • {appointment.time} - {endTime}
                       </p>

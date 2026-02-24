@@ -2,9 +2,13 @@ import { Button } from "@/components/ui/button";
 import { MapPin, Phone, Clock, Instagram, Facebook, Mail } from "lucide-react";
 import { SiTiktok } from "react-icons/si";
 import { useStudio } from "@/contexts/StudioContext";
+import type { StudioData } from "@/hooks/use-studio-page";
 
-const Footer = () => {
-  const { studio } = useStudio();
+interface Footer {
+  studio: StudioData | null;
+}
+
+const Footer = ({ studio }: Footer) => {
   if (!studio) return null;
 
   return (

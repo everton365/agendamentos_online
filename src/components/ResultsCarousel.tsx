@@ -9,9 +9,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useResults } from "@/hooks/use-results";
 import { Skeleton } from "@/components/ui/skeleton";
+import type { ResultData } from "@/hooks/use-studio-page";
 
-const ResultsCarousel = () => {
-  const { results, loading, error } = useResults();
+interface ResultsCarousel {
+  results: ResultData[];
+}
+
+const ResultsCarousel = ({ results }: ResultsCarousel) => {
+  const { loading, error } = useResults();
 
   if (error) {
     return null;

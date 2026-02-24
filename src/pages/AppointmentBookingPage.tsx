@@ -32,7 +32,7 @@ const AppointmentBookingPage = () => {
   const { studio } = useStudio();
   const { appointments, addAppointment, getTotalBookingFee } = useCart();
   const navigate = useNavigate();
-
+  const [studioId, setStudioId] = useState<string | null>(null);
   const { toast } = useToast();
   const [userRole, setUserRole] = useState<string | null>(null);
   const [emailValid, setEmailValid] = useState(true);
@@ -60,7 +60,7 @@ const AppointmentBookingPage = () => {
     }[]
   >([]);
   const baseURL = import.meta.env.VITE_API_URL;
-  const studioId = import.meta.env.VITE_STUDIO_ID;
+
   const [openService, setOpenService] = useState<string | null>(null);
   type BlockedDateResponse =
     | {
@@ -97,6 +97,12 @@ const AppointmentBookingPage = () => {
         ]
       : []),
   ];
+
+  // 🔥 1️⃣ pega studio_id do localStorage
+  useEffect(() => {
+    const id = localStorage.getItem("studio_id");
+    setStudioId(id);
+  }, []);
 
   // Auto-fill user data and redirect if not logged in
   useEffect(() => {

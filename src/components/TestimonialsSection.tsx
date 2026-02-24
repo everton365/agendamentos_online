@@ -4,9 +4,14 @@ import { Star } from "lucide-react";
 import { useReviews } from "@/hooks/use-reviews";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import type { ReviewData } from "@/hooks/use-studio-page";
 
-const TestimonialsSection = () => {
-  const { reviews, loading, error } = useReviews();
+interface TestimonialsSection {
+  reviews: ReviewData[];
+}
+
+const TestimonialsSection = ({ reviews }: TestimonialsSection) => {
+  const { loading, error } = useReviews();
   const [showAll, setShowAll] = useState(false);
 
   if (error) {
@@ -15,9 +20,12 @@ const TestimonialsSection = () => {
 
   const visibleReviews = showAll ? reviews : reviews.slice(0, 5);
 
-  const averageRating = reviews.length > 0
-    ? (reviews.reduce((sum, r) => sum + r.estrelas, 0) / reviews.length).toFixed(1)
-    : "5.0";
+  const averageRating =
+    reviews.length > 0
+      ? (
+          reviews.reduce((sum, r) => sum + r.estrelas, 0) / reviews.length
+        ).toFixed(1)
+      : "5.0";
 
   return (
     <section className="py-24 bg-background">

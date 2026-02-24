@@ -1,8 +1,13 @@
 import donaEstudio from "../assets/estudio1.jpg";
 import { useStudio } from "@/contexts/StudioContext";
+import type { StudioData } from "@/hooks/use-studio-page";
 
-const AboutUs = () => {
-  const { studio, loading } = useStudio();
+interface AboutUs {
+  studio: StudioData | null;
+}
+
+const AboutUs = ({ studio }: AboutUs) => {
+  const { loading } = useStudio();
   return (
     <section id="about" className="py-24 bg-background">
       <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-16 items-center">

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate, useLocation, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -14,12 +14,15 @@ import { useAuth } from "@/contexts/AuthContext";
 import logo from "../assets/logo.png";
 import { supabase } from "@/integrations/supabase/client";
 import { CartDrawer } from "./CartDrawer";
-const studioId = import.meta.env.VITE_STUDIO_ID;
+import { useStudioPage } from "@/hooks/use-studio-page";
+
 const Header = () => {
+  const { slug } = useParams<{ slug: string }>();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const { studio } = useStudioPage(slug);
 
   const [profile, setProfile] = useState<{
     display_name?: string;
@@ -43,7 +46,7 @@ const Header = () => {
         .from("profiles")
         .select("*")
         .eq("user_id", user?.id)
-        .eq("studio_id", studioId)
+        .eq("studio_id", studio.studio_id)
         .maybeSingle();
       if (error) throw error;
       if (data) {
@@ -69,25 +72,26 @@ const Header = () => {
   ];
 
   const handleNavClick = (href: string) => {
-    if (location.pathname === "/") {
+    if (location.pathname === `/${slug}`) {
       // Está na Home, rola direto
       const section = document.getElementById(href);
       section?.scrollIntoView({ behavior: "smooth" });
     } else {
       // Navega para a Home e passa o destino via state
-      navigate("/", { state: { scrollToId: href } });
+      navigate(`/${slug}`, { state: { scrollToId: href } });
     }
 
     setMobileMenuOpen(false);
   };
+  console.log(studio);
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-foreground text-background border-b border-border overflow-x-hidden">
       <div className="w-full max-w-7xl mx-auto px-2 sm:px-4">
         <div className="flex items-center justify-between h-16 gap-2">
           {/* Logo */}
-          <Link to="/" className="flex items-center flex-shrink-0">
+          <Link to={slug} className="flex items-center flex-shrink-0">
             <img
-              src={logo}
+              src={studio?.logoStudio}
               alt="Lariza Freitas"
               className="h-24 sm:h-32 md:h-40 w-auto max-w-[120px] sm:max-w-none"
             />

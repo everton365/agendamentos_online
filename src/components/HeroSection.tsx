@@ -6,9 +6,14 @@ import capaDesktop from "../assets/estudio3.jpg";
 import { useNavigate } from "react-router-dom";
 import { Calendar, Star } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
-const HeroSection = () => {
+import type { StudioData } from "@/hooks/use-studio-page";
+
+interface HeroSectionProps {
+  studio: StudioData | null;
+}
+const HeroSection = ({ studio }: HeroSectionProps) => {
   const { user } = useAuth();
-  const { studio, loading } = useStudio();
+  const { loading } = useStudio();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { clearCart } = useCart();

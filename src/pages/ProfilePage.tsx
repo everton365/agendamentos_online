@@ -69,6 +69,7 @@ type Slot = {
 const ProfilePage = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const [studioId, setStudioId] = useState<string | null>(null);
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -111,7 +112,12 @@ const ProfilePage = () => {
     null,
   );
   const baseURL = import.meta.env.VITE_API_URL;
-  const studioId = import.meta.env.VITE_STUDIO_ID;
+
+  // 🔥 1️⃣ pega studio_id do localStorage
+  useEffect(() => {
+    const id = localStorage.getItem("studio_id");
+    setStudioId(id);
+  }, []);
 
   useEffect(() => {
     // Adiciona um novo estado ao histórico
