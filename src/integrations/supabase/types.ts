@@ -93,6 +93,7 @@ export type Database = {
           created_at: string
           date_final: string | null
           date_inicio: string | null
+          email_studio: string | null
           id: number
           link_studio: string | null
           name: string | null
@@ -102,6 +103,8 @@ export type Database = {
           senhas: string | null
           status: string | null
           studio_slog: string | null
+          studio_taxa: string | null
+          taxa_type: string | null
         }
         Insert: {
           acess_token?: string | null
@@ -109,6 +112,7 @@ export type Database = {
           created_at?: string
           date_final?: string | null
           date_inicio?: string | null
+          email_studio?: string | null
           id?: number
           link_studio?: string | null
           name?: string | null
@@ -118,6 +122,8 @@ export type Database = {
           senhas?: string | null
           status?: string | null
           studio_slog?: string | null
+          studio_taxa?: string | null
+          taxa_type?: string | null
         }
         Update: {
           acess_token?: string | null
@@ -125,6 +131,7 @@ export type Database = {
           created_at?: string
           date_final?: string | null
           date_inicio?: string | null
+          email_studio?: string | null
           id?: number
           link_studio?: string | null
           name?: string | null
@@ -134,6 +141,8 @@ export type Database = {
           senhas?: string | null
           status?: string | null
           studio_slog?: string | null
+          studio_taxa?: string | null
+          taxa_type?: string | null
         }
         Relationships: []
       }
@@ -293,50 +302,59 @@ export type Database = {
       studios: {
         Row: {
           created_at: string
+          description_studio: string | null
           email_studio: string | null
           endereco: string | null
           facebook_studio: string | null
           foto_capa: string | null
           foto_studio: string | null
           horario_funcionamento: Json | null
+          id: string
           instagran_studio: string | null
           logo_studio: string | null
           nome_studio: string | null
           phone_number: string | null
           sobre: string | null
           studio_id: string | null
+          subtitle_studio: string | null
           tiktok_studio: string | null
         }
         Insert: {
           created_at?: string
+          description_studio?: string | null
           email_studio?: string | null
           endereco?: string | null
           facebook_studio?: string | null
           foto_capa?: string | null
           foto_studio?: string | null
           horario_funcionamento?: Json | null
+          id?: string
           instagran_studio?: string | null
           logo_studio?: string | null
           nome_studio?: string | null
           phone_number?: string | null
           sobre?: string | null
           studio_id?: string | null
+          subtitle_studio?: string | null
           tiktok_studio?: string | null
         }
         Update: {
           created_at?: string
+          description_studio?: string | null
           email_studio?: string | null
           endereco?: string | null
           facebook_studio?: string | null
           foto_capa?: string | null
           foto_studio?: string | null
           horario_funcionamento?: Json | null
+          id?: string
           instagran_studio?: string | null
           logo_studio?: string | null
           nome_studio?: string | null
           phone_number?: string | null
           sobre?: string | null
           studio_id?: string | null
+          subtitle_studio?: string | null
           tiktok_studio?: string | null
         }
         Relationships: []

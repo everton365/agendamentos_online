@@ -22,7 +22,7 @@ interface CartContextType {
   removeAppointment: (id: string) => void;
   clearCart: () => void;
   getTotalPrice: () => number;
-  getTotalBookingFee: () => number;
+  getTotalBookingFee: (studioTaxa?: string, taxaType?: string) => number;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -56,9 +56,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }, 0);
   };
 
-  const getTotalBookingFee = () => {
-    // R$ 20 por agendamento
-    return appointments.length * 20;
+  const getTotalBookingFee = (studioTaxa?: string, taxaType?: string) => {
+    const taxaValue = parseFloat(studioTaxa || "0");
+    if (isNaN(taxaValue) || taxaValue === 0) return 0;
+
+    if (taxaType === "percent") {
+      // Aplica porcentagem sobre o valor total dos serviços
+      const totalServices = getTotalPrice();
+      return totalServices * (taxaValue / 100);
+    }
+    // fixed: multiplica quantidade de serviços pelo valor fixo da taxa
+    const totalServices = appointments.reduce((total, apt) => {
+      return total + apt.services.length;
+    }, 0);
+    return totalServices * taxaValue;
   };
 
   return (

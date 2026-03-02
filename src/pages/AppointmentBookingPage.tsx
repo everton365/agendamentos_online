@@ -1217,7 +1217,7 @@ const AppointmentBookingPage = () => {
                       disabled={appointments.length === 0}
                     >
                       <Calendar className="w-5 h-5 sm:w-6 sm:h-6 mr-2" />
-                      Finalizar (R$ {getTotalBookingFee()})
+                      Finalizar (R$ {getTotalBookingFee(studio?.studio_taxa, studio?.taxa_type).toFixed(2).replace(".", ",")})
                     </Button>
                   </div>
                 </form>
