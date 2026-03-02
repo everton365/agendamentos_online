@@ -93,14 +93,22 @@ const PaymentMethodPage = () => {
     }, 0);
   };
 
-  const getTotalBookingFee = () => {
+  const getIndividualBookingFee = (apt: AppointmentData) => {
     const taxaValue = parseFloat(studioTaxa);
     if (isNaN(taxaValue) || taxaValue === 0) return 0;
 
     if (taxaType === "percent") {
-      return getTotalServicesPrice() * (taxaValue / 100);
+      const priceStr = apt.price || "R$ 0";
+      const priceValue = parseFloat(
+        priceStr.replace("R$", "").replace(/\./g, "").replace(",", ".").trim(),
+      );
+      return isNaN(priceValue) ? 0 : priceValue * (taxaValue / 100);
     }
-    return appointments.length * taxaValue;
+    return taxaValue;
+  };
+
+  const getTotalBookingFee = () => {
+    return appointments.reduce((total, apt) => total + getIndividualBookingFee(apt), 0);
   };
 
   const totalBookingFee = getTotalBookingFee();
@@ -181,9 +189,10 @@ const PaymentMethodPage = () => {
 
         // Criar todos os agendamentos
         for (const apt of appointments) {
+          const individualFee = getIndividualBookingFee(apt);
           const bodyData = {
             ...apt,
-            totalPrice: totalBookingFee / appointments.length,
+            totalPrice: individualFee,
             user_id: user.id,
           } as any;
 
