@@ -19,13 +19,12 @@ import { useStudioPage } from "@/hooks/use-studio-page";
 
 const Header = () => {
   const { slug: paramSlug } = useParams<{ slug: string }>();
-  const { slug: contextSlug } = useStudio();
+  const { slug: contextSlug, studio } = useStudio();
   const slug = paramSlug || contextSlug;
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
-  const { studio } = useStudioPage(slug || undefined);
 
   const [profile, setProfile] = useState<{
     display_name?: string;
@@ -86,18 +85,20 @@ const Header = () => {
 
     setMobileMenuOpen(false);
   };
-  console.log(studio);
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-foreground text-background border-b border-border overflow-x-hidden">
       <div className="w-full max-w-7xl mx-auto px-2 sm:px-4">
         <div className="flex items-center justify-between h-16 gap-2">
           {/* Logo */}
           <Link to={`/${slug}`} className="flex items-center flex-shrink-0">
-            <img
-              src={studio?.logoStudio}
-              alt="Lariza Freitas"
-              className="h-24 sm:h-32 md:h-40 w-auto max-w-[120px] sm:max-w-none"
-            />
+            <div className="h-16 w-auto max-w-[140px]">
+              <img
+                src={studio?.logoStudio}
+                alt="Logo do Studio"
+                className="w-full h-full object-contain"
+              />
+            </div>
           </Link>
 
           {/* Desktop Navigation */}

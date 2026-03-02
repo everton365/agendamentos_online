@@ -11,9 +11,9 @@ import type { StudioData } from "@/hooks/use-studio-page";
 interface HeroSectionProps {
   studio: StudioData | null;
 }
-const HeroSection = ({ studio }: HeroSectionProps) => {
+const HeroSection = () => {
   const { user } = useAuth();
-  const { loading } = useStudio();
+  const { loading, studio } = useStudio();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { clearCart } = useCart();
@@ -55,7 +55,7 @@ const HeroSection = ({ studio }: HeroSectionProps) => {
             >
               {loading
                 ? "Carregando..."
-                : studio?.nome_studio || "Lariza Freitas"}
+                : studio?.nome_studio || "empresa.name"}
             </span>
 
             {/* Camada visível com gradiente */}
@@ -68,12 +68,13 @@ const HeroSection = ({ studio }: HeroSectionProps) => {
             >
               {loading
                 ? "Carregando..."
-                : studio?.nome_studio || "Lariza Freitas"}
+                : studio?.nome_studio || "empresa.name"}
             </span>
           </h1>
 
           <h2 className="font-cinzel font-extrabold text-center relative mt-2 mb-5 uppercase leading-none">
             {/* Subtítulo - dois spans lado a lado */}
+
             <span
               className="relative inline-block text-transparent bg-clip-text bg-gradient-to-b from-black/30 to-yellow-400 leading-none mr-1"
               style={{
@@ -81,24 +82,13 @@ const HeroSection = ({ studio }: HeroSectionProps) => {
                 backgroundSize: "100% 100%",
               }}
             >
-              Especialista em
-            </span>
-            <span
-              className="relative inline-block text-transparent bg-clip-text bg-gradient-to-b from-black/30 to-yellow-400 leading-none"
-              style={{
-                fontSize: "clamp(1.2rem, 2.5vw, 2.7rem)",
-                backgroundSize: "100% 100%",
-              }}
-            >
-              sobrancelhas naturais
+              {studio?.subtitle_studio}
             </span>
           </h2>
 
           {/* Descrição */}
           <p className="text-lg font-poppins text-muted-foreground max-w-2xl mx-auto mt-16 mb-16 leading-snug">
-            Especialista em design, microblading e técnicas avançadas. Realce
-            sua beleza com sobrancelhas naturais, leves e perfeitamente
-            moldadas.
+            {studio?.description_studio}
           </p>
 
           {/* Botões */}
@@ -139,7 +129,7 @@ const HeroSection = ({ studio }: HeroSectionProps) => {
               </div>
               <div>
                 <div className="font-semibold text-foreground font-poppins text-lg">
-                  Certificada
+                  Certificado
                 </div>
                 <div className="text-muted-foreground font-poppins">
                   Técnicas Avançadas

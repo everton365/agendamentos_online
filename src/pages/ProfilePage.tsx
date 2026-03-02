@@ -38,6 +38,7 @@ import { ptBR } from "date-fns/locale";
 import Header from "@/components/Header";
 import { useCart } from "@/contexts/CartContext";
 import { useNavigate } from "react-router-dom";
+import { useStudio } from "@/contexts/StudioContext";
 interface Profile {
   display_name: string | null;
   phone: string | null;
@@ -67,6 +68,7 @@ type Slot = {
 };
 
 const ProfilePage = () => {
+  const { studio } = useStudio();
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [studioId, setStudioId] = useState<string | null>(null);
@@ -138,7 +140,7 @@ const ProfilePage = () => {
     if (!rescheduleDate) return;
 
     fetch(
-      `${baseURL}/user/appointments/date-bloqueada/${rescheduleDate}?studioId=${studioId}`,
+      `${baseURL}/user/appointments/date-bloqueada/${rescheduleDate}?studioId=${studio.studio_id}`,
     )
       .then((res) => res.json())
       .then((data) => {
@@ -170,7 +172,7 @@ const ProfilePage = () => {
         .from("profiles")
         .select("*")
         .eq("user_id", user.id)
-        .eq("studio_id", studioId)
+        .eq("studio_id", studio.studio_id)
         .maybeSingle();
       if (error) throw error;
       if (data) {
@@ -194,7 +196,7 @@ const ProfilePage = () => {
         .from("appointments")
         .select("*")
         .eq("user_id", user.id)
-        .eq("studio_id", studioId)
+        .eq("studio_id", studio.studio_id)
         .order("appointment_date", { ascending: false });
       if (error) throw error;
       const appointmentsWithPrice: Appointment[] = (data || []).map(
@@ -239,7 +241,7 @@ const ProfilePage = () => {
       const { error } = await supabase.from("profiles").upsert(
         {
           user_id: user?.id,
-          studio_id: studioId,
+          studio_id: studio.studio_id,
           display_name: profile.display_name,
           phone: profile.phone,
           avatar_url: finalAvatarUrl,
@@ -311,7 +313,7 @@ const ProfilePage = () => {
   const getTimeSlotsForDate = async (date: string) => {
     try {
       const res = await fetch(
-        `${baseURL}/user/appointments/status/${date}?studioId=${studioId}`,
+        `${baseURL}/user/appointments/status/${date}?studioId=${studio.studio_id}`,
       );
       if (!res.ok) throw new Error("Erro ao buscar horários");
       const data = await res.json();

@@ -9,6 +9,8 @@ export interface StudioData {
   id: number;
   studio_id: string;
   nome_studio: string;
+  subtitle_studio: string;
+  description_studio: string;
   endereco: string;
   sobre: string;
   contato: string;
@@ -61,6 +63,7 @@ export interface ReviewData {
 interface UseStudioPageReturn {
   studio: StudioData | null;
   services: ServiceData[];
+  subscription: any | null;
   results: ResultData[];
   reviews: ReviewData[];
   loading: boolean;
@@ -78,8 +81,8 @@ export const useStudioPage = (
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [notFound, setNotFound] = useState(false);
-
-  const baseURL = import.meta.env.VITE_API_URL;
+  const [subscription, setSubscription] = useState<any>(null); // Adicionado estado para assinatura
+  const baseURL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -117,6 +120,7 @@ export const useStudioPage = (
           services: servicesRaw,
           results: resultsRaw,
           reviews: reviewsRaw,
+          assinatura: assinaturaRaw,
         } = json.data;
 
         // Parse studio
@@ -131,7 +135,7 @@ export const useStudioPage = (
           }
         }
         setStudio(studioData);
-
+        setSubscription(assinaturaRaw);
         // 🔥 salva no localStorage
         if (studioData?.studio_id) {
           localStorage.setItem("studio_id", studioData.studio_id);
@@ -183,5 +187,14 @@ export const useStudioPage = (
     fetchAll();
   }, [slug, baseURL]);
 
-  return { studio, services, results, reviews, loading, error, notFound };
+  return {
+    studio,
+    services,
+    subscription,
+    results,
+    reviews,
+    loading,
+    error,
+    notFound,
+  };
 };

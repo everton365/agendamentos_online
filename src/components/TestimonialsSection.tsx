@@ -18,7 +18,7 @@ const TestimonialsSection = ({ reviews }: TestimonialsSection) => {
     return null;
   }
 
-  const visibleReviews = showAll ? reviews : reviews.slice(0, 5);
+  const visibleReviews = showAll ? reviews : reviews.slice(0, 4);
 
   const averageRating =
     reviews.length > 0

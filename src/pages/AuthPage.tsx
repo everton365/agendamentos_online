@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -16,7 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect } from "react";
-
+import { useStudio } from "@/contexts/StudioContext";
 const cleanupAuthState = () => {
   localStorage.removeItem("supabase.auth.token");
   Object.keys(localStorage).forEach((key) => {
@@ -33,6 +33,9 @@ const cleanupAuthState = () => {
 
 const AuthPage = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const { slug: paramSlug } = useParams<{ slug: string }>();
+  const { slug: contextSlug, studio } = useStudio();
+  const slug = paramSlug || contextSlug;
   const [loading, setLoading] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
   const [signInData, setSignInData] = useState({ email: "", password: "" });
@@ -51,9 +54,9 @@ const AuthPage = () => {
   // Redirect if already logged in
   useEffect(() => {
     if (user) {
-      navigate("/");
+      navigate(`/${slug}`);
     }
-  }, [user, navigate]);
+  }, [user, navigate, slug]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,12 +81,12 @@ const AuthPage = () => {
       if (error) {
         if (error.message.includes("Invalid login credentials")) {
           throw new Error(
-            "Email ou senha incorretos. Verifique suas credenciais."
+            "Email ou senha incorretos. Verifique suas credenciais.",
           );
         }
         throw error;
       }
-      const expectedStudioId = import.meta.env.VITE_STUDIO_ID;
+      const expectedStudioId = studio?.studio_id;
       if (data.user) {
         // Verificar se o usuário pertence ao studio correto
         const { data: profile, error: profileError } = await supabase
@@ -107,7 +110,7 @@ const AuthPage = () => {
           title: "Sucesso!",
           description: "Login realizado com sucesso.",
         });
-        window.location.href = "/";
+        window.location.href = `/${slug}`; // Redireciona para a página do studio
       }
     } catch (error: any) {
       toast({
@@ -137,7 +140,7 @@ const AuthPage = () => {
         signInData.email,
         {
           redirectTo: `${window.location.origin}/reset-password`,
-        }
+        },
       );
 
       if (error) throw error;
@@ -191,8 +194,8 @@ const AuthPage = () => {
         // Continue even if this fails
       }
 
-      const redirectUrl = `${window.location.origin}/`;
-      const studioId = import.meta.env.VITE_STUDIO_ID;
+      const redirectUrl = `${window.location.origin}/${slug}`;
+      const studioId = studio?.studio_id;
 
       const { data, error } = await supabase.auth.signUp({
         email: signUpData.email,
@@ -217,7 +220,7 @@ const AuthPage = () => {
 
             if (loginResult.error) {
               throw new Error(
-                "Email já cadastrado mas senha incorreta. Tente fazer login."
+                "Email já cadastrado mas senha incorreta. Tente fazer login.",
               );
             }
 
@@ -261,7 +264,7 @@ const AuthPage = () => {
                   title: "Perfil criado!",
                   description: "Você agora tem acesso a este studio.",
                 });
-                window.location.href = "/";
+                window.location.href = `/${slug}`; // Redireciona para a página do studio
                 return;
               } else {
                 // Perfil já existe para este studio
@@ -269,13 +272,13 @@ const AuthPage = () => {
                   title: "Sucesso!",
                   description: "Login realizado com sucesso.",
                 });
-                window.location.href = "/";
+                window.location.href = `/${slug}`;
                 return;
               }
             }
           } catch (loginError: any) {
             throw new Error(
-              loginError.message || "Email já cadastrado mas senha incorreta."
+              loginError.message || "Email já cadastrado mas senha incorreta.",
             );
           }
         }
@@ -326,7 +329,7 @@ const AuthPage = () => {
       <div className="w-full max-w-md">
         <div className="mb-8">
           <Link
-            to="/"
+            to={`/${slug}`}
             className="inline-flex items-center text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />

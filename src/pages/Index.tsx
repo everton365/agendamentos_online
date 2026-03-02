@@ -42,7 +42,7 @@ const StudioPage = () => {
     }
 
     return () => {
-      document.title = "Lariza Freitas - Especialista em sobrancelhas naturais";
+      document.title = "Sistema de Agendamento";
     };
   }, [studio?.nome_studio, studio?.logoStudio]);
 

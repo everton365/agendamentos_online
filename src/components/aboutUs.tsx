@@ -17,7 +17,7 @@ const AboutUs = ({ studio }: AboutUs) => {
             className="text-4xl font-cinzel font-bold text-foreground"
             data-aos="fade-right"
           >
-            Sobre o Studio
+            Sobre o {studio?.nome_studio}
           </h2>
           <p
             className="text-lg font-poppins text-muted-foreground leading-relaxed"
@@ -35,12 +35,10 @@ const AboutUs = ({ studio }: AboutUs) => {
               </>
             ) : (
               <>
-                Bem-vindo ao{" "}
-                <span className="font-semibold text-primary">Nosso Studio</span>
-                ! Especialista em sobrancelhas naturais! Aqui, minha paixão pela
-                beleza e a precisão técnica se encontram. Minha missão é realçar
-                a sua beleza única, criando um design de sobrancelhas impecável
-                e totalmente personalizado.
+                Bem-vindo a{" "}
+                <span className="font-semibold text-primary">
+                  Nossa Pagina web{" "}
+                </span>
               </>
             )}
           </p>

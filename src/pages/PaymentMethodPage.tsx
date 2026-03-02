@@ -61,7 +61,7 @@ const PaymentMethodPage = () => {
   const [acceptedPolicy, setAcceptedPolicy] = useState(false);
   const [studioId, setStudioId] = useState<string | null>(null);
   const [paymentDataLoading, setPaymentDataLoading] = useState(true);
-
+  console.log("dados user", studio.studio_id);
   // Redirect if no appointment data
   if (!appointments || appointments.length === 0) {
     navigate("/agendamento");
@@ -105,7 +105,7 @@ const PaymentMethodPage = () => {
           .from("profiles")
           .select("role")
           .eq("user_id", user.id)
-          .eq("studio_id", studioId)
+          .eq("studio_id", studio.studio_id)
           .single<{ role: string }>();
 
         if (error) throw error;
@@ -119,7 +119,7 @@ const PaymentMethodPage = () => {
 
     fetchUserRole();
   }, []);
-
+  console.log("userRole", userRole);
   useEffect(() => {
     const savedAppointmentId = localStorage.getItem("appointmentId");
 

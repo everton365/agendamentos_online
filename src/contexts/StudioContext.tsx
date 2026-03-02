@@ -9,10 +9,15 @@ interface Studio {
   id: number;
   studio_id: string;
   nome_studio: string;
+  subtitle_studio: string;
+  description_studio: string;
   endereco: string;
   sobre: string;
+  studio_taxa: string;
+  taxa_type: string;
   contato: string;
   email: string;
+  logoStudio: string;
   instagramLink: string;
   facebookLink: string;
   tiktokLink: string;
@@ -46,7 +51,9 @@ export const StudioProvider: React.FC<{ children: React.ReactNode }> = ({
   const [studio, setStudio] = useState<Studio | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [slug, setSlugState] = useState<string | null>(() => localStorage.getItem("studio_slug"));
+  const [slug, setSlugState] = useState<string | null>(() =>
+    localStorage.getItem("studio_slug"),
+  );
   const [studioId, setStudioId] = useState<string | null>(null);
 
   const setSlug = (newSlug: string) => {
@@ -55,7 +62,6 @@ export const StudioProvider: React.FC<{ children: React.ReactNode }> = ({
   };
   const baseURL = import.meta.env.VITE_API_URL;
 
-  console.log("id aqui", studioId);
   useEffect(() => {
     const fetchStudioInfo = async () => {
       const id = localStorage.getItem("studio_id");
@@ -113,7 +119,9 @@ export const StudioProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [studioId, baseURL]);
 
   return (
-    <StudioContext.Provider value={{ studio, studioId, slug, setSlug, loading, error }}>
+    <StudioContext.Provider
+      value={{ studio, studioId, slug, setSlug, loading, error }}
+    >
       {children}
     </StudioContext.Provider>
   );

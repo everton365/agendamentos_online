@@ -76,7 +76,7 @@ const PixPaymentPage = () => {
       try {
         for (let attempt = 1; attempt <= maxRetries; attempt++) {
           try {
-            const response = await fetch(`${baseURL}/user/checkout`, {
+            const response = await fetch(`${baseURL}/user/checkout/taxa`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({

@@ -30,6 +30,7 @@ const AppointmentBookingPage = () => {
   const [selectedService, setSelectedService] = useState("");
   const { user } = useAuth();
   const { studio } = useStudio();
+  console.log("Studio no AppointmentBookingPage:", studio);
   const { appointments, addAppointment, getTotalBookingFee } = useCart();
   const navigate = useNavigate();
   const [studioId, setStudioId] = useState<string | null>(null);
@@ -165,7 +166,7 @@ const AppointmentBookingPage = () => {
           .from("profiles")
           .select("role")
           .eq("user_id", user.id)
-          .eq("studio_id", studioId)
+          .eq("studio_id", studio.studio_id)
           .maybeSingle<{ role: string }>();
 
         if (error) throw error;
@@ -184,7 +185,7 @@ const AppointmentBookingPage = () => {
     if (!formData.date) return;
 
     fetch(
-      `${baseURL}/user/appointments/date-bloqueada/${formData.date}?studioId=${studioId}`,
+      `${baseURL}/user/appointments/date-bloqueada/${formData.date}?studioId=${studio.studio_id}`,
     )
       .then((res) => res.json())
       .then((data: BlockedDateResponse) => {
@@ -238,7 +239,7 @@ const AppointmentBookingPage = () => {
   ) => {
     try {
       const res = await fetch(
-        `${baseURL}/user/appointments/status/${date}?studioId=${studioId}`,
+        `${baseURL}/user/appointments/status/${date}?studioId=${studio.studio_id}`,
       );
       if (!res.ok) throw new Error("Erro ao buscar horários");
 
@@ -500,8 +501,6 @@ const AppointmentBookingPage = () => {
       return digits;
     };
 
-    const studioId = import.meta.env.VITE_STUDIO_ID;
-
     navigate("/pagamento", {
       state: {
         appointments: appointments.map((apt) => ({
@@ -519,7 +518,7 @@ const AppointmentBookingPage = () => {
           date: apt.date,
           time: apt.time,
           message: apt.message,
-          studio_id: studioId,
+          studio_id: studio.studio_id,
         })),
       },
     });

@@ -14,10 +14,11 @@ import { useCart } from "@/contexts/CartContext";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/components/ui/use-toast"; // 🔔 garante que o toast existe
 import { useState, useEffect } from "react";
-
+import { useStudio } from "@/contexts/StudioContext";
 export function CartDrawer() {
   const { appointments, removeAppointment, getTotalPrice, getTotalBookingFee } =
     useCart();
+  const { studio } = useStudio();
   const navigate = useNavigate();
   const [studioId, setStudioId] = useState<string | null>(null);
   // 🕒 Função auxiliar: soma minutos a um horário (ex: 10:00 + 10 = 10:10)
@@ -143,11 +144,23 @@ export function CartDrawer() {
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">
-                    Taxa de agendamento ({appointments.length}x R$ 20,00):
+                    Taxa de agendamento
+                    {studio?.taxa_type === "fixed" &&
+                      ` (${appointments.length}x R$ ${Number(
+                        studio?.studio_taxa,
+                      )
+                        .toFixed(2)
+                        .replace(".", ",")})`}
+                    {studio?.taxa_type === "percent" &&
+                      ` (${studio?.studio_taxa}% sobre os serviços)`}
+                    :
                   </span>
+
                   <span>R$ {totalBookingFee.toFixed(2).replace(".", ",")}</span>
                 </div>
+
                 <Separator />
+
                 <div className="flex justify-between text-lg font-bold">
                   <span>Total:</span>
                   <span>R$ {grandTotal.toFixed(2).replace(".", ",")}</span>

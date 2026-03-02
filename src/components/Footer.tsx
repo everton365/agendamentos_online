@@ -8,7 +8,8 @@ interface Footer {
   studio: StudioData | null;
 }
 
-const Footer = ({ studio }: Footer) => {
+const Footer = () => {
+  const { studio } = useStudio();
   if (!studio) return null;
 
   return (
@@ -25,9 +26,8 @@ const Footer = ({ studio }: Footer) => {
                 {studio?.nome_studio}
               </h3>
               <p className="text-background/80 mb-6 leading-relaxed">
-                Especializada em design, microblading e técnicas avançadas para
-                sobrancelhas. Transforme seu olhar com resultados naturais e
-                duradouros.
+                {studio?.description_studio ||
+                  "Descrição do estúdio não informada."}
               </p>
               <div className="flex gap-4">
                 <a
