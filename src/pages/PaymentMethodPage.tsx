@@ -83,19 +83,6 @@ const PaymentMethodPage = () => {
   const studioTaxa = studio?.studio_taxa || "0";
   const taxaType = studio?.taxa_type || "fixed";
 
-  const getTotalBookingFee = () => {
-    const taxaValue = parseFloat(studioTaxa);
-    if (isNaN(taxaValue) || taxaValue === 0) return 0;
-
-    if (taxaType === "percent") {
-      return getTotalServicesPrice() * (taxaValue / 100);
-    }
-    // fixed: multiplica quantidade de serviços pelo valor fixo
-    return appointments.length * taxaValue;
-  };
-
-  const totalBookingFee = getTotalBookingFee();
-
   const getTotalServicesPrice = () => {
     return appointments.reduce((total, apt) => {
       const priceStr = apt.price || "R$ 0";
@@ -105,6 +92,18 @@ const PaymentMethodPage = () => {
       return total + (isNaN(priceValue) ? 0 : priceValue);
     }, 0);
   };
+
+  const getTotalBookingFee = () => {
+    const taxaValue = parseFloat(studioTaxa);
+    if (isNaN(taxaValue) || taxaValue === 0) return 0;
+
+    if (taxaType === "percent") {
+      return getTotalServicesPrice() * (taxaValue / 100);
+    }
+    return appointments.length * taxaValue;
+  };
+
+  const totalBookingFee = getTotalBookingFee();
   useEffect(() => {
     if (!user) return;
 
