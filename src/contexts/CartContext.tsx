@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, ReactNode } from "react";
-
+import { useStudio } from "@/contexts/StudioContext";
 interface CartAppointment {
   id: string;
   service: string;
@@ -22,13 +22,14 @@ interface CartContextType {
   removeAppointment: (id: string) => void;
   clearCart: () => void;
   getTotalPrice: () => number;
-  getTotalBookingFee: (studioTaxa?: string, taxaType?: string) => number;
+  getTotalBookingFee: (taxa?: string, tipo?: string) => number;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [appointments, setAppointments] = useState<CartAppointment[]>([]);
+  const { studio } = useStudio(); // 👈 dados do estúdio
 
   const addAppointment = (appointment: Omit<CartAppointment, "id">) => {
     const newAppointment = {
@@ -46,30 +47,39 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setAppointments([]);
   };
 
+  // 💰 TOTAL DOS SERVIÇOS
   const getTotalPrice = () => {
     return appointments.reduce((total, apt) => {
       const priceStr = apt.price || "R$ 0";
+
       const priceValue = parseFloat(
-        priceStr.replace("R$", "").replace(/\./g, "").replace(",", ".").trim()
+        priceStr.replace("R$", "").replace(/\./g, "").replace(",", ".").trim(),
       );
+
       return total + (isNaN(priceValue) ? 0 : priceValue);
     }, 0);
   };
 
-  const getTotalBookingFee = (studioTaxa?: string, taxaType?: string) => {
-    const taxaValue = parseFloat(studioTaxa || "0");
-    if (isNaN(taxaValue) || taxaValue === 0) return 0;
+  // 🏦 TAXA DO SISTEMA
+  const getTotalBookingFee = (taxa?: string, tipo?: string) => {
+    if (!studio && !taxa && !tipo) return 0;
 
-    if (taxaType === "percent") {
-      // Aplica porcentagem sobre o valor total dos serviços
-      const totalServices = getTotalPrice();
-      return totalServices * (taxaValue / 100);
+    const totalServicos = getTotalPrice();
+
+    const taxaValue = Number(taxa || studio?.studio_taxa || "0");
+    const type = tipo || studio?.taxa_type || "percent";
+
+    let taxaCalculada = 0;
+
+    if (type === "percent") {
+      taxaCalculada = (totalServicos * taxaValue) / 100;
     }
-    // fixed: multiplica quantidade de serviços pelo valor fixo da taxa
-    const totalServices = appointments.reduce((total, apt) => {
-      return total + apt.services.length;
-    }, 0);
-    return totalServices * taxaValue;
+
+    if (type === "fixed") {
+      taxaCalculada = appointments.length * taxaValue;
+    }
+
+    return Number(taxaCalculada.toFixed(2));
   };
 
   return (
