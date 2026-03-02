@@ -61,12 +61,7 @@ const PaymentMethodPage = () => {
   const [acceptedPolicy, setAcceptedPolicy] = useState(false);
   const [studioId, setStudioId] = useState<string | null>(null);
   const [paymentDataLoading, setPaymentDataLoading] = useState(true);
-  console.log("dados user", studio.studio_id);
   // Redirect if no appointment data
-  if (!appointments || appointments.length === 0) {
-    navigate("/agendamento");
-    return null;
-  }
   useEffect(() => {
     if (!appointments || appointments.length === 0) {
       navigate("/agendamento", { replace: true });
@@ -85,7 +80,21 @@ const PaymentMethodPage = () => {
     setStudioId(id);
   }, []);
 
-  const totalBookingFee = appointments.length * 20; // R$ 20 por agendamento
+  const studioTaxa = studio?.studio_taxa || "0";
+  const taxaType = studio?.taxa_type || "fixed";
+
+  const getTotalBookingFee = () => {
+    const taxaValue = parseFloat(studioTaxa);
+    if (isNaN(taxaValue) || taxaValue === 0) return 0;
+
+    if (taxaType === "percent") {
+      return getTotalServicesPrice() * (taxaValue / 100);
+    }
+    // fixed: multiplica quantidade de serviços pelo valor fixo
+    return appointments.length * taxaValue;
+  };
+
+  const totalBookingFee = getTotalBookingFee();
 
   const getTotalServicesPrice = () => {
     return appointments.reduce((total, apt) => {
@@ -142,8 +151,7 @@ const PaymentMethodPage = () => {
     });
   };
 
-  const bookingFee = 20; // R$ 20,00 booking fee per appointment
-  const totalPrice = totalBookingFee; // Total booking fee
+  const totalPrice = totalBookingFee;
   const baseURL = import.meta.env.VITE_API_PAGAMENTO;
   const paymentMethods = [
     {
@@ -176,7 +184,7 @@ const PaymentMethodPage = () => {
         for (const apt of appointments) {
           const bodyData = {
             ...apt,
-            totalPrice: bookingFee,
+            totalPrice: totalBookingFee / appointments.length,
             user_id: user.id,
           } as any;
 
@@ -334,7 +342,7 @@ const PaymentMethodPage = () => {
                   </div>
                   <div className="flex justify-between text-sm text-muted-foreground">
                     <span>
-                      Taxa de agendamento ({appointments.length} × R$ 20):
+                      Taxa de agendamento ({taxaType === "percent" ? `${studioTaxa}%` : `${appointments.length} × R$ ${parseFloat(studioTaxa).toFixed(2).replace(".", ",")}`}):
                     </span>
                     <span>{formatPrice(totalBookingFee)}</span>
                   </div>
