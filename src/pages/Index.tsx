@@ -93,7 +93,7 @@ const StudioPage = () => {
       <div id="inicio">
         <Header />
       </div>
-      <HeroSection studio={studio} />
+      <HeroSection />
       <div id="servicos">
         <ServicesSection services={services} />
       </div>
@@ -104,7 +104,7 @@ const StudioPage = () => {
         <ResultsCarousel results={results} />
       </div>
       <TestimonialsSection reviews={reviews} />
-      <Footer studio={studio} />
+      <Footer />
     </main>
   );
 };

@@ -54,8 +54,8 @@ export function CartDrawer() {
     setStudioId(id);
   }, []);
 
-  const totalBookingFee = getTotalBookingFee();
-  const grandTotal = totalBookingFee; // Somente taxa
+  const totalBookingFee = getTotalBookingFee(studio?.studio_taxa, studio?.taxa_type);
+  const grandTotal = totalBookingFee;
 
   return (
     <Sheet>
