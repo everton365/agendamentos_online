@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useStudio } from "@/contexts/StudioContext";
 
 interface Result {
   id: number;
@@ -14,7 +15,7 @@ export const useResults = () => {
   const [error, setError] = useState<string | null>(null);
 
   const baseURL = import.meta.env.VITE_API_URL;
-  const studioId = import.meta.env.VITE_STUDIO_ID;
+  const { studioId } = useStudio();
 
   useEffect(() => {
     const fetchResults = async () => {
