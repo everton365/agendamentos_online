@@ -18,9 +18,9 @@ import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import { supabase } from "@/integrations/supabase/client";
 import { initMercadoPago, Wallet } from "@mercadopago/sdk-react";
-
+import { useStudioPage } from "@/hooks/use-studio-page";
 import { useCart } from "@/contexts/CartContext";
-
+import { useParams } from "react-router-dom";
 interface AppointmentData {
   name: string;
   phone: string;
@@ -42,6 +42,9 @@ interface PixResponse {
 }
 
 const PaymentMethodPage = () => {
+  const { slug } = useParams();
+  const { ruleStudio } = useStudioPage(slug);
+  console.log("ruleStudio", ruleStudio);
   const { studio } = useStudio();
   const location = useLocation();
   const navigate = useNavigate();
@@ -108,7 +111,10 @@ const PaymentMethodPage = () => {
   };
 
   const getTotalBookingFee = () => {
-    return appointments.reduce((total, apt) => total + getIndividualBookingFee(apt), 0);
+    return appointments.reduce(
+      (total, apt) => total + getIndividualBookingFee(apt),
+      0,
+    );
   };
 
   const totalBookingFee = getTotalBookingFee();
@@ -350,7 +356,11 @@ const PaymentMethodPage = () => {
                   </div>
                   <div className="flex justify-between text-sm text-muted-foreground">
                     <span>
-                      Taxa de agendamento ({taxaType === "percent" ? `${studioTaxa}%` : `${appointments.length} × R$ ${parseFloat(studioTaxa).toFixed(2).replace(".", ",")}`}):
+                      Taxa de agendamento (
+                      {taxaType === "percent"
+                        ? `${studioTaxa}%`
+                        : `${appointments.length} × R$ ${parseFloat(studioTaxa).toFixed(2).replace(".", ",")}`}
+                      ):
                     </span>
                     <span>{formatPrice(totalBookingFee)}</span>
                   </div>
@@ -373,34 +383,9 @@ const PaymentMethodPage = () => {
                   Política de Pagamento e reagendamento
                 </h4>
                 <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>
-                    • <strong>A TAXA NÃO É DEVOLVIDA</strong>, desmarcando
-                    dentro do prazo de até 3 horas antes do seu atendimento você
-                    poderá realizar um novo agendamento sem precisar pagar a
-                    taxa novamente.
-                    <strong>
-                      DESMARQUES APÓS O PRAZO SERÁ NECESSÁRIO O PAGAMENTO DE UMA
-                      NOVA TAXA PARA REAGENDAMENTO.
-                    </strong>
-                  </li>
-                  <li>
-                    • Taxa de agendamento de R$ 20,00 para confirmar o horário
-                    (será descontada do valor do serviço)
-                  </li>
-                  <li>
-                    • O agendamento ficará reservado por 20 minutos. Após esse
-                    período, se o pagamento não for confirmado, ele voltará a
-                    ficar disponível.
-                  </li>
-                  <li>• Pagamento do serviço no lacal</li>
-                  <li>• Pagamento da taxa via Pix</li>
-                  <li>• Reagendamento gratuito até 3 horas antes do horário</li>
-                  <li>
-                    • Após o prazo de 3 horas, será necessário pagar nova taxa
-                    para agendamento
-                  </li>
-                  <li>• Não comparecimento: taxa não será reembolsada</li>
-                  <li>• Tolerância de atraso: 10 minutos</li>
+                  {ruleStudio?.map((rule) => (
+                    <li key={rule.rules_orden}>• {rule.rules}</li>
+                  ))}
                 </ul>
               </div>
               <CardHeader>

@@ -34,6 +34,13 @@ interface Studio {
   };
 }
 
+interface rules {
+  id: string;
+  rules_orden: number;
+  rules: string;
+  studio_id: string;
+}
+
 interface StudioContextType {
   studio: Studio | null;
   studioId: string | null;

@@ -32,6 +32,13 @@ export interface StudioData {
   };
 }
 
+export interface studioRules {
+  id: string;
+  rules_orden: number;
+  rules: string;
+  studio_id: string;
+}
+
 export interface ServiceData {
   id: string;
   name: string;
@@ -65,6 +72,7 @@ interface UseStudioPageReturn {
   services: ServiceData[];
   subscription: any | null;
   results: ResultData[];
+  ruleStudio: studioRules[];
   reviews: ReviewData[];
   loading: boolean;
   error: string | null;
@@ -78,6 +86,7 @@ export const useStudioPage = (
   const [services, setServices] = useState<ServiceData[]>([]);
   const [results, setResults] = useState<ResultData[]>([]);
   const [reviews, setReviews] = useState<ReviewData[]>([]);
+  const [ruleStudio, setRuleStudio] = useState<studioRules[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [notFound, setNotFound] = useState(false);
@@ -108,7 +117,7 @@ export const useStudioPage = (
         }
 
         const json = await response.json();
-
+        console.log("Resposta da API:", json);
         if (!json.success) {
           setNotFound(true);
           setLoading(false);
@@ -121,6 +130,7 @@ export const useStudioPage = (
           results: resultsRaw,
           reviews: reviewsRaw,
           assinatura: assinaturaRaw,
+          rules: ruleStudio,
         } = json.data;
 
         // Parse studio
@@ -136,6 +146,7 @@ export const useStudioPage = (
         }
         setStudio(studioData);
         setSubscription(assinaturaRaw);
+        setRuleStudio(ruleStudio);
         // 🔥 salva no localStorage
         if (studioData?.studio_id) {
           localStorage.setItem("studio_id", studioData.studio_id);
@@ -192,6 +203,7 @@ export const useStudioPage = (
     services,
     subscription,
     results,
+    ruleStudio,
     reviews,
     loading,
     error,

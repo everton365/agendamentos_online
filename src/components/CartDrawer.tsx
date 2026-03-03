@@ -54,7 +54,10 @@ export function CartDrawer() {
     setStudioId(id);
   }, []);
 
-  const totalBookingFee = getTotalBookingFee(studio?.studio_taxa, studio?.taxa_type);
+  const totalBookingFee = getTotalBookingFee(
+    studio?.studio_taxa,
+    studio?.taxa_type,
+  );
   const grandTotal = totalBookingFee;
 
   return (

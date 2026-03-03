@@ -43,7 +43,7 @@ const ServicesSection = ({ services }: ServicesSectionProps) => {
                       {service.name}
                     </h3>
 
-                    <p className="mb-6">
+                    <p className="mb-6 max-h-24 overflow-y-auto pr-2">
                       {service.description || "Sem descrição disponível."}
                     </p>
                   </div>
