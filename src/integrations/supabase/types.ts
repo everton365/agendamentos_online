@@ -299,6 +299,30 @@ export type Database = {
         }
         Relationships: []
       }
+      studio_rules: {
+        Row: {
+          created_at: string
+          id: number
+          rule_order: number | null
+          rule_text: string | null
+          studio_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          rule_order?: number | null
+          rule_text?: string | null
+          studio_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          rule_order?: number | null
+          rule_text?: string | null
+          studio_id?: string | null
+        }
+        Relationships: []
+      }
       studios: {
         Row: {
           created_at: string
