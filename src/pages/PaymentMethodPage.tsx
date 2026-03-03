@@ -18,9 +18,7 @@ import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import { supabase } from "@/integrations/supabase/client";
 import { initMercadoPago, Wallet } from "@mercadopago/sdk-react";
-import { useStudioPage } from "@/hooks/use-studio-page";
 import { useCart } from "@/contexts/CartContext";
-import { useParams } from "react-router-dom";
 interface AppointmentData {
   name: string;
   phone: string;
@@ -42,10 +40,9 @@ interface PixResponse {
 }
 
 const PaymentMethodPage = () => {
-  const { slug } = useParams();
-  const { ruleStudio } = useStudioPage(slug);
-  console.log("ruleStudio", ruleStudio);
-  const { studio } = useStudio();
+  const { studio, studioId, slug } = useStudio();
+  const [ruleStudio, setRuleStudio] = useState<{ id: string; rules_orden: number; rules: string; studio_id: string }[]>([]);
+  const baseURL_API = import.meta.env.VITE_API_URL || "http://localhost:3000";
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -62,8 +59,24 @@ const PaymentMethodPage = () => {
   const [appointmentIds, setAppointmentIds] = useState<string[]>([]);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [acceptedPolicy, setAcceptedPolicy] = useState(false);
-  const [studioId, setStudioId] = useState<string | null>(null);
-  const [paymentDataLoading, setPaymentDataLoading] = useState(true);
+  // Fetch rules do studio usando o slug do contexto
+  useEffect(() => {
+    if (!slug) return;
+    const fetchRules = async () => {
+      try {
+        const response = await fetch(`${baseURL_API}/user/studio/${slug}`);
+        if (response.ok) {
+          const data = await response.json();
+          const rules = data.data?.rules || [];
+          setRuleStudio(rules);
+        }
+      } catch (err) {
+        console.error("Erro ao buscar regras do studio:", err);
+      }
+    };
+    fetchRules();
+  }, [slug, baseURL_API]);
+
   // Redirect if no appointment data
   useEffect(() => {
     if (!appointments || appointments.length === 0) {
@@ -77,11 +90,6 @@ const PaymentMethodPage = () => {
     }
   }, []);
 
-  // 🔥 1️⃣ pega studio_id do localStorage
-  useEffect(() => {
-    const id = localStorage.getItem("studio_id");
-    setStudioId(id);
-  }, []);
 
   const studioTaxa = studio?.studio_taxa || "0";
   const taxaType = studio?.taxa_type || "fixed";
