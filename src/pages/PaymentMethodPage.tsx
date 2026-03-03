@@ -41,7 +41,9 @@ interface PixResponse {
 
 const PaymentMethodPage = () => {
   const { studio, studioId, slug } = useStudio();
-  const [ruleStudio, setRuleStudio] = useState<{ id: string; rules_orden: number; rules: string; studio_id: string }[]>([]);
+  const [ruleStudio, setRuleStudio] = useState<
+    { id: string; rules_orden: number; rules: string; studio_id: string }[]
+  >([]);
   const baseURL_API = import.meta.env.VITE_API_URL || "http://localhost:3000";
   const location = useLocation();
   const navigate = useNavigate();
@@ -64,10 +66,13 @@ const PaymentMethodPage = () => {
     if (!slug) return;
     const fetchRules = async () => {
       try {
-        const response = await fetch(`${baseURL_API}/user/studio/${slug}`);
+        const response = await fetch(
+          `${baseURL_API}/user/studioRules/${studio.studio_id}`,
+        );
         if (response.ok) {
           const data = await response.json();
-          const rules = data.data?.rules || [];
+          console.log("Regras do studio recebidas:", data);
+          const rules = data.data?.studioRules || [];
           setRuleStudio(rules);
         }
       } catch (err) {
@@ -89,7 +94,6 @@ const PaymentMethodPage = () => {
       setAppointmentIds(JSON.parse(saved));
     }
   }, []);
-
 
   const studioTaxa = studio?.studio_taxa || "0";
   const taxaType = studio?.taxa_type || "fixed";
