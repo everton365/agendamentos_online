@@ -73,7 +73,7 @@ export const StudioProvider: React.FC<{ children: React.ReactNode }> = ({
     const fetchStudioInfo = async () => {
       const id = localStorage.getItem("studio_id");
       setStudioId(id);
-      if (!studioId) {
+      if (!id) {
         setError("Studio ID não configurado");
         setLoading(false);
         return;
@@ -82,7 +82,7 @@ export const StudioProvider: React.FC<{ children: React.ReactNode }> = ({
       try {
         setLoading(true);
         const response = await fetch(
-          `${baseURL}/user/informacoes/studios/${studioId}`,
+          `${baseURL}/user/informacoes/studios/${id}`,
         );
 
         if (!response.ok) {

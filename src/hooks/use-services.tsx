@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useStudio } from "@/contexts/StudioContext";
 
 interface Service {
   id: string;
@@ -16,15 +17,9 @@ export const useServices = () => {
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [studioId, setStudioId] = useState<string | null>(null);
 
   const baseURL = import.meta.env.VITE_API_URL;
-
-  // 🔥 1️⃣ pega studio_id do localStorage
-  useEffect(() => {
-    const id = localStorage.getItem("studio_id");
-    setStudioId(id);
-  }, []);
+  const { studioId } = useStudio();
 
   // 🔥 2️⃣ busca serviços quando studioId existir
   useEffect(() => {

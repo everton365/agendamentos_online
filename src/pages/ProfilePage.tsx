@@ -71,7 +71,6 @@ const ProfilePage = () => {
   const { studio } = useStudio();
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const [studioId, setStudioId] = useState<string | null>(null);
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -115,11 +114,6 @@ const ProfilePage = () => {
   );
   const baseURL = import.meta.env.VITE_API_URL;
 
-  // 🔥 1️⃣ pega studio_id do localStorage
-  useEffect(() => {
-    const id = localStorage.getItem("studio_id");
-    setStudioId(id);
-  }, []);
 
   useEffect(() => {
     // Adiciona um novo estado ao histórico
