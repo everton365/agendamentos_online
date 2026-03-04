@@ -111,7 +111,7 @@ const PixPaymentPage = () => {
 
             if (attempt === maxRetries) {
               toast({
-                title: "Erro no pagamento",
+                title: "Configure o PIX nas configuções do DashBoard",
                 description: error.message || "Tente novamente.",
                 variant: "destructive",
               });
