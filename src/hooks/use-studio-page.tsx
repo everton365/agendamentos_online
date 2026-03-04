@@ -92,7 +92,7 @@ export const useStudioPage = (
   const [notFound, setNotFound] = useState(false);
   const [subscription, setSubscription] = useState<any>(null); // Adicionado estado para assinatura
   const baseURL = import.meta.env.VITE_API_URL || "http://localhost:3000";
-  console.log("SLUG RECEBIDO:", slug);
+
   useEffect(() => {
     const fetchAll = async () => {
       if (!slug) {
@@ -117,7 +117,7 @@ export const useStudioPage = (
         }
 
         const json = await response.json();
-        console.log("Resposta da API:", json);
+
         if (!json.success) {
           setNotFound(true);
           setLoading(false);

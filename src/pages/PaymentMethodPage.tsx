@@ -59,8 +59,9 @@ const PaymentMethodPage = () => {
   const [loading, setLoading] = useState(false);
   const [preferenceUrl, setPreferenceUrl] = useState(null);
   const [appointmentIds, setAppointmentIds] = useState<string[]>([]);
-  const [userRole, setUserRole] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string | null>("user");
   const [acceptedPolicy, setAcceptedPolicy] = useState(false);
+
   // Fetch rules do studio usando o slug do contexto
   useEffect(() => {
     if (!slug) return;
@@ -72,7 +73,7 @@ const PaymentMethodPage = () => {
         if (response.ok) {
           const data = await response.json();
           console.log("Regras do studio recebidas:", data);
-          const rules = data.data?.studioRules || [];
+          const rules = data.data || [];
           setRuleStudio(rules);
         }
       } catch (err) {
@@ -277,7 +278,7 @@ const PaymentMethodPage = () => {
       },
     });
   };
-  console.log("studioId", totalPrice);
+  console.log("studioId", studioId);
   return (
     <div className="min-h-screen bg-gradient-hero pt-16">
       <Header />
@@ -396,7 +397,18 @@ const PaymentMethodPage = () => {
                 </h4>
                 <ul className="text-sm text-muted-foreground space-y-1">
                   {ruleStudio?.map((rule) => (
-                    <li key={rule.rules_orden}>• {rule.rules}</li>
+                    <li key={rule.rules_orden}>
+                      •{" "}
+                      {rule.rules
+                        .split(" ")
+                        .map((word, i) =>
+                          word === word.toUpperCase() && word.match(/[A-Z]/) ? (
+                            <strong key={i}>{word} </strong>
+                          ) : (
+                            word + " "
+                          ),
+                        )}
+                    </li>
                   ))}
                 </ul>
               </div>

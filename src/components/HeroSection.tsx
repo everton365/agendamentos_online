@@ -96,7 +96,7 @@ const HeroSection = () => {
             <Button
               size="lg"
               onClick={handleScheduleClick}
-              className="group w-56 h-14 text-base font-semibold"
+              className="group w-56 h-14 text-base font-semibold rounded-full"
               style={{ backgroundColor: "#D4AF37", color: "#000000ff" }}
             >
               <Calendar
@@ -114,7 +114,7 @@ const HeroSection = () => {
                   behavior: "smooth",
                 })
               }
-              className="w-56 h-14 text-base font-semibold hover:bg-[#D4AF37] hover:text-black"
+              className="w-56 h-14 text-base font-semibold rounded-full hover:bg-[#D4AF37] hover:text-black"
               style={{ borderColor: "#D4AF37", color: "#000000ff" }}
             >
               Ver Resultados
@@ -123,7 +123,7 @@ const HeroSection = () => {
 
           {/* Badge flutuante */}
           <div className="flex justify-center mt-4 mb-4 sm:mb-6">
-            <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-elegant p-2 inline-flex items-center gap-4">
+            <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl p-2 inline-flex items-center gap-4 animate-float shadow-xl">
               <div className="w-14 h-14 rounded-full flex items-center justify-center bg-black">
                 <Star className="w-7 h-7 text-[#D4AF37] fill-current" />
               </div>
