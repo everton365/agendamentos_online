@@ -139,7 +139,7 @@ const AuthPage = () => {
       const { error } = await supabase.auth.resetPasswordForEmail(
         signInData.email,
         {
-          redirectTo: "https://www.agenda-fastfy.com.br/reset-password",
+          redirectTo: `${window.location.origin}/reset-password`,
         },
       );
 
