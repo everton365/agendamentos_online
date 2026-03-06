@@ -48,12 +48,12 @@ const ResetPasswordPage = () => {
           });
 
           if (error) throw error;
-
           // Session is valid, user can reset password
         } catch (error: any) {
           toast({
             title: "Link inválido",
-            description: "O link de recuperação de senha é inválido ou expirou.",
+            description:
+              "O link de recuperação de senha é inválido ou expirou.",
             variant: "destructive",
           });
           navigate("/auth");
@@ -138,10 +138,10 @@ const ResetPasswordPage = () => {
             <div className="w-12 h-12 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-4">
               <span className="text-white font-bold text-lg">B</span>
             </div>
-            <CardTitle className="text-2xl font-bold">Redefinir Senha</CardTitle>
-            <CardDescription>
-              Digite sua nova senha abaixo
-            </CardDescription>
+            <CardTitle className="text-2xl font-bold">
+              Redefinir Senha
+            </CardTitle>
+            <CardDescription>Digite sua nova senha abaixo</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleResetPassword} className="space-y-4">
