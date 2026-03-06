@@ -9,11 +9,12 @@ import { useCart } from "@/contexts/CartContext";
 import type { StudioData } from "@/hooks/use-studio-page";
 
 interface HeroSectionProps {
-  studio: StudioData | null;
+  studio1: StudioData | null;
 }
-const HeroSection = () => {
+const HeroSection = ({ studio1 }: HeroSectionProps) => {
   const { user } = useAuth();
   const { loading, studio } = useStudio();
+
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { clearCart } = useCart();
@@ -59,7 +60,7 @@ const HeroSection = () => {
             >
               {loading
                 ? "Carregando..."
-                : studio?.nome_studio || "empresa.name"}
+                : studio?.nome_studio || studio1?.nome_studio || "empresa.name"}
             </span>
 
             {/* Camada visível com gradiente*/}

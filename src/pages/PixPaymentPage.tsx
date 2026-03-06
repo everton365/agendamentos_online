@@ -71,7 +71,7 @@ const PixPaymentPage = () => {
     const fetchPixPayment = async () => {
       setLoading(true);
 
-      const maxRetries = 2;
+      const maxRetries = 3;
 
       try {
         for (let attempt = 1; attempt <= maxRetries; attempt++) {
