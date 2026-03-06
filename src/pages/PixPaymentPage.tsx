@@ -92,7 +92,6 @@ const PixPaymentPage = () => {
                 })),
               }),
             });
-
             if (!response.ok) throw new Error("Erro ao gerar PIX");
 
             const data = await response.json();
