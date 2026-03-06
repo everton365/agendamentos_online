@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { useState } from "react";
+import { useState, memo } from "react";
 import { Link } from "react-router-dom";
 import type { ServiceData } from "@/hooks/use-studio-page";
 
@@ -7,7 +7,7 @@ interface ServicesSectionProps {
   services: ServiceData[];
 }
 
-const ServicesSection = ({ services }: ServicesSectionProps) => {
+const ServicesSection = memo(({ services }: ServicesSectionProps) => {
   const [showAll, setShowAll] = useState(false);
 
   if (!services) {
@@ -98,6 +98,8 @@ const ServicesSection = ({ services }: ServicesSectionProps) => {
       </div>
     </section>
   );
-};
+});
+
+ServicesSection.displayName = "ServicesSection";
 
 export default ServicesSection;
