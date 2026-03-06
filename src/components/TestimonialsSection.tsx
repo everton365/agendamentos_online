@@ -14,10 +14,6 @@ const TestimonialsSection = memo(({ reviews }: TestimonialsSection) => {
   const { loading, error } = useReviews();
   const [showAll, setShowAll] = useState(false);
 
-  if (error) {
-    return null;
-  }
-
   const visibleReviews = showAll ? reviews : reviews.slice(0, 4);
 
   const averageRating = useMemo(() =>
@@ -28,6 +24,10 @@ const TestimonialsSection = memo(({ reviews }: TestimonialsSection) => {
       : "5.0",
     [reviews]
   );
+
+  if (error) {
+    return null;
+  }
 
   return (
     <section className="py-24 bg-background">
