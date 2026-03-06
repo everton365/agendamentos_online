@@ -103,6 +103,9 @@ const AboutUs = ({ studio }: AboutUs) => {
           <img
             src={studio?.foto_studio}
             alt={`Studio ${studio?.nome_studio || ""}`}
+            loading="lazy"
+            width={600}
+            height={600}
             className="w-full h-full object-cover rounded-2xl shadow-elegant border-4 border-white"
             data-aos="fade-left"
           />

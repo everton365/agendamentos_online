@@ -35,6 +35,9 @@ const ServicesSection = ({ services }: ServicesSectionProps) => {
                       <img
                         src={service.image}
                         alt={service.name}
+                        loading="lazy"
+                        width={400}
+                        height={240}
                         className="w-full h-60 object-cover rounded-xl mb-4"
                       />
                     )}
