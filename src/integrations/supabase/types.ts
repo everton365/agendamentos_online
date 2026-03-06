@@ -95,11 +95,14 @@ export type Database = {
           date_inicio: string | null
           email_studio: string | null
           id: number
+          last_login: string | null
           link_studio: string | null
           name: string | null
           new_id: string | null
           number: string | null
           plano: string | null
+          reset_token: string | null
+          reset_token_expires: string | null
           senhas: string | null
           status: string | null
           studio_slog: string | null
@@ -114,11 +117,14 @@ export type Database = {
           date_inicio?: string | null
           email_studio?: string | null
           id?: number
+          last_login?: string | null
           link_studio?: string | null
           name?: string | null
           new_id?: string | null
           number?: string | null
           plano?: string | null
+          reset_token?: string | null
+          reset_token_expires?: string | null
           senhas?: string | null
           status?: string | null
           studio_slog?: string | null
@@ -133,11 +139,14 @@ export type Database = {
           date_inicio?: string | null
           email_studio?: string | null
           id?: number
+          last_login?: string | null
           link_studio?: string | null
           name?: string | null
           new_id?: string | null
           number?: string | null
           plano?: string | null
+          reset_token?: string | null
+          reset_token_expires?: string | null
           senhas?: string | null
           status?: string | null
           studio_slog?: string | null
