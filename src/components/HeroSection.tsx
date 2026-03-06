@@ -36,6 +36,10 @@ const HeroSection = () => {
       <img
         src={studio?.foto_capa}
         alt="Capa Desktop"
+        loading="eager"
+        fetchPriority="high"
+        width={1350}
+        height={900}
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-40 w-auto h-[100dvh] max-w-full object-contain md:w-[120%] md:h-[120%] md:object-cover"
       />
 

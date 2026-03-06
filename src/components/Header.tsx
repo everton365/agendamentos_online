@@ -96,6 +96,9 @@ const Header = () => {
               <img
                 src={studio?.logoStudio}
                 alt="Logo do Studio"
+                loading="eager"
+                width={140}
+                height={64}
                 className="w-full h-full object-contain"
               />
             </div>

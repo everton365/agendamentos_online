@@ -73,6 +73,9 @@ const ResultsCarousel = ({ results }: ResultsCarousel) => {
                           <img
                             src={result.imagem_url}
                             alt={result.titulo}
+                            loading="lazy"
+                            width={500}
+                            height={320}
                             className="w-full min-h-[16rem] object-cover group-hover:scale-105 transition-transform duration-300"
                           />
                           <div className="absolute top-4 left-4">

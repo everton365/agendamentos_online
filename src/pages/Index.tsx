@@ -1,18 +1,27 @@
 import { useParams, useLocation } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense, memo } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { useStudioPage } from "@/hooks/use-studio-page";
 import { useStudio } from "@/contexts/StudioContext";
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
-import ServicesSection from "@/components/ServicesSection";
-import ResultsCarousel from "@/components/ResultsCarousel";
-import TestimonialsSection from "@/components/TestimonialsSection";
-import Footer from "@/components/Footer";
-import AboutUs from "@/components/aboutUs";
 import NotFound from "@/pages/NotFound";
 import { Skeleton } from "@/components/ui/skeleton";
+import LazySection from "@/components/LazySection";
+
+// Lazy load below-fold sections
+const ServicesSection = lazy(() => import("@/components/ServicesSection"));
+const AboutUs = lazy(() => import("@/components/aboutUs"));
+const ResultsCarousel = lazy(() => import("@/components/ResultsCarousel"));
+const TestimonialsSection = lazy(() => import("@/components/TestimonialsSection"));
+const Footer = lazy(() => import("@/components/Footer"));
+
+const SectionSkeleton = ({ height = "h-96" }: { height?: string }) => (
+  <div className="container mx-auto px-6 py-12">
+    <Skeleton className={`${height} w-full rounded-lg`} />
+  </div>
+);
 
 const StudioPage = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -29,8 +38,6 @@ const StudioPage = () => {
     if (studio?.nome_studio) {
       document.title = studio.nome_studio;
     }
-
-    // Favicon dinâmico
     if (studio?.logoStudio) {
       let link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
       if (!link) {
@@ -40,7 +47,6 @@ const StudioPage = () => {
       }
       link.href = studio.logoStudio;
     }
-
     return () => {
       document.title = "Sistema de Agendamento";
     };
@@ -94,17 +100,42 @@ const StudioPage = () => {
         <Header />
       </div>
       <HeroSection />
+
       <div id="servicos">
-        <ServicesSection services={services} />
+        <LazySection minHeight="400px">
+          <Suspense fallback={<SectionSkeleton />}>
+            <ServicesSection services={services} />
+          </Suspense>
+        </LazySection>
       </div>
+
       <div id="sobre">
-        <AboutUs studio={studio} />
+        <LazySection minHeight="400px">
+          <Suspense fallback={<SectionSkeleton />}>
+            <AboutUs studio={studio} />
+          </Suspense>
+        </LazySection>
       </div>
+
       <div id="resultados">
-        <ResultsCarousel results={results} />
+        <LazySection minHeight="400px">
+          <Suspense fallback={<SectionSkeleton />}>
+            <ResultsCarousel results={results} />
+          </Suspense>
+        </LazySection>
       </div>
-      <TestimonialsSection reviews={reviews} />
-      <Footer />
+
+      <LazySection minHeight="400px">
+        <Suspense fallback={<SectionSkeleton />}>
+          <TestimonialsSection reviews={reviews} />
+        </Suspense>
+      </LazySection>
+
+      <LazySection minHeight="200px">
+        <Suspense fallback={<SectionSkeleton height="h-48" />}>
+          <Footer />
+        </Suspense>
+      </LazySection>
     </main>
   );
 };

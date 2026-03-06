@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, memo, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Star } from "lucide-react";
 import { useReviews } from "@/hooks/use-reviews";
@@ -10,22 +10,24 @@ interface TestimonialsSection {
   reviews: ReviewData[];
 }
 
-const TestimonialsSection = ({ reviews }: TestimonialsSection) => {
+const TestimonialsSection = memo(({ reviews }: TestimonialsSection) => {
   const { loading, error } = useReviews();
   const [showAll, setShowAll] = useState(false);
 
-  if (error) {
-    return null;
-  }
-
   const visibleReviews = showAll ? reviews : reviews.slice(0, 4);
 
-  const averageRating =
+  const averageRating = useMemo(() =>
     reviews.length > 0
       ? (
           reviews.reduce((sum, r) => sum + r.estrelas, 0) / reviews.length
         ).toFixed(1)
-      : "5.0";
+      : "5.0",
+    [reviews]
+  );
+
+  if (error) {
+    return null;
+  }
 
   return (
     <section className="py-24 bg-background">
@@ -131,6 +133,8 @@ const TestimonialsSection = ({ reviews }: TestimonialsSection) => {
       </div>
     </section>
   );
-};
+});
+
+TestimonialsSection.displayName = "TestimonialsSection";
 
 export default TestimonialsSection;
