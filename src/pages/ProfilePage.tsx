@@ -39,6 +39,7 @@ import Header from "@/components/Header";
 import { useCart } from "@/contexts/CartContext";
 import { useNavigate } from "react-router-dom";
 import { useStudio } from "@/contexts/StudioContext";
+import { StudioData } from "@/hooks/use-studio-page";
 interface Profile {
   display_name: string | null;
   phone: string | null;
@@ -67,8 +68,13 @@ type Slot = {
   displayStatus?: string;
 };
 
-const ProfilePage = () => {
+interface HeroSectionProps {
+  studio1: StudioData | null;
+}
+
+const ProfilePage = (studio1: StudioData | null) => {
   const { studio } = useStudio();
+  console.log("Studio no ProfilePage:", studio);
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -114,6 +120,12 @@ const ProfilePage = () => {
   );
   const baseURL = import.meta.env.VITE_API_URL;
 
+  useEffect(() => {
+    if (!user?.id || !studio?.studio_id) return;
+
+    fetchProfile();
+    fetchAppointments();
+  }, [user?.id, studio?.studio_id]);
 
   useEffect(() => {
     // Adiciona um novo estado ao histórico
@@ -159,7 +171,7 @@ const ProfilePage = () => {
     return hours + minutes;
   };
   const fetchProfile = async () => {
-    if (!user?.id) return;
+    if (!user?.id || !studio?.studio_id) return;
 
     try {
       const { data, error } = await supabase
@@ -181,6 +193,7 @@ const ProfilePage = () => {
       console.error("Erro ao buscar perfil:", error);
     }
   };
+  console.log("Profile state:", profile);
 
   const fetchAppointments = async () => {
     if (!user?.id) return;
@@ -264,13 +277,6 @@ const ProfilePage = () => {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    if (user) {
-      fetchProfile();
-      fetchAppointments();
-    }
-  }, [user]);
 
   const canReschedule = (appointmentDate: string, appointmentTime: string) => {
     const appointmentDateTime = parseISO(

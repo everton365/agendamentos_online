@@ -94,6 +94,16 @@ export const useStudioPage = (
   const baseURL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
   useEffect(() => {
+    if (studio?.studio_id) {
+      const currentStudio = localStorage.getItem("studio_id");
+
+      if (currentStudio !== String(studio.studio_id)) {
+        localStorage.setItem("studio_id", String(studio.studio_id));
+      }
+    }
+  }, [studio?.studio_id]);
+
+  useEffect(() => {
     const fetchAll = async () => {
       if (!slug) {
         setLoading(false);
