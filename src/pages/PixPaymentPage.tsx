@@ -13,7 +13,8 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import { useCart } from "@/contexts/CartContext";
-
+import { useStudio } from "@/contexts/StudioContext";
+import { da } from "date-fns/locale";
 interface PixPaymentData {
   payment_id: number;
   qr_code_base64: string;
@@ -35,6 +36,7 @@ interface AppointmentData {
 }
 
 const PixPaymentPage = () => {
+  const { studio } = useStudio();
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -95,7 +97,12 @@ const PixPaymentPage = () => {
             if (!response.ok) throw new Error("Erro ao gerar PIX");
 
             const data = await response.json();
-
+            console.log("✅ PIX gerado:", data);
+            if (data?.status === "confirmed") {
+              clearCart();
+              navigate("/perfil");
+              return;
+            }
             setPixPaymentData(data);
             localStorage.setItem("pixPaymentData", JSON.stringify(data));
 
