@@ -14,7 +14,9 @@ import LazySection from "@/components/LazySection";
 const ServicesSection = lazy(() => import("@/components/ServicesSection"));
 const AboutUs = lazy(() => import("@/components/aboutUs"));
 const ResultsCarousel = lazy(() => import("@/components/ResultsCarousel"));
-const TestimonialsSection = lazy(() => import("@/components/TestimonialsSection"));
+const TestimonialsSection = lazy(
+  () => import("@/components/TestimonialsSection"),
+);
 const Footer = lazy(() => import("@/components/Footer"));
 
 const SectionSkeleton = ({ height = "h-96" }: { height?: string }) => (
@@ -99,7 +101,7 @@ const StudioPage = () => {
       <div id="inicio">
         <Header />
       </div>
-      <HeroSection />
+      <HeroSection studioA={studio} />
 
       <div id="servicos">
         <LazySection minHeight="400px">
@@ -112,7 +114,7 @@ const StudioPage = () => {
       <div id="sobre">
         <LazySection minHeight="400px">
           <Suspense fallback={<SectionSkeleton />}>
-            <AboutUs studio={studio} />
+            <AboutUs studioA={studio} />
           </Suspense>
         </LazySection>
       </div>

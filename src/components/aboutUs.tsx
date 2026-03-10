@@ -3,11 +3,13 @@ import { useStudio } from "@/contexts/StudioContext";
 import type { StudioData } from "@/hooks/use-studio-page";
 
 interface AboutUs {
-  studio: StudioData | null;
+  studioA: StudioData | null;
 }
 
-const AboutUs = ({ studio }: AboutUs) => {
+const AboutUs = ({ studioA }: AboutUs) => {
   const { loading } = useStudio();
+  const { studio } = useStudio();
+
   return (
     <section id="about" className="py-24 bg-background">
       <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
@@ -17,7 +19,7 @@ const AboutUs = ({ studio }: AboutUs) => {
             className="text-4xl font-cinzel font-bold text-foreground"
             data-aos="fade-right"
           >
-            Sobre o {studio?.nome_studio}
+            Sobre {studio?.nome_studio}
           </h2>
           <p
             className="text-lg font-poppins text-muted-foreground leading-relaxed"
@@ -25,13 +27,13 @@ const AboutUs = ({ studio }: AboutUs) => {
           >
             {loading ? (
               "Carregando informações..."
-            ) : studio?.sobre ? (
+            ) : studioA?.sobre ? (
               <>
                 Bem-vindo ao{" "}
                 <span className="font-semibold text-primary">
-                  {studio.nome_studio || "Nosso Studio"}
+                  {studioA.nome_studio || "Nosso Studio"}
                 </span>{" "}
-                {studio.sobre}
+                {studioA.sobre}
               </>
             ) : (
               <>
@@ -101,8 +103,8 @@ const AboutUs = ({ studio }: AboutUs) => {
           data-aos="fade-left"
         >
           <img
-            src={studio?.foto_studio}
-            alt={`Studio ${studio?.nome_studio || ""}`}
+            src={studioA?.foto_studio}
+            alt={`Studio ${studioA?.nome_studio || ""}`}
             loading="lazy"
             width={600}
             height={600}

@@ -12,12 +12,16 @@ import {
 import { Calendar, LogOut, User, Menu, X } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useStudio } from "@/contexts/StudioContext";
-import logo from "../assets/logo.png";
+
 import { supabase } from "@/integrations/supabase/client";
 import { CartDrawer } from "./CartDrawer";
-import { useStudioPage } from "@/hooks/use-studio-page";
+import { StudioData, useStudioPage } from "@/hooks/use-studio-page";
 
-const Header = () => {
+interface HeaderProps {
+  studioH: StudioData | null;
+}
+
+const Header = ({ studioH }: HeaderProps) => {
   const { slug: paramSlug } = useParams<{ slug: string }>();
   const { slug: contextSlug, studio } = useStudio();
   const slug = paramSlug || contextSlug;
@@ -25,6 +29,8 @@ const Header = () => {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const logo = studio?.logoStudio || studioH?.logoStudio;
+  const studioId = studio?.studio_id || studioH?.studio_id;
 
   const [profile, setProfile] = useState<{
     display_name?: string;
@@ -42,13 +48,16 @@ const Header = () => {
     }
     setMobileMenuOpen(false);
   };
+
   const fetchProfile = async () => {
+    if (!studio) return;
     try {
       const { data, error } = await supabase
+
         .from("profiles")
         .select("*")
         .eq("user_id", user?.id)
-        .eq("studio_id", studio.studio_id)
+        .eq("studio_id", studioId)
         .maybeSingle();
       if (error) throw error;
       if (data) {
@@ -64,7 +73,7 @@ const Header = () => {
 
   useEffect(() => {
     if (user) fetchProfile();
-  }, [user]);
+  }, [user, studio, studioH]);
 
   const navItems = [
     { label: "Início", href: "inicio" },
@@ -94,9 +103,10 @@ const Header = () => {
           <Link to={`/${slug}`} className="flex items-center flex-shrink-0">
             <div className="h-16 w-auto max-w-[140px]">
               <img
-                src={studio?.logoStudio}
+                src={logo}
                 alt="Logo do Studio"
                 loading="eager"
+                decoding="async"
                 width={140}
                 height={64}
                 className="w-full h-full object-contain"

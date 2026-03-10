@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-
+import { useAuth } from "@/contexts/AuthContext";
 interface HorarioFuncionamento {
   abertura: string;
   fechamento: string;
@@ -62,7 +62,7 @@ export const StudioProvider: React.FC<{ children: React.ReactNode }> = ({
     localStorage.getItem("studio_slug"),
   );
   const [studioId, setStudioId] = useState<string | null>(null);
-
+  const { user, signOut } = useAuth();
   const setSlug = (newSlug: string) => {
     setSlugState(newSlug);
     localStorage.setItem("studio_slug", newSlug);

@@ -9,9 +9,9 @@ import { useCart } from "@/contexts/CartContext";
 import type { StudioData } from "@/hooks/use-studio-page";
 
 interface HeroSectionProps {
-  studio1: StudioData | null;
+  studioA: StudioData | null;
 }
-const HeroSection = ({ studio1 }: HeroSectionProps) => {
+const HeroSection = ({ studioA }: HeroSectionProps) => {
   const { user } = useAuth();
   const { loading, studio } = useStudio();
 
@@ -35,10 +35,10 @@ const HeroSection = ({ studio1 }: HeroSectionProps) => {
     <section className="relative w-full max-w-[1350px] mx-auto h-screen  overflow-hidden flex items-center justify-center">
       {/* Imagem de fundo */}
       <img
-        src={studio?.foto_capa}
+        src={studio?.foto_capa || studioA?.foto_capa}
         alt="Capa Desktop"
         loading="eager"
-        fetchPriority="high"
+        decoding="async"
         width={1350}
         height={900}
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-40 w-auto h-[100dvh] max-w-full object-contain md:w-[120%] md:h-[120%] md:object-cover"
@@ -60,7 +60,7 @@ const HeroSection = ({ studio1 }: HeroSectionProps) => {
             >
               {loading
                 ? "Carregando..."
-                : studio?.nome_studio || studio1?.nome_studio || "empresa.name"}
+                : studio?.nome_studio || studioA?.nome_studio}
             </span>
 
             {/* Camada visível com gradiente*/}
@@ -73,7 +73,7 @@ const HeroSection = ({ studio1 }: HeroSectionProps) => {
             >
               {loading
                 ? "Carregando..."
-                : studio?.nome_studio || "empresa.name"}
+                : studio?.nome_studio || studioA?.nome_studio}
             </span>
           </h1>
 
