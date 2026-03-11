@@ -184,19 +184,12 @@ const AuthPage = () => {
     setLoading(true);
 
     try {
-      // Clean up existing state
       cleanupAuthState();
 
-      // Attempt global sign out
-      try {
-        await supabase.auth.signOut({ scope: "global" });
-      } catch (err) {
-        // Continue even if this fails
-      }
-
-      const redirectUrl = `${window.location.origin}/${slug}`;
       const studioId = studio?.studio_id;
+      const redirectUrl = `${window.location.origin}/${slug}`;
 
+      // tenta criar usuário
       const { data, error } = await supabase.auth.signUp({
         email: signUpData.email,
         password: signUpData.password,
@@ -209,110 +202,53 @@ const AuthPage = () => {
         },
       });
 
-      if (error) {
-        if (error.message.includes("User already registered")) {
-          // Email já existe, verificar se tem perfil neste studio
-          try {
-            const loginResult = await supabase.auth.signInWithPassword({
-              email: signUpData.email,
-              password: signUpData.password,
-            });
+      let userId: string | null = data?.user?.id || null;
 
-            if (loginResult.error) {
-              throw new Error(
-                "Email já cadastrado mas senha incorreta. Tente fazer login.",
-              );
-            }
+      // se usuário já existe
+      if (error && error.message.includes("User already registered")) {
+        const { data: loginData, error: loginError } =
+          await supabase.auth.signInWithPassword({
+            email: signUpData.email,
+            password: signUpData.password,
+          });
 
-            if (loginResult.data?.user) {
-              const userId = loginResult.data.user.id;
-
-              // Verificar se já existe perfil neste studio
-              // @ts-ignore
-              const profileQuery = (await supabase
-                .from("profiles")
-                .select("id, studio_id")
-                .eq("user_id", userId)
-                .eq("studio_id", studioId)) as any;
-
-              const existingProfiles = profileQuery.data;
-              const profileError = profileQuery.error;
-
-              if (profileError) {
-                console.error("Erro ao verificar perfil:", profileError);
-                throw new Error("Erro ao verificar perfil existente.");
-              }
-
-              if (!existingProfiles || existingProfiles.length === 0) {
-                // Criar novo perfil para este studio
-                const insertResult: any = await supabase
-                  .from("profiles")
-                  .insert({
-                    user_id: userId,
-                    display_name: signUpData.displayName || null,
-                    phone: signUpData.phone || null,
-                    studio_id: studioId,
-                    role: "user",
-                  });
-
-                if (insertResult.error) {
-                  console.error("Erro ao criar perfil:", insertResult.error);
-                  throw new Error("Erro ao criar perfil para este studio.");
-                }
-
-                toast({
-                  title: "Perfil criado!",
-                  description: "Você agora tem acesso a este studio.",
-                });
-                window.location.href = `/${slug}`; // Redireciona para a página do studio
-                return;
-              } else {
-                // Perfil já existe para este studio
-                toast({
-                  title: "Sucesso!",
-                  description: "Login realizado com sucesso.",
-                });
-                window.location.href = `/${slug}`;
-                return;
-              }
-            }
-          } catch (loginError: any) {
-            throw new Error(
-              loginError.message || "Email já cadastrado mas senha incorreta.",
-            );
-          }
+        if (loginError) {
+          throw new Error("Email já cadastrado, mas a senha está incorreta.");
         }
-        throw error;
+
+        userId = loginData.user.id;
       }
 
-      if (data.user) {
-        // Create profile with studio_id
+      if (!userId) {
+        throw new Error("Erro ao obter usuário.");
+      }
+
+      // verificar se já existe profile nesse studio
+      const { data: existingProfile } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("user_id", userId)
+        .eq("studio_id", studioId)
+        .maybeSingle();
+
+      if (!existingProfile) {
         const { error: profileError } = await supabase.from("profiles").insert({
-          user_id: data.user.id,
+          user_id: userId,
           display_name: signUpData.displayName || null,
           phone: signUpData.phone || null,
           studio_id: studioId,
           role: "user",
         });
 
-        if (profileError) {
-          console.error("Error creating profile:", profileError);
-        }
-
-        toast({
-          title: "Cadastro realizado!",
-          description: "Verifique seu email para confirmar sua conta.",
-        });
-
-        // Clear form
-        setSignUpData({
-          email: "",
-          password: "",
-          confirmPassword: "",
-          displayName: "",
-          phone: "",
-        });
+        if (profileError) throw profileError;
       }
+
+      toast({
+        title: "Sucesso!",
+        description: "Conta vinculada ao studio com sucesso.",
+      });
+
+      window.location.href = `/${slug}`;
     } catch (error: any) {
       toast({
         title: "Erro no cadastro",

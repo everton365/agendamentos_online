@@ -97,7 +97,7 @@ const PixPaymentPage = () => {
             if (!response.ok) throw new Error("Erro ao gerar PIX");
 
             const data = await response.json();
-            console.log("✅ PIX gerado:", data);
+
             if (data?.status === "confirmed") {
               clearCart();
               navigate("/perfil");
@@ -149,7 +149,7 @@ const PixPaymentPage = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-hero pt-16">
-        <Header />
+        <Header studioH={studio} />
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-2xl mx-auto">
             <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
@@ -173,7 +173,7 @@ const PixPaymentPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-hero pt-16">
-      <Header />
+      <Header studioH={studio} />
 
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">

@@ -28,9 +28,9 @@ const AppointmentBookingPage = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const [selectedService, setSelectedService] = useState("");
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { studio } = useStudio();
-  console.log("Studio no AppointmentBookingPage:", studio);
+
   const { appointments, addAppointment, getTotalBookingFee } = useCart();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -102,18 +102,17 @@ const AppointmentBookingPage = () => {
   useEffect(() => {
     if (!user) {
       navigate("/auth");
-    } else {
-      // Auto-fill name, email e phone do user
-      setFormData((prev) => ({
-        ...prev,
-        name:
-          user.user_metadata?.display_name || user.user_metadata?.name || "",
-        email: user.email || "",
-        phone: user.user_metadata?.phone || "",
-      }));
+      return;
     }
-  }, [user, navigate]);
 
+    // só preenche se ainda estiver vazio
+    setFormData((prev) => ({
+      ...prev,
+      name: prev.name || profile?.display_name || "",
+      email: prev.email || user.email || "",
+      phone: prev.phone || profile?.phone || "",
+    }));
+  }, [user, profile]);
   useEffect(() => {
     // Remove do localStorage depois de pegar
     localStorage.removeItem("appointmentId");
@@ -787,7 +786,7 @@ const AppointmentBookingPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-hero pt-16">
-      <Header />
+      <Header studioH={studio} />
 
       <div className="mx-auto w-full max-w-7xl px-3 sm:px-4 md:px-6 py-4 md:py-8">
         <div className="max-w-4xl mx-auto">
@@ -1210,7 +1209,14 @@ const AppointmentBookingPage = () => {
                       disabled={appointments.length === 0}
                     >
                       <Calendar className="w-5 h-5 sm:w-6 sm:h-6 mr-2" />
-                      Finalizar (R$ {getTotalBookingFee(studio?.studio_taxa, studio?.taxa_type).toFixed(2).replace(".", ",")})
+                      Finalizar (R${" "}
+                      {getTotalBookingFee(
+                        studio?.studio_taxa,
+                        studio?.taxa_type,
+                      )
+                        .toFixed(2)
+                        .replace(".", ",")}
+                      )
                     </Button>
                   </div>
                 </form>

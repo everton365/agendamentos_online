@@ -72,7 +72,7 @@ const PaymentMethodPage = () => {
         );
         if (response.ok) {
           const data = await response.json();
-          console.log("Regras do studio recebidas:", data);
+
           const rules = data.data || [];
           setRuleStudio(rules);
         }
@@ -154,7 +154,7 @@ const PaymentMethodPage = () => {
 
     fetchUserRole();
   }, []);
-  console.log("userRole", userRole);
+
   useEffect(() => {
     const savedAppointmentId = localStorage.getItem("appointmentId");
 
@@ -278,10 +278,10 @@ const PaymentMethodPage = () => {
       },
     });
   };
-  console.log("studioId", studioId);
+
   return (
     <div className="min-h-screen bg-gradient-hero pt-16">
-      <Header />
+      <Header studioH={studio} />
 
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">

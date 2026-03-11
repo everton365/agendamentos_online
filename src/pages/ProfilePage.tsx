@@ -74,7 +74,7 @@ interface HeroSectionProps {
 
 const ProfilePage = (studio1: StudioData | null) => {
   const { studio } = useStudio();
-  console.log("Studio no ProfilePage:", studio);
+
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -193,7 +193,6 @@ const ProfilePage = (studio1: StudioData | null) => {
       console.error("Erro ao buscar perfil:", error);
     }
   };
-  console.log("Profile state:", profile);
 
   const fetchAppointments = async () => {
     if (!user?.id) return;
@@ -627,7 +626,7 @@ const ProfilePage = (studio1: StudioData | null) => {
 
   return (
     <div className="min-h-screen bg-background pt-16">
-      <Header />
+      <Header studioH={studio} />
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto space-y-8">
           {/* Perfil */}
