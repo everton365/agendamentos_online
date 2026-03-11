@@ -99,7 +99,7 @@ const StudioPage = () => {
   return (
     <main className="min-h-screen bg-gradient-elegant pt-16">
       <div id="inicio">
-        <Header />
+        <Header studioH={studio} />
       </div>
       <HeroSection studioA={studio} />
 
