@@ -47,13 +47,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     // Set up auth state listener FIRST
     const getProfile = async (userId: string) => {
       const studioId = localStorage.getItem("studio_id");
-
+      console.log(
+        "Fetching profile for user:",
+        userId,
+        "and studio:",
+        studioId,
+      );
       if (!studioId) return;
 
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
-        .eq("user_id", userId)
+        .eq("user_id", user.id)
         .eq("studio_id", studioId)
         .single();
 
@@ -61,6 +66,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         setProfile(data);
       }
     };
+
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {

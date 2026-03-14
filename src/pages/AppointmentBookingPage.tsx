@@ -52,7 +52,7 @@ const AppointmentBookingPage = () => {
     time: "",
     message: "",
   });
-
+  console.log("User profile:", profile, "User role:", user);
   const [timeSlots, setTimeSlots] = useState<
     {
       time: string;

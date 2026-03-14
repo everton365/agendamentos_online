@@ -41,7 +41,7 @@ const HeroSection = ({ studioA }: HeroSectionProps) => {
         decoding="async"
         width={1350}
         height={900}
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-40 w-auto h-[100dvh] max-w-full object-contain md:w-[120%] md:h-[120%] md:object-cover"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2  w-auto h-[100dvh] max-w-full object-contain md:w-[120%] md:h-[120%] md:object-cover"
       />
 
       {/* Conteúdo */}
@@ -92,7 +92,7 @@ const HeroSection = ({ studioA }: HeroSectionProps) => {
           </h2>
 
           {/* Descrição */}
-          <p className="text-lg font-poppins text-muted-foreground max-w-2xl mx-auto mt-16 mb-16 leading-snug">
+          <p className="text-lg font-poppins text-foreground max-w-2xl mx-auto mt-16 mb-16 leading-snug">
             {studio?.description_studio}
           </p>
 
